@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <h1>
+            CTAF
+        </h1>
+    </head>
+    <body>
+        <div class="container">
+            <form action ="/post" method = "post">
+                <label for="event_name">Event Name: </label>
+                <input type = "text" id="event_name"><br>
+                <button type="button">Dates and times</button>
+                <button type ="button">Dates only</button><br>
+                <label for="event_time">What times might work?</label>
+                <input type="text" id="event_time"><br>
+                <label for="event_date">What dates might work?</label>
+                <select name = "event_date" id="event_date">
+                    <option value ="SpecificDates"> Specific Dates</option>
+                    <option value ="DaysOfTheWeek"> Days of the week</option>
+                </select><br>
+                <label>Drag to select multiple dates</label><br>
+                <button type="submit" href="main-page.html" target="blank">Submit</button>
+            </form>
+        </div>
+    </body>
+</html>
