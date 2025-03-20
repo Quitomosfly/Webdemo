@@ -20,13 +20,6 @@ app.get('/', (req, res) => {
 app.use(cors());
 app.use(bodyParser.json()); // Parse JSON data
 
-// MongoDB Compass Connection (Localhost)
-mongoose.connect('mongodb://localhost:27017/eventsDB', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
-.then(() => console.log('MongoDB connected successfully (Compass)'))
-.catch(err => console.error('MongoDB connection error:', err));
 
 // Define Event Schema
 const eventSchema = new mongoose.Schema({
