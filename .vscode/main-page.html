@@ -1,10 +1,89 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <h1>wdadaw</h1>
+<head>
+    <title>Schedule Selector</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        td, th {
+            border: 1px solid #ccc;
+            width: 100px;
+            height: 40px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .selected {
+            background-color: #4CAF50; /* Green */
+        }
+    </style>
+</head>
+<body>
+    <h1>Schedule Selector</h1>
+    <table id="scheduleTable">
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Tuesday</th>
+                <th>Wednesday</th>
+                <th>Thursday</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>9 AM</td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>10 AM</td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>11 AM</td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>12 PM</td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <!-- Add more rows as needed -->
+        </tbody>
+    </table>
 
-    </head>
-    <body>
+    <script>
+        const table = document.getElementById('scheduleTable');
+        let isMouseDown = false;
 
-    </body>
+        // Event listener for drag selection
+        table.addEventListener('mousedown', (event) => {
+            if (event.target.tagName === 'TD') {
+                isMouseDown = true;
+                toggleSelection(event.target);
+            }
+        });
+
+        table.addEventListener('mouseover', (event) => {
+            if (isMouseDown && event.target.tagName === 'TD') {
+                toggleSelection(event.target);
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isMouseDown = false;
+        });
+
+        function toggleSelection(cell) {
+            cell.classList.toggle('selected');
+        }
+    </script>
+</body>
 </html>

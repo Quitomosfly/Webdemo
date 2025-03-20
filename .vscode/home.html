@@ -1,27 +1,299 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <h1>
-            CTAF
-        </h1>
-    </head>
-    <body>
-        <div class="container">
-            <form action ="/post" method = "post">
-                <label for="event_name">Event Name: </label>
-                <input type = "text" id="event_name"><br>
-                <button type="button">Dates and times</button>
-                <button type ="button">Dates only</button><br>
-                <label for="event_time">What times might work?</label>
-                <input type="text" id="event_time"><br>
-                <label for="event_date">What dates might work?</label>
-                <select name = "event_date" id="event_date">
-                    <option value ="SpecificDates"> Specific Dates</option>
-                    <option value ="DaysOfTheWeek"> Days of the week</option>
-                </select><br>
-                <label>Drag to select multiple dates</label><br>
-                <button type="submit" href="main-page.html" target="blank">Submit</button>
-            </form>
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <style>
+        .day-container, .date-container {
+            display: none; /* Initially hidden */
+            margin-top: 10px;
+        }
+
+        .visible {
+            display: flex;
+            gap: 5px;
+        }
+
+        .day {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .selected {
+            background-color: #d1e7dd;  
+            color: #198754;            
+            font-weight: bold;
+        }
+
+        .flatpickr-calendar {
+            display: block;  /* Force calendar to be always visible */
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .toggle-btn {
+            padding: 10px 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #f3f3f3;
+            outline: none;
+        }
+
+        .timeContainer{
+            display: flex;
+        }
+
+        .active {
+            background-color: #d1e7dd;  /* Green active state */
+            color: #198754;
+            font-weight: bold;
+        }
+
+        .calendar-container {
+            display: none; /* Hidden by default */
+            margin-top: 10px;
+        }
+
+        .calendar-visible {
+            display: block; /* Visible when 'Dates Only' is active */
+        }
+    </style>
+</head>
+<body>
+    <h1>New Event</h1>
+    <form>
+        <input type="text" id="event_name" name="event_name" placeholder="Name your event..."><br>
+
+        <div class="btn-container">
+            <button type="button" class="toggle-btn" id="datesAndTimesBtn">Dates and times</button>
+            <button type="button" class="toggle-btn active" id="datesOnlyBtn">Dates only</button>
         </div>
-    </body>
+
+        <div class="timeContainer" id ="timeContainer">
+            <label for="event-time">What times might work?</label><br>
+                <select id="event_first_interval_time" name="event_first_interval_time">
+                    <option value="00:00">12 am</option>
+                    <option value="01:00">1 am</option>
+                    <option value="02:00">2 am</option>
+                    <option value="03:00">3 am</option>
+                    <option value="04:00">4 am</option>
+                    <option value="05:00">5 am</option>
+                    <option value="06:00">6 am</option>
+                    <option value="07:00">7 am</option>
+                    <option value="08:00">8 am</option>
+                    <option value="09:00">9 am</option>
+                    <option value="10:00">10 am</option>
+                    <option value="11:00">11 am</option>
+                    <option value="12:00">12 pm</option>
+                    <option value="13:00">1 pm</option>
+                    <option value="14:00">2 pm</option>
+                    <option value="15:00">3 pm</option>
+                    <option value="16:00">4 pm</option>
+                    <option value="17:00">5 pm</option>
+                    <option value="18:00">6 pm</option>
+                    <option value="19:00">7 pm</option>
+                    <option value="20:00">8 pm</option>
+                    <option value="21:00">9 pm</option>
+                    <option value="22:00">10 pm</option>
+                    <option value="23:00">11 pm</option>
+                </select>
+        
+                <label>to</label>
+                <select id="event_second_interval_time" name="event_second_interval_time">
+                    <option value="00:00">12 am</option>
+                    <option value="01:00">1 am</option>
+                    <option value="02:00">2 am</option>
+                    <option value="03:00">3 am</option>
+                    <option value="04:00">4 am</option>
+                    <option value="05:00">5 am</option>
+                    <option value="06:00">6 am</option>
+                    <option value="07:00">7 am</option>
+                    <option value="08:00">8 am</option>
+                    <option value="09:00">9 am</option>
+                    <option value="10:00">10 am</option>
+                    <option value="11:00">11 am</option>
+                    <option value="12:00">12 pm</option>
+                    <option value="13:00">1 pm</option>
+                    <option value="14:00">2 pm</option>
+                    <option value="15:00">3 pm</option>
+                    <option value="16:00">4 pm</option>
+                    <option value="17:00">5 pm</option>
+                    <option value="18:00">6 pm</option>
+                    <option value="19:00">7 pm</option>
+                    <option value="20:00">8 pm</option>
+                    <option value="21:00">9 pm</option>
+                    <option value="22:00">10 pm</option>
+                    <option value="23:00">11 pm</option>
+                </select><br>
+        </div>
+
+        <div id="scheduleTypeContainer">
+            <label for="event_type">Choose Schedule Type:</label>
+            <select id="event_type">
+                <option value="specificDates">Specific Dates</option>
+                <option value="daysOfTheWeek" selected>Days of the Week</option>
+            </select>
+        </div>
+
+        
+        <div class="calendar-container" id="calendarContainer">
+            <label for="datePicker">What dates might work?</label>
+            <div id="datePicker"></div>
+        </div>
+
+
+        <!-- Days of the Week -->
+        <div class="day-container" id="dayContainer">
+            <div class="day" data-day="Sun">Sun</div>
+            <div class="day" data-day="Mon">Mon</div>
+            <div class="day" data-day="Tue">Tue</div>
+            <div class="day" data-day="Wed">Wed</div>
+            <div class="day" data-day="Thu">Thu</div>
+            <div class="day" data-day="Fri">Fri</div>
+            <div class="day" data-day="Sat">Sat</div>
+        </div>
+
+
+        <pre id="output"></pre>
+
+        <script>
+            
+            const datesAndTimesBtn = document.getElementById('datesAndTimesBtn');
+            const datesOnlyBtn = document.getElementById('datesOnlyBtn');
+            const calendarContainer = document.getElementById('calendarContainer');
+            const eventType = document.getElementById('event_type');
+            const dayContainer = document.getElementById('dayContainer');
+            const output = document.getElementById('output');
+            const scheduleTypeContainer = document.getElementById('scheduleTypeContainer'); // Correct targeting
+            const timeContainer = document.getElementById('timeContainer')
+
+            function showCalendarOnly() {
+                calendarContainer.classList.add('calendar-visible');
+                datesOnlyBtn.classList.add('active');
+                datesAndTimesBtn.classList.remove('active');
+
+                // Correctly hide schedule type and day container
+                scheduleTypeContainer.style.display = 'none';
+                dayContainer.classList.remove('visible');  
+                timeContainer.style.display = 'none';  // Hides the time container
+
+            }
+
+            function showDatesAndTimes() {
+                calendarContainer.classList.remove('calendar-visible'); // Initially hide calendar
+                datesAndTimesBtn.classList.add('active');
+                datesOnlyBtn.classList.remove('active');
+
+                // Show schedule type and toggle visibility
+                scheduleTypeContainer.style.display = 'block';
+                timeContainer.style.display = 'flex'; // Show the time container
+                toggleVisibility(); // Ensures the right content appears
+            }   
+                    // Button Event Listeners
+            datesOnlyBtn.addEventListener('click', showCalendarOnly);
+            datesAndTimesBtn.addEventListener('click', showDatesAndTimes);
+
+            // Show calendar by default
+            showCalendarOnly();
+
+            function toggleVisibility() {
+                if (eventType.value === 'daysOfTheWeek') {
+                    calendarContainer.classList.remove('calendar-visible'); // Hide calendar
+                    dayContainer.classList.add('visible');                  // Show day container
+                } else if (eventType.value === 'specificDates') {
+                    dayContainer.classList.remove('visible');               // Hide day container
+                    calendarContainer.classList.add('calendar-visible');    // Show calendar
+                }
+            }
+
+            // Initialize visibility on load
+            showCalendarOnly();  // Correct default state
+            // Listen for dropdown changes
+            eventType.addEventListener('change', toggleVisibility);
+
+            // Days of the Week Logic
+            const days = document.querySelectorAll('.day');
+            const selectedDays = new Array(7).fill(0);
+
+            days.forEach((day, index) => {
+                day.addEventListener('click', () => {
+                    day.classList.toggle('selected');
+                    selectedDays[index] = day.classList.contains('selected') ? 1 : 0;
+                });
+            });
+
+            // Flatpickr for Inline Calendar (Always Visible)
+            flatpickr("#datePicker", {
+                inline: true,         // Calendar always visible
+                mode: "multiple",     
+                dateFormat: "Y-m-d",  
+                minDate: "today",     
+                onChange: function(selectedDates) {
+                    const selectedDatesArray = selectedDates.map(date => date.toISOString().slice(0, 10));
+                    console.log(`Selected Dates: ${JSON.stringify(selectedDatesArray)}`);
+                }
+            });
+            document.querySelector("#eventForm").addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const eventName = document.getElementById('event_name').value;
+            const scheduleType = document.getElementById('event_type').value;
+
+            const selectedDates = flatpickr("#datePicker").selectedDates.map(date =>
+                date.toISOString().slice(0, 10)
+            );
+
+            const selectedDays = Array.from(document.querySelectorAll('.day.selected')).map(day =>
+                day.dataset.day
+            );
+
+            const timeRange = `${document.getElementById('event_first_interval_time').value} - ${document.getElementById('event_second_interval_time').value}`;
+
+            const eventData = {
+                eventName,
+                scheduleType,
+                selectedDates,
+                selectedDays,
+                timeRange
+            };
+
+            try {
+                const response = await fetch('https://ctaf-q8o9.onrender.com', {  // Replace with your Render URL
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(eventData)
+                });
+
+                const result = await response.json();
+                alert(result.message);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to submit the form.');
+            }
+        });
+        </script>
+        
+
+        <button action="post">
+            <a href="main-page.html">Submit</a>
+        </button>
+    </form>
+</body>
 </html>
