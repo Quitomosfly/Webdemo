@@ -175,20 +175,29 @@
             const datesAndTimesBtn = document.getElementById('datesAndTimesBtn');
             const datesOnlyBtn = document.getElementById('datesOnlyBtn');
             const calendarContainer = document.getElementById('calendarContainer');
-            const btnContainer = document.querySelector('.btn-container'); // Select the button container
             const eventType = document.getElementById('event_type');
             const dayContainer = document.getElementById('dayContainer');
             const output = document.getElementById('output');
             const scheduleTypeContainer = document.getElementById('scheduleTypeContainer'); // Correct targeting
             const timeContainer = document.getElementById('timeContainer')
 
-
-            function clearButtonContainer() {
-                btnContainer.innerHTML = '';  // Empty the container
+            function resetInputs() {
+                document.getElementById('event_name').value = '';  // Clear event name
+                selectedDates = [];  // Clear selected dates
+                document.querySelectorAll('.day').forEach(day => day.classList.remove('selected')); // Clear selected days
+                document.getElementById('event_first_interval_time').value = '00:00'; // Reset start time
+                document.getElementById('event_second_interval_time').value = '00:00'; // Reset end time
+                
+                // Clear Flatpickr dates
+                const flatpickrInstance = document.getElementById("datePicker")._flatpickr;
+                if (flatpickrInstance) {
+                    flatpickrInstance.clear();
+                }
             }
             
             function showCalendarOnly() {
-                clearButtonContainer();
+                resetInputs();  // Clear inputs on switch
+
                 calendarContainer.classList.add('calendar-visible');
                 datesOnlyBtn.classList.add('active');
                 datesAndTimesBtn.classList.remove('active');
@@ -201,7 +210,8 @@
             }
 
             function showDatesAndTimes() {
-                clearButtonContainer();
+                resetInputs();  // Clear inputs on switch
+
                 calendarContainer.classList.remove('calendar-visible'); // Initially hide calendar
                 datesAndTimesBtn.classList.add('active');
                 datesOnlyBtn.classList.remove('active');
