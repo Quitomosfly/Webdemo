@@ -9,11 +9,11 @@ const PORT = process.env.PORT || 3000;
 const path = require('path');
 
 // Serve static files (like your HTML)
-app.use(express.static(path.join(__dirname,"..")));
+app.use(express.static(path.join(__dirname,"../public")));
 
 // Route to serve your main page
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../home.html'));
+    res.sendFile(path.join(__dirname, '../public/home.html'));
 });
 
 // Middleware
