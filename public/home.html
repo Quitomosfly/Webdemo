@@ -237,15 +237,15 @@
                 });
             });
 
+            let selectedDates = [];
             // Flatpickr for Inline Calendar (Always Visible)
             flatpickr("#datePicker", {
-                inline: true,         // Calendar always visible
-                mode: "multiple",     
-                dateFormat: "Y-m-d",  
-                minDate: "today",     
-                onChange: function(selectedDates) {
-                    const selectedDatesArray = selectedDates.map(date => date.toISOString().slice(0, 10));
-                    console.log(`Selected Dates: ${JSON.stringify(selectedDatesArray)}`);
+                inline: true,
+                mode: "multiple",
+                dateFormat: "Y-m-d",
+                minDate: "today",
+                onChange: function (dates) {
+                    selectedDates = dates.map(date => date.toISOString().slice(0, 10));
                 }
             });
             document.querySelector("#eventForm").addEventListener('submit', async (e) => {
@@ -291,9 +291,7 @@
         </script>
         
 
-        <button action="post">
-            <a href="main-page.html">Submit</a>
-        </button>
+        <button type = "submit">Submit</button>
     </form>
 </body>
 </html>
