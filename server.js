@@ -6,6 +6,16 @@ const bodyParser = require('body-parser');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const path = require('path');
+
+// Serve static files (like your HTML)
+app.use(express.static(path.join(__dirname, 'src')));
+
+// Route to serve your main page
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src', 'index.html'));
+});
+
 // Middleware
 app.use(cors());
 app.use(bodyParser.json()); // Parse JSON data
