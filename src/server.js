@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3000;
 const path = require('path');
 
 // Serve static files (like your HTML)
-app.use(express.static(path.join(__dirname, 'src')));
+app.use(express.static(path.join(__dirname,"..")));
 
 // Route to serve your main page
 app.get('/', (req, res) => {
