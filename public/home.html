@@ -172,17 +172,23 @@
         <pre id="output"></pre>
 
         <script>
-            
             const datesAndTimesBtn = document.getElementById('datesAndTimesBtn');
             const datesOnlyBtn = document.getElementById('datesOnlyBtn');
             const calendarContainer = document.getElementById('calendarContainer');
+            const btnContainer = document.querySelector('.btn-container'); // Select the button container
             const eventType = document.getElementById('event_type');
             const dayContainer = document.getElementById('dayContainer');
             const output = document.getElementById('output');
             const scheduleTypeContainer = document.getElementById('scheduleTypeContainer'); // Correct targeting
             const timeContainer = document.getElementById('timeContainer')
 
+
+            function clearButtonContainer() {
+                btnContainer.innerHTML = '';  // Empty the container
+            }
+            
             function showCalendarOnly() {
+                clearButtonContainer();
                 calendarContainer.classList.add('calendar-visible');
                 datesOnlyBtn.classList.add('active');
                 datesAndTimesBtn.classList.remove('active');
@@ -195,6 +201,7 @@
             }
 
             function showDatesAndTimes() {
+                clearButtonContainer();
                 calendarContainer.classList.remove('calendar-visible'); // Initially hide calendar
                 datesAndTimesBtn.classList.add('active');
                 datesOnlyBtn.classList.remove('active');
