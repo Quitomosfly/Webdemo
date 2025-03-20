@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI, { dbName: 'eventsDB' })
   .then(() => console.log('Connected to MongoDB Atlas'))
   .catch(err => console.error('Connection error', err));
 // Serve static files (like your HTML)
