@@ -34,7 +34,7 @@ const eventSchema = new mongoose.Schema({
     timeRange: String
 });
 
-const Event = mongoose.model('Event', eventSchema);
+const Event = mongoose.model('Event', eventSchema, 'events');
 
 // Route to handle form submission
 app.post('/events', async (req, res) => {
