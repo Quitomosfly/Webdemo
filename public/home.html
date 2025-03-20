@@ -211,14 +211,18 @@
             // Show calendar by default
             showCalendarOnly();
 
+            
             function toggleVisibility() {
                 if (eventType.value === 'daysOfTheWeek') {
-                    calendarContainer.classList.remove('calendar-visible'); // Hide calendar
-                    dayContainer.classList.add('visible');                  // Show day container
+                    calendarContainer.classList.remove('calendar-visible');
+                    dayContainer.classList.add('visible');
                 } else if (eventType.value === 'specificDates') {
-                    dayContainer.classList.remove('visible');               // Hide day container
-                    calendarContainer.classList.add('calendar-visible');    // Show calendar
+                    dayContainer.classList.remove('visible');
+                    calendarContainer.classList.add('calendar-visible');
                 }
+
+                // Refresh Flatpickr visibility state
+                document.getElementById("datePicker")._flatpickr.redraw();
             }
             // Listen for dropdown changes
             eventType.addEventListener('change', toggleVisibility);
@@ -246,40 +250,45 @@
                 }
             });
             document.querySelector("#eventForm").addEventListener('submit', async (e) => {
-            e.preventDefault();
+                e.preventDefault();
 
-            const eventName = document.getElementById('event_name').value;
-            const scheduleType = document.getElementById('event_type').value;
+                const eventName = document.getElementById('event_name').value;
+                const scheduleType = document.getElementById('event_type').value;
 
-            const selectedDays = Array.from(document.querySelectorAll('.day.selected')).map(day =>
-                day.dataset.day
-            );
+                const selectedDays = Array.from(document.querySelectorAll('.day.selected')).map(day =>
+                    day.dataset.day
+                );
 
-            const timeRange = `${document.getElementById('event_first_interval_time').value} - ${document.getElementById('event_second_interval_time').value}`;
+                const timeRange = `${document.getElementById('event_first_interval_time').value} - ${document.getElementById('event_second_interval_time').value}`;
 
-            const eventData = {
-                eventName,
-                scheduleType,
-                selectedDates,
-                selectedDays,
-                timeRange
-            };
+                const eventData = {
+                    eventName,
+                    scheduleType,
+                    selectedDates,
+                    selectedDays,
+                    timeRange
+                };
 
-            try {
-                const response = await fetch('https://ctaf-q8o9.onrender.com/events', {  // Replace with your Render URL
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(eventData)
-                });
+                try {
+                    const response = await fetch('https://ctaf-q8o9.onrender.com/events', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(eventData)
+                    });
 
-                const result = await response.json();
-                alert(result.message);
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Failed to submit the form.');
-            }
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || 'Unknown error occurred.');
+                    }
+
+                    const result = await response.json();
+                    alert(result.message);
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert(`Failed to submit the form: ${error.message}`);
+                }
         });
         </script>
             <button type = "submit">Submit</button>
