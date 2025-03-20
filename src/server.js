@@ -14,11 +14,12 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
-// Database Connection
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('Connected to MongoDB'))
-    .catch((err) => console.error('MongoDB connection error:', err));
-
+mongoose.connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log('✅ Connected to MongoDB Atlas'))
+.catch(err => console.error('❌ MongoDB connection error:', err));
 // Serve static files (like your HTML)
 app.use(express.static(path.join(__dirname, "../public")));
 
