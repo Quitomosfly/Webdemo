@@ -40,14 +40,9 @@ const Event = mongoose.model('Event', eventSchema);
 
 // Route to handle form submission
 app.post('/events', async (req, res) => {
-    const { 
-        eventName, 
-        scheduleType, 
-        selectedDates, 
-        selectedDays, 
-        timeRange 
-    } = req.body;
+    const { eventName, scheduleType, selectedDates, selectedDays, timeRange } = req.body;
 
+    // Validation for required fields
     if (!eventName || !scheduleType) {
         return res.status(400).json({ error: 'Event name and schedule type are required.' });
     }
@@ -55,8 +50,8 @@ app.post('/events', async (req, res) => {
     const newEvent = new Event({
         eventName,
         scheduleType,
-        selectedDates,
-        selectedDays,
+        selectedDates: selectedDates || [],
+        selectedDays: selectedDays || [],
         timeRange
     });
 
@@ -64,8 +59,8 @@ app.post('/events', async (req, res) => {
         await newEvent.save();
         res.status(201).json({ message: 'Event saved successfully!' });
     } catch (error) {
-        console.error('Database save error:', error);
-        res.status(500).json({ error: 'Failed to save the event' });
+        console.error('Database save error:', error.message);
+        res.status(500).json({ error: 'Failed to save the event.' });
     }
 });
 
