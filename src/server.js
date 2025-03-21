@@ -39,7 +39,7 @@ const Event = mongoose.model('Event', eventSchema, 'events');
 
 // Route to handle form submission
 app.post('/events', async (req, res) => {
-    const { eventName, scheduleType, selectedDates, selectedDays, timeRange } = req.body;
+    const { eventName, selectedOption, scheduleType, selectedDates, selectedDays, timeRange } = req.body;
 
     // Validation for required fields
     if (!eventName || !scheduleType) {
