@@ -190,7 +190,6 @@
                 scheduleTypeContainer.style.display = 'none';
                 dayContainer.classList.remove('visible');  
                 timeContainer.style.display = 'none';  // Hides the time container
-
             }
 
             function showDatesAndTimes() {
@@ -204,9 +203,17 @@
                 toggleVisibility(); // Ensures the right content appears
             }   
                     // Button Event Listeners
-            datesOnlyBtn.addEventListener('click', showCalendarOnly);
-            datesAndTimesBtn.addEventListener('click', showDatesAndTimes);
 
+            let selectedOption = 'Dates only';
+
+            datesOnlyBtn.addEventListener('click',() => {
+                selectedOption = 'Dates only';
+                showCalendarOnly();
+            });
+            datesAndTimesBtn.addEventListener('click', () => {
+                selectedOption = 'Dates and times';
+                showDatesAndTimes();
+            });
             // Show calendar by default
             showCalendarOnly();
 
@@ -262,6 +269,7 @@
 
                 const eventData = {
                     eventName,
+                    selectedOption,
                     scheduleType,
                     selectedDates,
                     selectedDays,

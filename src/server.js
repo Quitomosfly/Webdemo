@@ -28,6 +28,7 @@ app.get('/', (req, res) => {
 // Define Event Schema
 const eventSchema = new mongoose.Schema({
     eventName: String,
+    selectedOption: String,
     scheduleType: String,
     selectedDates: [String],
     selectedDays: [String],
@@ -47,6 +48,7 @@ app.post('/events', async (req, res) => {
 
     const newEvent = new Event({
         eventName,
+        selectedOption,
         scheduleType,
         selectedDates: selectedDates || [],
         selectedDays: selectedDays || [],
