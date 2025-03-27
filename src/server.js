@@ -81,7 +81,7 @@ app.get("/schedule", async (req, res) => {
     }
 });
 
-app.get('/events/:eventId', async (req, res) => {
+app.get('/events/:_id', async (req, res) => {
     const { eventId } = req.params;
 
     // Validate that eventId is a valid MongoDB ObjectId
