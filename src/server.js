@@ -64,6 +64,24 @@ app.post('/events', async (req, res) => {
     }
 });
 
+const ScheduleSchema = new mongoose.Schema({
+    eventName: String,
+    selectedDays: [String],  // Example: ["Mon", "Tue", "Wed"]
+    timeRange: String        // Example: "04:00 - 11:00"
+});
+
+const Schedule = mongoose.model("Schedule", ScheduleSchema);
+
+app.get("/schedule", async (req, res) => {
+    try {
+        const schedule = await Schedule.findOne(); // Fetch first schedule entry
+        res.json(schedule);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
 // Health check endpoint for Render
 app.get('/health', (req, res) => {
     res.status(200).send('Server is running smoothly!');
