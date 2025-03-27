@@ -36,14 +36,15 @@ const eventSchema = new mongoose.Schema({
 });
 
 const Event = mongoose.model('Event', eventSchema, 'events');
-app.post('/submit-form', async (req, res) => {
+app.post("/events", async (req, res) => {
     try {
-        const newEvent = new Event(req.body);
+        const newEvent = new Event(req.body); // Ensure `Event` model is correct
         await newEvent.save();
-        res.json({ _id: newEvent._id });
+
+        res.status(201).json({ _id: newEvent._id }); // Ensure _id is sent back
     } catch (error) {
-        console.error("Error saving event:", error);
-        res.status(500).send("Error creating event.");
+        console.error("Error creating event:", error);
+        res.status(500).json({ error: "Failed to create event" });
     }
 });
 
@@ -93,17 +94,10 @@ app.get('/main-page.html', async (req, res) => {
     }
 });
 
-app.get('/event/:id', async (req, res) => {
-    try {
-        const event = await Event.findById(req.params.id);
-        if (!event) {
-            return res.status(404).json({ error: 'Event not found' });
-        }
-        res.json(event);
-    } catch (error) {
-        console.error('Error fetching event:', error);
-        res.status(500).json({ error: 'Server error' });
-    }
+app.get("/events/:id", async (req, res) => {
+    const event = await Event.findById(req.params.id);
+    if (!event) return res.status(404).json({ error: "Event not found" });
+    res.json(event);
 });
 
 // Health check endpoint for Render
