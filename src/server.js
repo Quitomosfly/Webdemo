@@ -84,22 +84,16 @@ app.get("/schedule", async (req, res) => {
 app.get('/events/:eventId', async (req, res) => {
     const { eventId } = req.params;
 
-    console.log("Received request for event ID:", eventId); // Debugging log
-
-    // Validate MongoDB ObjectId format
     if (!mongoose.Types.ObjectId.isValid(eventId)) {
-        console.error("Invalid event ID format:", eventId);
         return res.status(400).json({ error: "Invalid event ID format" });
     }
 
     try {
         const event = await Event.findById(eventId);
-        if (!event) {
-            return res.status(404).json({ error: "Event not found" });
-        }
+        if (!event) return res.status(404).json({ error: "Event not found" });
+
         res.json(event);
-    } catch (error) {
-        console.error("Database error fetching event:", error);
+    } catch (err) {
         res.status(500).json({ error: "Server error" });
     }
 });
