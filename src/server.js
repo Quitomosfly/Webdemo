@@ -35,6 +35,13 @@ const eventSchema = new mongoose.Schema({
     timeRange: String
 });
 
+eventSchema.set('toJSON', {
+    transform: function (doc, ret) {
+        ret._id = ret._id.toString(); // Ensure _id is returned as a string
+        return ret;
+    }
+});
+
 const Event = mongoose.models.Event || mongoose.model('Event', eventSchema, 'events');
 
 // Route to handle form submission
