@@ -255,17 +255,15 @@
                     selectedDates = dates.map(date => date.toISOString().slice(0, 10));
                 }
             });
-            document.querySelector("#eventForm").addEventListener('submit', async (e) => {
+            document.querySelector("#eventForm").addEventListener("submit", async (e) => {
                 e.preventDefault();
 
-                const eventName = document.getElementById('event_name').value;
-                const scheduleType = document.getElementById('event_type').value;
+                const eventName = document.getElementById("event_name").value;
+                const scheduleType = document.getElementById("event_type").value;
 
-                const selectedDays = Array.from(document.querySelectorAll('.day.selected')).map(day =>
-                    day.dataset.day
-                );
+                const selectedDays = Array.from(document.querySelectorAll(".day.selected")).map(day => day.dataset.day);
 
-                const timeRange = `${document.getElementById('event_first_interval_time').value} - ${document.getElementById('event_second_interval_time').value}`;
+                const timeRange = `${document.getElementById("event_first_interval_time").value} - ${document.getElementById("event_second_interval_time").value}`;
 
                 const eventData = {
                     eventName,
@@ -277,24 +275,25 @@
                 };
 
                 try {
-                        const response = await fetch('/events', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(eventData)
-                        });
+                    const response = await fetch("/events", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(eventData)
+                    });
 
-                        const result = await response.json();
+                    const result = await response.json();
 
-                        if (!response.ok) {
-                            throw new Error(result.error || 'Unknown error occurred.');
-                        }
-
-                        alert(result.message);
-                    } catch (error) {
-                        console.error('Error:', error);
-                        alert(`Failed to submit the form: ${error.message}`);
+                    if (!response.ok) {
+                        throw new Error(result.error || "Unknown error occurred.");
                     }
-        });
+
+                    // Redirect to main-page.html with the event ID
+                    window.location.href = `/main-page.html?id=${result.eventId}`;
+                } catch (error) {
+                    console.error("Error:", error);
+                    alert(`Failed to submit the form: ${error.message}`);
+                }
+            });
         </script>
             <button type = "submit">Submit</button>
         </form>
