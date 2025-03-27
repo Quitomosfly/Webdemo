@@ -255,6 +255,20 @@
                     selectedDates = dates.map(date => date.toISOString().slice(0, 10));
                 }
             });
+            // Assuming the form submission returns an event object with an _id
+            fetch('/submit-form', {
+                method: 'POST',
+                body: new FormData(document.getElementById('yourForm'))
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data._id) {
+                    window.location.href = `/main-page.html?id=${data._id}`;
+                } else {
+                    console.error("ID not found in response:", data);
+                }
+            })
+            .catch(error => console.error("Error submitting form:", error));
             document.querySelector("#eventForm").addEventListener("submit", async (e) => {
                 e.preventDefault();
 

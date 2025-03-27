@@ -36,6 +36,16 @@ const eventSchema = new mongoose.Schema({
 });
 
 const Event = mongoose.model('Event', eventSchema, 'events');
+app.post('/submit-form', async (req, res) => {
+    try {
+        const newEvent = new Event(req.body);
+        await newEvent.save();
+        res.json({ _id: newEvent._id });
+    } catch (error) {
+        console.error("Error saving event:", error);
+        res.status(500).send("Error creating event.");
+    }
+});
 
 // Route to handle form submission
 app.post('/events', async (req, res) => {
@@ -61,6 +71,25 @@ app.post('/events', async (req, res) => {
     } catch (error) {
         console.error('Database save error:', error.message);
         res.status(500).json({ error: 'Failed to save the event.' });
+    }
+});
+
+app.get('/main-page.html', async (req, res) => {
+    const eventId = req.query.id;
+    
+    if (!eventId || eventId === "undefined") {
+        return res.status(400).send("Invalid event ID.");
+    }
+
+    try {
+        const event = await Event.findById(eventId);
+        if (!event) {
+            return res.status(404).send("Event not found.");
+        }
+        res.json(event);
+    } catch (error) {
+        console.error("Error fetching event:", error);
+        res.status(500).send("Server error.");
     }
 });
 
