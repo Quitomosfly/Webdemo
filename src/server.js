@@ -26,6 +26,7 @@ app.get('/', (req, res) => {
 
 // Define Event Schema
 const eventSchema = new mongoose.Schema({
+    _id: { type: mongoose.Schema.Types.ObjectId, auto: true }, 
     eventName: String,
     selectedOption: String,
     scheduleType: String,
