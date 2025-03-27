@@ -121,10 +121,13 @@
                 </div>
 
                 <script>
-                    const datesMethod = document.getElemenyById('dates-method');
+                    const datesMethod = document.getElementById('dates-method');
+                    const dayContainer = document.getElementById('dayContainer'); 
+                    const dateContainer = document.querySelector('.date-container'); 
+
 
                     function toggleVisibility(){
-                        if (datesMethod === 'days-of-the-week'){
+                        if (datesMethod.value === 'days-of-the-week'){
                             dayContainer.classList.add('visible');
                             dateContainer.classList.remove('visible');
                         } else {
