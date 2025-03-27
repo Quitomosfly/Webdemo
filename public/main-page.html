@@ -38,7 +38,7 @@
         <thead>
             <tr>
                 <th>Time</th>
-                <!-- Date headers inserted dynamically -->
+                <!-- Headers inserted dynamically -->
             </tr>
         </thead>
         <tbody>
@@ -72,8 +72,8 @@
                 document.getElementById("eventName").innerText = event.eventName;
                 document.getElementById("scheduleType").innerText = event.scheduleType;
                 document.getElementById("timeRange").innerText = event.timeRange;
-                document.getElementById("selectedDates").innerText = event.selectedDates.join(", ") || "N/A";
-                document.getElementById("selectedDays").innerText = event.selectedDays.join(", ") || "N/A";
+                document.getElementById("selectedDates").innerText = event.selectedDates ? event.selectedDates.join(", ") : "N/A";
+                document.getElementById("selectedDays").innerText = event.selectedDays ? event.selectedDays.join(", ") : "N/A";
 
                 const shareURL = `${window.location.origin}/main-page.html?id=${eventId}`;
                 document.getElementById("shareLink").value = shareURL;
@@ -93,16 +93,17 @@
             theadRow.innerHTML = "<th>Time</th>";
             tbody.innerHTML = "";
 
-            // Get event details
-            const dates = event.selectedDates;
+            // Determine if schedule is based on specific dates or days of the week
+            const isDaysOfWeek = event.scheduleType === "Days of the Week";
+            const headers = isDaysOfWeek ? event.selectedDays : event.selectedDates;
             const timeRange = event.timeRange.split(" - "); // Example: "9 AM - 5 PM"
             const startHour = convertTo24HourFormat(timeRange[0]);
             const endHour = convertTo24HourFormat(timeRange[1]);
 
-            // Add date headers
-            dates.forEach(date => {
+            // Add headers (days of the week or specific dates)
+            headers.forEach(header => {
                 const th = document.createElement("th");
-                th.innerText = date;
+                th.innerText = header;
                 theadRow.appendChild(th);
             });
 
@@ -113,15 +114,15 @@
                 timeCell.innerText = formatTime(hour);
                 tr.appendChild(timeCell);
 
-                // Create time slots for each date
-                dates.forEach(date => {
+                // Create time slots for each header (date or day)
+                headers.forEach(header => {
                     const td = document.createElement("td");
                     td.classList.add("time-slot");
-                    td.dataset.date = date;
+                    td.dataset.header = header;
                     td.dataset.hour = hour;
 
                     // Mark selected time slots
-                    if (event.selectedTimes && event.selectedTimes.includes(`${date}-${hour}`)) {
+                    if (event.selectedTimes && event.selectedTimes.includes(`${header}-${hour}`)) {
                         td.classList.add("selected");
                     }
 
