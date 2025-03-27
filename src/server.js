@@ -97,6 +97,7 @@ app.get('/main-page.html', async (req, res) => {
 app.get("/events/:id", async (req, res) => {
     const { id } = req.params;
 
+    // Check if ID is valid (MongoDB ObjectId must be 24 characters)
     if (!id || id.length !== 24) {
         return res.status(400).json({ error: "Invalid event ID" });
     }
