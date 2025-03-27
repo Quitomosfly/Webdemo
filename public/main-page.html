@@ -31,60 +31,34 @@
     </table>
 
     <script>
-        async function fetchSchedule() {
+        async function loadEventDetails() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('eventId');
+    
+            if (!eventId) {
+                alert("Event not found!");
+                return;
+            }
+    
             try {
-                const response = await fetch("http://localhost:5000/schedule");
-                const data = await response.json();
-
-                if (!data) return;
-
-                generateTable(data);
+                const response = await fetch(`/events/${eventId}`);
+                const eventData = await response.json();
+    
+                if (!response.ok) {
+                    throw new Error(eventData.error || "Could not fetch event data.");
+                }
+    
+                document.getElementById('eventTitle').textContent = eventData.eventName;
+                document.getElementById('eventSchedule').textContent = `Type: ${eventData.scheduleType}`;
+                // Populate other elements as needed
+    
             } catch (error) {
-                console.error("Error fetching schedule:", error);
+                console.error("Error fetching event data:", error);
+                alert("Failed to load event details.");
             }
         }
-
-        function generateTable(schedule) {
-            const days = schedule.selectedDays; // Example: ["Mon", "Tue", "Wed"]
-            const [startTime, endTime] = schedule.timeRange.split(" - "); // "04:00 - 11:00"
-            const headerRow = document.getElementById("headerRow");
-            const tableBody = document.getElementById("tableBody");
-
-            // Clear previous content
-            headerRow.innerHTML = "<th>Time</th>";
-            tableBody.innerHTML = "";
-
-            // Add headers for selected days
-            days.forEach(day => {
-                const th = document.createElement("th");
-                th.textContent = day;
-                headerRow.appendChild(th);
-            });
-
-            // Generate time slots
-            let currentHour = parseInt(startTime.split(":")[0]);
-            const endHour = parseInt(endTime.split(":")[0]);
-
-            while (currentHour <= endHour) {
-                const row = document.createElement("tr");
-
-                // Time column
-                const timeCell = document.createElement("td");
-                timeCell.textContent = `${currentHour} AM`;
-                row.appendChild(timeCell);
-
-                // Create empty cells for selected days
-                days.forEach(() => {
-                    const cell = document.createElement("td");
-                    row.appendChild(cell);
-                });
-
-                tableBody.appendChild(row);
-                currentHour++;
-            }
-        }
-
-        fetchSchedule();
+    
+        document.addEventListener('DOMContentLoaded', loadEventDetails);
     </script>
 </body>
 </html>
