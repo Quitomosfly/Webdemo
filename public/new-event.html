@@ -1,157 +1,246 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    
-        <style>
-            .day-container, .date-container {
-                display: none; /* Initially hidden */
-                margin-top: 10px;
-            }
-    
-            .visible {
-                display: flex;
-                gap: 5px;
-            }
-    
-            .day {
-                width: 40px;
-                height: 40px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                cursor: pointer;
-                user-select: none;
-            }
-    
-            .selected {
-                background-color: #d1e7dd;  
-                color: #198754;            
-                font-weight: bold;
-            }
-    
-            .flatpickr-calendar {
-                display: block;  /* Force calendar to be always visible */
-                width: 100%;
-                max-width: 320px;
-            }
-        </style>
-    </head>
-    <body>
-        <h1>New Event</h1>
-        <form action="">
-            <input type="text" name="event-name" id="event-name" placeholder="Name your event...">
-            <div>
-                <button type="button" id="dates-and-items-button" class="toggle-btn-active">Dates and times</button>
-                <button type="button" id="dates-only-button" class="toggle-btn">Dates only</button>
-            </div>
-            <div>
-                <label for="event-time">What times might work?</label><br>
-                <select id="event_first_interval_time" name="event_first_interval_time">
-                    <option value="00:00">12 am</option>
-                    <option value="01:00">1 am</option>
-                    <option value="02:00">2 am</option>
-                    <option value="03:00">3 am</option>
-                    <option value="04:00">4 am</option>
-                    <option value="05:00">5 am</option>
-                    <option value="06:00">6 am</option>
-                    <option value="07:00">7 am</option>
-                    <option value="08:00">8 am</option>
-                    <option value="09:00">9 am</option>
-                    <option value="10:00">10 am</option>
-                    <option value="11:00">11 am</option>
-                    <option value="12:00">12 pm</option>
-                    <option value="13:00">1 pm</option>
-                    <option value="14:00">2 pm</option>
-                    <option value="15:00">3 pm</option>
-                    <option value="16:00">4 pm</option>
-                    <option value="17:00">5 pm</option>
-                    <option value="18:00">6 pm</option>
-                    <option value="19:00">7 pm</option>
-                    <option value="20:00">8 pm</option>
-                    <option value="21:00">9 pm</option>
-                    <option value="22:00">10 pm</option>
-                    <option value="23:00">11 pm</option>
-                </select>
-        
-                <label>to</label>
-                <select id="event_second_interval_time" name="event_second_interval_time">
-                    <option value="00:00">12 am</option>
-                    <option value="01:00">1 am</option>
-                    <option value="02:00">2 am</option>
-                    <option value="03:00">3 am</option>
-                    <option value="04:00">4 am</option>
-                    <option value="05:00">5 am</option>
-                    <option value="06:00">6 am</option>
-                    <option value="07:00">7 am</option>
-                    <option value="08:00">8 am</option>
-                    <option value="09:00">9 am</option>
-                    <option value="10:00">10 am</option>
-                    <option value="11:00">11 am</option>
-                    <option value="12:00">12 pm</option>
-                    <option value="13:00">1 pm</option>
-                    <option value="14:00">2 pm</option>
-                    <option value="15:00">3 pm</option>
-                    <option value="16:00">4 pm</option>
-                    <option value="17:00">5 pm</option>
-                    <option value="18:00">6 pm</option>
-                    <option value="19:00">7 pm</option>
-                    <option value="20:00">8 pm</option>
-                    <option value="21:00">9 pm</option>
-                    <option value="22:00">10 pm</option>
-                    <option value="23:00">11 pm</option>
-                </select><br>
-                <label for="dates-method">What dates might work?</label><br>
-                <select id ="dates-method">
-                    <option value="specific-dates">Specific dates</option>
-                    <option value="days-of-the-week">Days of the week</option>
-                </select>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Event</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-                <div class="day-container" id="dayContainer">
-                    <div class="day" data-day="Sun">Sun</div>
-                    <div class="day" data-day="Mon">Mon</div>
-                    <div class="day" data-day="Tue">Tue</div>
-                    <div class="day" data-day="Wed">Wed</div>
-                    <div class="day" data-day="Thu">Thu</div>
-                    <div class="day" data-day="Fri">Fri</div>
-                    <div class="day" data-day="Sat">Sat</div>
-                </div>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .container {
+            width: 300px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .button-group button {
+            padding: 10px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 48%;
+        }
+        .button-group button.active {
+            background-color: #45a049;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .day-container, .date-container {
+            display: none;
+            margin-top: 10px;
+        }
 
-                <script>
-                    const datesMethod = document.getElementById('dates-method');
-                    const dayContainer = document.getElementById('dayContainer'); 
-                    const dateContainer = document.querySelector('.date-container'); 
+        .visible {
+            display: flex;
+            gap: 5px;
+        }
 
+        .day {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            user-select: none;
+        }
 
-                    function toggleVisibility(){
-                        if (datesMethod.value === 'days-of-the-week'){
-                            dayContainer.classList.add('visible');
-                            dateContainer.classList.remove('visible');
-                        } else {
-                            dayContainer.classList.remove('visible');
-                            dateContainer.classList.add('visible');
-                        }
-                    }
+        .selected {
+            background-color: #d1e7dd;
+            color: #198754;
+            font-weight: bold;
+        }
 
-                    toggleVisibility();
+        .flatpickr-calendar {
+            display: block;
+            width: 100%;
+            max-width: 320px;
+        }
+    </style>
+</head>
+<body>
 
-                    eventType.addEventListener('change', toggleVisibility);
+<div class="container">
+    <h2>Create New Event</h2>
 
-                    const days = document.querySelectorAll('.day');
-                    const selectedDays = new Array(7).fill(0);
-                    days.forEach((day, index) => {
-                        day.addEventListener('click', () => {
-                            day.classList.toggle('selected');
-                            selectedDays[index] = day.classList.contains('selected') ? 1 : 0;
-                            output.textContent = `Selected Days: ${JSON.stringify(selectedDays)}`;
-                        });
-                    });
-                </script>
-                
-            </div>
-        </form>
-    </body>
+    <div class="form-group">
+        <label for="eventName">Event Name:</label>
+        <input type="text" id="eventName" name="eventName" placeholder="Name the event">
+    </div>
+
+    <div class="form-group">
+        <label>Event Type:</label>
+        <div class="button-group">
+            <button id="datesTimesButton" class="toggle-btn-active" onclick="selectEventType('datesAndTimes')">Dates and Times</button>
+            <button id="datesOnlyButton" class="toggle-btn" onclick="selectEventType('datesOnly')">Dates Only</button>
+        </div>
+    </div>
+
+    <div class="form-group" id="dateSelection">
+        <label for="eventDate">Choose Date:</label>
+        <input type="date" id="eventDate" name="eventDate">
+    </div>
+
+    <div class="form-group" id="timeSelection" style="display: none;">
+        <label for="event_first_interval_time">What times might work?</label><br>
+        <select id="event_first_interval_time" name="event_first_interval_time">
+            <option value="00:00">12 am</option>
+            <option value="01:00">1 am</option>
+            <option value="02:00">2 am</option>
+            <option value="03:00">3 am</option>
+            <option value="04:00">4 am</option>
+            <option value="05:00">5 am</option>
+            <option value="06:00">6 am</option>
+            <option value="07:00">7 am</option>
+            <option value="08:00">8 am</option>
+            <option value="09:00">9 am</option>
+            <option value="10:00">10 am</option>
+            <option value="11:00">11 am</option>
+            <option value="12:00">12 pm</option>
+            <option value="13:00">1 pm</option>
+            <option value="14:00">2 pm</option>
+            <option value="15:00">3 pm</option>
+            <option value="16:00">4 pm</option>
+            <option value="17:00">5 pm</option>
+            <option value="18:00">6 pm</option>
+            <option value="19:00">7 pm</option>
+            <option value="20:00">8 pm</option>
+            <option value="21:00">9 pm</option>
+            <option value="22:00">10 pm</option>
+            <option value="23:00">11 pm</option>
+        </select>
+        <label for="event_second_interval_time">to</label>
+        <select id="event_second_interval_time" name="event_second_interval_time">
+            <option value="00:00">12 am</option>
+            <option value="01:00">1 am</option>
+            <option value="02:00">2 am</option>
+            <option value="03:00">3 am</option>
+            <option value="04:00">4 am</option>
+            <option value="05:00">5 am</option>
+            <option value="06:00">6 am</option>
+            <option value="07:00">7 am</option>
+            <option value="08:00">8 am</option>
+            <option value="09:00">9 am</option>
+            <option value="10:00">10 am</option>
+            <option value="11:00">11 am</option>
+            <option value="12:00">12 pm</option>
+            <option value="13:00">1 pm</option>
+            <option value="14:00">2 pm</option>
+            <option value="15:00">3 pm</option>
+            <option value="16:00">4 pm</option>
+            <option value="17:00">5 pm</option>
+            <option value="18:00">6 pm</option>
+            <option value="19:00">7 pm</option>
+            <option value="20:00">8 pm</option>
+            <option value="21:00">9 pm</option>
+            <option value="22:00">10 pm</option>
+            <option value="23:00">11 pm</option>
+        </select><br>
+    </div>
+
+    <div class="form-group">
+        <label for="dates-method">What dates might work?</label><br>
+        <select id="dates-method">
+            <option value="specific-dates">Specific dates</option>
+            <option value="days-of-the-week">Days of the week</option>
+        </select>
+
+        <div class="day-container" id="dayContainer">
+            <div class="day" data-day="Sun">Sun</div>
+            <div class="day" data-day="Mon">Mon</div>
+            <div class="day" data-day="Tue">Tue</div>
+            <div class="day" data-day="Wed">Wed</div>
+            <div class="day" data-day="Thu">Thu</div>
+            <div class="day" data-day="Fri">Fri</div>
+            <div class="day" data-day="Sat">Sat</div>
+        </div>
+    </div>
+
+    <button id="submitEvent" onclick="submitEvent()">Create Event</button>
+</div>
+
+<script>
+    let eventType = 'datesOnly';
+
+    function selectEventType(type) {
+        eventType = type;
+
+        document.getElementById('datesTimesButton').classList.remove('active');
+        document.getElementById('datesOnlyButton').classList.remove('active');
+
+        if (type === 'datesAndTimes') {
+            document.getElementById('datesTimesButton').classList.add('active');
+            document.getElementById('timeSelection').style.display = 'block';
+        } else {
+            document.getElementById('datesOnlyButton').classList.add('active');
+            document.getElementById('timeSelection').style.display = 'none';
+        }
+
+        document.getElementById('dateSelection').style.display = 'block';
+    }
+
+    const datesMethod = document.getElementById('dates-method');
+    const dayContainer = document.getElementById('dayContainer'); 
+
+    function toggleVisibility() {
+        if (datesMethod.value === 'days-of-the-week') {
+            dayContainer.classList.add('visible');
+        } else {
+            dayContainer.classList.remove('visible');
+        }
+    }
+
+    toggleVisibility();
+    datesMethod.addEventListener('change', toggleVisibility);
+
+    const days = document.querySelectorAll('.day');
+    const selectedDays = new Array(7).fill(0);
+    days.forEach((day, index) => {
+        day.addEventListener('click', () => {
+            day.classList.toggle('selected');
+            selectedDays[index] = day.classList.contains('selected') ? 1 : 0;
+        });
+    });
+
+    function submitEvent() {
+        const eventName = document.getElementById('eventName').value;
+        const eventDate = document.getElementById('eventDate').value;
+        const eventTime = eventType === 'datesAndTimes' ? `${document.getElementById('event_first_interval_time').value} to ${document.getElementById('event_second_interval_time').value}` : 'N/A';
+
+        alert(`Event Created! \nName: ${eventName} \nDate: ${eventDate} \nType: ${eventType} \nTime: ${eventTime}`);
+    }
+</script>
+
+</body>
 </html>
