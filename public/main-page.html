@@ -43,12 +43,16 @@
             }
 
             try {
-                const response = await fetch(`/event/${eventId}`);
-                const event = await response.json();
+                const response = await fetch(`/events/${eventId}`);
 
-                if (response.status !== 200) {
-                    throw new Error(event.error);
+                // Check if response is HTML (server error)
+                const contentType = response.headers.get("content-type");
+                if (!response.ok || !contentType.includes("application/json")) {
+                    const errorText = await response.text(); // Read error as text
+                    throw new Error(`Server Error: ${errorText}`);
                 }
+
+                const event = await response.json();
 
                 document.getElementById("eventName").innerText = event.eventName;
                 document.getElementById("scheduleType").innerText = event.scheduleType;
