@@ -275,7 +275,27 @@
                     selectedDays,
                     timeRange
                 };
-            });
+
+                try {
+                        const response = await fetch('/events', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(eventData)
+                        });
+
+                        const result = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(result.error || 'Unknown error occurred.');
+                        }
+                        window.location.href = `main-page.html?eventId=${event._id}`;
+
+                        
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert(`Failed to submit the form: ${error.message}`);
+                    }
+                });
             </script>
             <button type = "submit">Submit</button>
         </form>
