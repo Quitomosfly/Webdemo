@@ -64,6 +64,19 @@ app.post('/events', async (req, res) => {
     }
 });
 
+app.get('/event/:id', async (req, res) => {
+    try {
+        const event = await Event.findById(req.params.id);
+        if (!event) {
+            return res.status(404).json({ error: 'Event not found' });
+        }
+        res.json(event);
+    } catch (error) {
+        console.error('Error fetching event:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 // Health check endpoint for Render
 app.get('/health', (req, res) => {
     res.status(200).send('Server is running smoothly!');

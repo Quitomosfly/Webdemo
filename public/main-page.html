@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Schedule Selector</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Schedule</title>
     <style>
         table {
             border-collapse: collapse;
@@ -9,81 +11,67 @@
         }
         td, th {
             border: 1px solid #ccc;
-            width: 100px;
-            height: 40px;
+            padding: 10px;
             text-align: center;
-            cursor: pointer;
         }
         .selected {
-            background-color: #4CAF50; /* Green */
+            background-color: #4CAF50;
+            color: white;
         }
     </style>
 </head>
 <body>
-    <h1>Schedule Selector</h1>
-    <table id="scheduleTable">
-        <thead>
-            <tr>
-                <th>Time</th>
-                <th>Tuesday</th>
-                <th>Wednesday</th>
-                <th>Thursday</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>9 AM</td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>10 AM</td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>11 AM</td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>12 PM</td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <!-- Add more rows as needed -->
-        </tbody>
-    </table>
+    <h1>Event Schedule</h1>
+    <h2 id="eventName"></h2>
+    <p><strong>Schedule Type:</strong> <span id="scheduleType"></span></p>
+    <p><strong>Time Range:</strong> <span id="timeRange"></span></p>
+    <p><strong>Selected Dates:</strong> <span id="selectedDates"></span></p>
+    <p><strong>Selected Days:</strong> <span id="selectedDays"></span></p>
+    
+    <h3>Share this link:</h3>
+    <input type="text" id="shareLink" readonly>
+    <button onclick="copyLink()">Copy Link</button>
 
     <script>
-        const table = document.getElementById('scheduleTable');
-        let isMouseDown = false;
+        async function fetchEventData() {
+            const params = new URLSearchParams(window.location.search);
+            const eventId = params.get("id");
 
-        // Event listener for drag selection
-        table.addEventListener('mousedown', (event) => {
-            if (event.target.tagName === 'TD') {
-                isMouseDown = true;
-                toggleSelection(event.target);
+            if (!eventId) {
+                document.body.innerHTML = "<h2>Invalid Event ID</h2>";
+                return;
             }
-        });
 
-        table.addEventListener('mouseover', (event) => {
-            if (isMouseDown && event.target.tagName === 'TD') {
-                toggleSelection(event.target);
+            try {
+                const response = await fetch(`/event/${eventId}`);
+                const event = await response.json();
+
+                if (response.status !== 200) {
+                    throw new Error(event.error);
+                }
+
+                document.getElementById("eventName").innerText = event.eventName;
+                document.getElementById("scheduleType").innerText = event.scheduleType;
+                document.getElementById("timeRange").innerText = event.timeRange;
+                document.getElementById("selectedDates").innerText = event.selectedDates.join(", ") || "N/A";
+                document.getElementById("selectedDays").innerText = event.selectedDays.join(", ") || "N/A";
+
+                // Generate shareable URL
+                const shareURL = `${window.location.origin}/main-page.html?id=${eventId}`;
+                document.getElementById("shareLink").value = shareURL;
+            } catch (error) {
+                document.body.innerHTML = `<h2>Error loading event: ${error.message}</h2>`;
             }
-        });
-
-        document.addEventListener('mouseup', () => {
-            isMouseDown = false;
-        });
-
-        function toggleSelection(cell) {
-            cell.classList.toggle('selected');
         }
+
+        function copyLink() {
+            const shareLink = document.getElementById("shareLink");
+            shareLink.select();
+            document.execCommand("copy");
+            alert("Link copied to clipboard!");
+        }
+
+        fetchEventData();
     </script>
 </body>
 </html>
