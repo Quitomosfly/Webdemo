@@ -5,8 +5,6 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 
-const Event = require('./models/Event'); // Assuming you have an Event model
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -35,7 +33,7 @@ const eventSchema = new mongoose.Schema({
     timeRange: String
 });
 
-const Event = mongoose.model('Event', eventSchema, 'events');
+const Event = mongoose.models.Event || mongoose.model('Event', eventSchema, 'events');
 
 // Route to handle form submission
 app.post('/events', async (req, res) => {
@@ -70,7 +68,8 @@ const ScheduleSchema = new mongoose.Schema({
     timeRange: String        // Example: "04:00 - 11:00"
 });
 
-const Schedule = mongoose.model("Schedule", ScheduleSchema);
+const Schedule = mongoose.models.Schedule || mongoose.model('Schedule', ScheduleSchema);
+
 
 app.get("/schedule", async (req, res) => {
     try {
