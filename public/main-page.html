@@ -96,6 +96,12 @@
             // Determine if schedule is based on specific dates or days of the week
             const isDaysOfWeek = event.scheduleType === "Days of the Week";
             const headers = isDaysOfWeek ? event.selectedDays : event.selectedDates;
+
+            if (!headers || headers.length === 0) {
+                console.error("No headers available:", headers);
+                return;
+            }
+
             const timeRange = event.timeRange.split(" - "); // Example: "9 AM - 5 PM"
             const startHour = convertTo24HourFormat(timeRange[0]);
             const endHour = convertTo24HourFormat(timeRange[1]);
@@ -114,38 +120,19 @@
                 timeCell.innerText = formatTime(hour);
                 tr.appendChild(timeCell);
 
-                // Create time slots for each header (date or day)
                 headers.forEach(header => {
                     const td = document.createElement("td");
                     td.classList.add("time-slot");
                     td.dataset.header = header;
                     td.dataset.hour = hour;
-
-                    // Mark selected time slots
-                    if (event.selectedTimes && event.selectedTimes.includes(`${header}-${hour}`)) {
-                        td.classList.add("selected");
-                    }
-
-                    td.addEventListener("mousedown", (e) => {
-                        isMouseDown = true;
-                        toggleSelection(td);
-                    });
-
-                    td.addEventListener("mouseover", (e) => {
-                        if (isMouseDown) {
-                            toggleSelection(td);
-                        }
-                    });
-
-                    td.addEventListener("mouseup", () => {
-                        isMouseDown = false;
-                    });
-
+                    td.addEventListener("mousedown", () => toggleSelection(td));
+                    td.addEventListener("mouseover", (e) => { if (isMouseDown) toggleSelection(td); });
                     tr.appendChild(td);
                 });
 
                 tbody.appendChild(tr);
             }
+        }
 
             // Handle drag selection for touch screens
             document.addEventListener("mouseup", () => {
