@@ -93,9 +93,7 @@ app.get('/main-page.html', async (req, res) => {
         res.status(500).send("Server error.");
     }
 });
-if (!req.params.id || req.params.id.length !== 24) {
-    return res.status(400).json({ error: "Invalid event ID" });
-}
+
 app.get("/events/:id", async (req, res) => {
     const event = await Event.findById(req.params.id);
     if (!event) return res.status(404).json({ error: "Event not found" });
