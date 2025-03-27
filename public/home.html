@@ -291,6 +291,11 @@
 
                         // Generate a unique event URL
                         const eventId = result.eventId;  // Assuming the backend returns a unique event ID
+                        console.log("Event data before submission:", event);
+                        if (!event || !event._id) {
+                            alert("Event ID is missing. Please refresh the page.");
+                            return;
+                        }
                         window.location.href = `main-page.html?eventId=${event._id}`;
 
                         

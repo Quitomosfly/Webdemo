@@ -20,36 +20,41 @@
 
     <script>
         async function loadEventDetails() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const eventId = urlParams.get("eventId");
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get("eventId");
 
-        console.log("Fetching event with ID:", eventId); // Debugging step
+            console.log("Fetching event with ID:", eventId); // Debugging
 
-        if (!eventId) {
-            alert("Event not found!");
-            return;
-        }
-
-        try {
-            const response = await fetch(`/events/${eventId}`);
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || "Could not fetch event data.");
+            if (!eventId) {
+                alert("Event not found!");
+                return;
             }
 
-            const eventData = await response.json();
-            document.getElementById("eventTitle").textContent = eventData.eventName;
-            document.getElementById("eventSchedule").textContent = `Schedule Type: ${eventData.scheduleType}`;
-            document.getElementById("eventTimeRange").textContent = `Time Range: ${eventData.timeRange}`;
-            document.getElementById("eventSelectedDates").textContent = `Selected Dates: ${eventData.selectedDates.join(", ") || "N/A"}`;
-            document.getElementById("eventSelectedDays").textContent = `Selected Days: ${eventData.selectedDays.join(", ") || "N/A"}`;
-        } catch (error) {
-            console.error("Error fetching event data:", error);
-            alert("Failed to load event details: " + error.message);
+            try {
+                const response = await fetch(`/events/${eventId}`);
+                if (!response.ok) {
+                    throw new Error("Could not fetch event data.");
+                }
+
+                const eventData = await response.json();
+                console.log("Received event data:", eventData); // Debugging
+
+                if (!eventData._id) {
+                    throw new Error("Invalid event data received.");
+                }
+
+                // Update the event details in HTML
+                document.getElementById("eventTitle").textContent = eventData.eventName;
+                document.getElementById("eventSchedule").textContent = `Schedule Type: ${eventData.scheduleType}`;
+                document.getElementById("eventTimeRange").textContent = `Time Range: ${eventData.timeRange}`;
+                document.getElementById("eventSelectedDates").textContent = `Selected Dates: ${eventData.selectedDates.join(", ") || "N/A"}`;
+                document.getElementById("eventSelectedDays").textContent = `Selected Days: ${eventData.selectedDays.join(", ") || "N/A"}`;
+
+            } catch (error) {
+                console.error("Error fetching event data:", error);
+                alert("Failed to load event details: " + error.message);
+            }
         }
-    }
-    
-        document.addEventListener('DOMContentLoaded', loadEventDetails);
     </script>
     <script src="./script.js"></script>
 
