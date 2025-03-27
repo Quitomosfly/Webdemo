@@ -18,6 +18,9 @@
             background-color: #4CAF50;
             color: white;
         }
+        .time-slot {
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -32,6 +35,19 @@
     <input type="text" id="shareLink" readonly>
     <button onclick="copyLink()">Copy Link</button>
 
+    <h2>Schedule Grid</h2>
+    <table id="scheduleTable">
+        <thead>
+            <tr>
+                <th>Time</th>
+                <!-- Date headers will be inserted dynamically -->
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Time slots will be inserted dynamically -->
+        </tbody>
+    </table>
+
     <script>
         async function fetchEventData() {
             const params = new URLSearchParams(window.location.search);
@@ -45,10 +61,9 @@
             try {
                 const response = await fetch(`/events/${eventId}`);
 
-                // Check if response is HTML (server error)
                 const contentType = response.headers.get("content-type");
                 if (!response.ok || !contentType.includes("application/json")) {
-                    const errorText = await response.text(); // Read error as text
+                    const errorText = await response.text();
                     throw new Error(`Server Error: ${errorText}`);
                 }
 
@@ -60,12 +75,79 @@
                 document.getElementById("selectedDates").innerText = event.selectedDates.join(", ") || "N/A";
                 document.getElementById("selectedDays").innerText = event.selectedDays.join(", ") || "N/A";
 
-                // Generate shareable URL
                 const shareURL = `${window.location.origin}/main-page.html?id=${eventId}`;
                 document.getElementById("shareLink").value = shareURL;
+
+                generateScheduleGrid(event);
             } catch (error) {
                 document.body.innerHTML = `<h2>Error loading event: ${error.message}</h2>`;
             }
+        }
+
+        function generateScheduleGrid(event) {
+            const scheduleTable = document.getElementById("scheduleTable");
+            const theadRow = scheduleTable.querySelector("thead tr");
+            const tbody = scheduleTable.querySelector("tbody");
+
+            // Clear existing table data
+            theadRow.innerHTML = "<th>Time</th>";
+            tbody.innerHTML = "";
+
+            // Get event details
+            const dates = event.selectedDates;
+            const timeRange = event.timeRange.split(" - "); // Example: "9 AM - 5 PM"
+            const startHour = convertTo24HourFormat(timeRange[0]);
+            const endHour = convertTo24HourFormat(timeRange[1]);
+
+            // Add date headers
+            dates.forEach(date => {
+                const th = document.createElement("th");
+                th.innerText = date;
+                theadRow.appendChild(th);
+            });
+
+            // Create time slots
+            for (let hour = startHour; hour <= endHour; hour++) {
+                const tr = document.createElement("tr");
+                const timeCell = document.createElement("td");
+                timeCell.innerText = formatTime(hour);
+                tr.appendChild(timeCell);
+
+                // Create time slots for each date
+                dates.forEach(date => {
+                    const td = document.createElement("td");
+                    td.classList.add("time-slot");
+                    td.dataset.date = date;
+                    td.dataset.hour = hour;
+
+                    // Mark selected time slots
+                    if (event.selectedTimes && event.selectedTimes.includes(`${date}-${hour}`)) {
+                        td.classList.add("selected");
+                    }
+
+                    td.addEventListener("click", () => {
+                        td.classList.toggle("selected");
+                    });
+
+                    tr.appendChild(td);
+                });
+
+                tbody.appendChild(tr);
+            }
+        }
+
+        function convertTo24HourFormat(time) {
+            const [hour, modifier] = time.split(" ");
+            let hourInt = parseInt(hour);
+            if (modifier === "PM" && hourInt !== 12) hourInt += 12;
+            if (modifier === "AM" && hourInt === 12) hourInt = 0;
+            return hourInt;
+        }
+
+        function formatTime(hour) {
+            const suffix = hour >= 12 ? "PM" : "AM";
+            let displayHour = hour % 12 || 12; // Convert 24-hour to 12-hour format
+            return `${displayHour} ${suffix}`;
         }
 
         function copyLink() {
