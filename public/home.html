@@ -291,7 +291,8 @@
 
                         // Generate a unique event URL
                         const eventId = result.eventId;  // Assuming the backend returns a unique event ID
-                        window.location.href = `main-page.html?eventId=${eventId}`;
+                        window.location.href = `main-page.html?eventId=${event._id}`;
+
                         
                     } catch (error) {
                         console.error('Error:', error);
