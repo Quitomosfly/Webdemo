@@ -82,10 +82,19 @@ app.get("/schedule", async (req, res) => {
 
 app.get('/events/:eventId', async (req, res) => {
     try {
-        const event = await Event.findById(req.params.eventId);
+        const { eventId } = req.params;
+        
+        // Check if eventId is a valid MongoDB ObjectId
+        if (!mongoose.Types.ObjectId.isValid(eventId)) {
+            return res.status(400).json({ error: "Invalid event ID format" });
+        }
+
+        const event = await Event.findById(eventId);
         if (!event) return res.status(404).json({ error: "Event not found" });
+
         res.json(event);
     } catch (error) {
+        console.error("Server error fetching event:", error.message);
         res.status(500).json({ error: "Server error" });
     }
 });
@@ -100,3 +109,5 @@ app.get('/health', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+mongoose.set("debug", true);
