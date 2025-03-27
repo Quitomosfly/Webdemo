@@ -81,10 +81,12 @@ app.get("/schedule", async (req, res) => {
     }
 });
 
-app.get('/events/:_id', async (req, res) => {
+app.get('/events/:eventId', async (req, res) => {
     const { eventId } = req.params;
 
-    // Validate that eventId is a valid MongoDB ObjectId
+    console.log("Received request for event ID:", eventId); // Debugging log
+
+    // Validate MongoDB ObjectId format
     if (!mongoose.Types.ObjectId.isValid(eventId)) {
         console.error("Invalid event ID format:", eventId);
         return res.status(400).json({ error: "Invalid event ID format" });
