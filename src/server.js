@@ -8,7 +8,6 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const eventId = decodeURIComponent(urlParams.get("eventId"));
 
 // Middleware
 app.use(cors());
@@ -85,8 +84,9 @@ app.get("/schedule", async (req, res) => {
 app.get('/events/:eventId', async (req, res) => {
     const { eventId } = req.params;
 
-    // Validate ObjectId format before querying
+    // Validate that eventId is a valid MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(eventId)) {
+        console.error("Invalid event ID format:", eventId);
         return res.status(400).json({ error: "Invalid event ID format" });
     }
 
@@ -97,7 +97,7 @@ app.get('/events/:eventId', async (req, res) => {
         }
         res.json(event);
     } catch (error) {
-        console.error("Error fetching event:", error);
+        console.error("Database error fetching event:", error);
         res.status(500).json({ error: "Server error" });
     }
 });
