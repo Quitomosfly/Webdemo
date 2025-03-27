@@ -13,13 +13,11 @@
             border: 1px solid #ccc;
             padding: 10px;
             text-align: center;
+            cursor: pointer;
         }
         .selected {
             background-color: #4CAF50;
             color: white;
-        }
-        .time-slot {
-            cursor: pointer;
         }
     </style>
 </head>
@@ -40,15 +38,17 @@
         <thead>
             <tr>
                 <th>Time</th>
-                <!-- Date headers will be inserted dynamically -->
+                <!-- Date headers inserted dynamically -->
             </tr>
         </thead>
         <tbody>
-            <!-- Time slots will be inserted dynamically -->
+            <!-- Time slots inserted dynamically -->
         </tbody>
     </table>
 
     <script>
+        let isMouseDown = false;
+
         async function fetchEventData() {
             const params = new URLSearchParams(window.location.search);
             const eventId = params.get("id");
@@ -125,8 +125,19 @@
                         td.classList.add("selected");
                     }
 
-                    td.addEventListener("click", () => {
-                        td.classList.toggle("selected");
+                    td.addEventListener("mousedown", (e) => {
+                        isMouseDown = true;
+                        toggleSelection(td);
+                    });
+
+                    td.addEventListener("mouseover", (e) => {
+                        if (isMouseDown) {
+                            toggleSelection(td);
+                        }
+                    });
+
+                    td.addEventListener("mouseup", () => {
+                        isMouseDown = false;
                     });
 
                     tr.appendChild(td);
@@ -134,6 +145,36 @@
 
                 tbody.appendChild(tr);
             }
+
+            // Handle drag selection for touch screens
+            document.addEventListener("mouseup", () => {
+                isMouseDown = false;
+            });
+
+            document.addEventListener("touchstart", (event) => {
+                if (event.target.classList.contains("time-slot")) {
+                    isMouseDown = true;
+                    toggleSelection(event.target);
+                }
+            });
+
+            document.addEventListener("touchmove", (event) => {
+                if (isMouseDown) {
+                    const touch = event.touches[0];
+                    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                    if (element && element.classList.contains("time-slot")) {
+                        toggleSelection(element);
+                    }
+                }
+            });
+
+            document.addEventListener("touchend", () => {
+                isMouseDown = false;
+            });
+        }
+
+        function toggleSelection(td) {
+            td.classList.toggle("selected");
         }
 
         function convertTo24HourFormat(time) {
