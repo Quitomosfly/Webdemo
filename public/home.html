@@ -289,7 +289,7 @@
                     }
 
                     // Redirect to main-page.html with the event ID
-                    window.location.href = `/main-page.html?id=${result.eventId}`;
+                    window.location.href = `/main-page.html?id=${result._id}`;
                 } catch (error) {
                     console.error("Error:", error);
                     alert(`Failed to submit the form: ${error.message}`);
