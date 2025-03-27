@@ -5,7 +5,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 
-const eventId = urlParams.get('eventId');
+const Event = require('./models/Event'); // Assuming you have an Event model
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -82,22 +82,12 @@ app.get("/schedule", async (req, res) => {
 });
 
 app.get('/events/:eventId', async (req, res) => {
-    const { eventId } = req.params;
-
-    // Check if eventId is a valid MongoDB ObjectId
-    if (!mongoose.Types.ObjectId.isValid(eventId)) {
-        return res.status(400).json({ error: "Invalid Event ID format." });
-    }
-
     try {
-        const event = await Event.findById(eventId);
-        if (!event) {
-            return res.status(404).json({ error: "Event not found." });
-        }
+        const event = await Event.findById(req.params.eventId);
+        if (!event) return res.status(404).json({ error: "Event not found" });
         res.json(event);
     } catch (error) {
-        console.error("Error fetching event:", error);
-        res.status(500).json({ error: "Internal server error." });
+        res.status(500).json({ error: "Server error" });
     }
 });
 
