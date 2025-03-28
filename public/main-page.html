@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<<<<<<< HEAD
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Event Schedule</title>
@@ -56,40 +55,11 @@
 
             if (!eventId) {
                 document.body.innerHTML = "<h2>Invalid Event ID</h2>";
-=======
-    <title>Main Event Page</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .event-details { border: 1px solid #ccc; padding: 20px; border-radius: 5px; }
-        h2 { margin-top: 0; }
-    </style>
-</head>
-<body>
-    <h1>Event Details</h1>
-    <div class="event-details">
-        <h2 id="eventTitle">Loading...</h2>
-        <p id="eventSchedule"></p>
-        <p id="eventTimeRange"></p>
-        <p id="eventSelectedDates"></p>
-        <p id="eventSelectedDays"></p>
-    </div>
-
-    <script>
-        async function loadEventDetails() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const eventId = urlParams.get("eventId");
-
-            console.log("Fetching event with ID:", eventId); // Debugging
-
-            if (!eventId) {
-                alert("Event not found!");
->>>>>>> 39fcad8959521ae7c30c6691ee9d4171a71faa7f
                 return;
             }
 
             try {
                 const response = await fetch(`/events/${eventId}`);
-<<<<<<< HEAD
 
                 const contentType = response.headers.get("content-type");
                 if (!response.ok || !contentType.includes("application/json")) {
@@ -111,29 +81,6 @@
                 generateScheduleGrid(event);
             } catch (error) {
                 document.body.innerHTML = `<h2>Error loading event: ${error.message}</h2>`;
-=======
-                if (!response.ok) {
-                    throw new Error("Could not fetch event data.");
-                }
-
-                const eventData = await response.json();
-                console.log("Received event data:", eventData); // Debugging
-
-                if (!eventData._id) {
-                    throw new Error("Invalid event data received.");
-                }
-
-                // Update the event details in HTML
-                document.getElementById("eventTitle").textContent = eventData.eventName;
-                document.getElementById("eventSchedule").textContent = `Schedule Type: ${eventData.scheduleType}`;
-                document.getElementById("eventTimeRange").textContent = `Time Range: ${eventData.timeRange}`;
-                document.getElementById("eventSelectedDates").textContent = `Selected Dates: ${eventData.selectedDates.join(", ") || "N/A"}`;
-                document.getElementById("eventSelectedDays").textContent = `Selected Days: ${eventData.selectedDays.join(", ") || "N/A"}`;
-
-            } catch (error) {
-                console.error("Error fetching event data:", error);
-                alert("Failed to load event details: " + error.message);
->>>>>>> 39fcad8959521ae7c30c6691ee9d4171a71faa7f
             }
         }
 
