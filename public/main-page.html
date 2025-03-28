@@ -153,40 +153,39 @@
         }
 
         async function submitAvailability() {
-            const userName = document.getElementById("userName").value.trim();
-            if (!userName) {
-                alert("Please enter your name.");
+            const params = new URLSearchParams(window.location.search);
+            const eventId = params.get("id");
+            const name = document.getElementById("userName").value;
+            const selectedTimes = Array.from(document.querySelectorAll(".selected")).map(td => ({
+                day: td.dataset.header,
+                time: td.dataset.hour
+            }));
+
+            if (!name || selectedTimes.length === 0) {
+                alert("Please enter your name and select availability.");
                 return;
             }
 
-            if (selectedSlots.size === 0) {
-                alert("Please select your availability.");
-                return;
-            }
-
-            const availabilityData = {
-                user: userName,
-                availabilities: Array.from(selectedSlots)
-            };
+            const requestData = { name, availabilities: selectedTimes };
+            console.log(`Sending Data:`, requestData); // ✅ Log request data
 
             try {
                 const response = await fetch(`/event/${eventId}/submit`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(availabilityData)
+                    body: JSON.stringify(requestData)
                 });
 
-                if (!response.ok) {
-                    throw new Error(`Failed to submit availability: ${await response.text()}`);
-                }
+                const data = await response.json();
+                console.log(`Response Data:`, data); // ✅ Log response data
 
-                alert("Availability submitted successfully!");
-                selectedSlots.clear();
-                document.querySelectorAll(".selected").forEach(cell => cell.classList.remove("selected"));
+                if (!response.ok) throw new Error(data.error);
+                alert("Availability saved successfully!");
             } catch (error) {
-                alert(error.message);
+                console.error(`Error submitting availability:`, error);
+                alert(`Error: ${error.message}`);
             }
-        }
+        }   
 
         document.addEventListener("mouseup", () => { isMouseDown = false; });
         document.addEventListener("mousedown", () => { isMouseDown = true; });

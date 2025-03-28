@@ -32,7 +32,18 @@ const eventSchema = new mongoose.Schema({
     scheduleType: String,
     selectedDates: [String],
     selectedDays: [String],
-    timeRange: String
+    timeRange: String,
+    users: [
+        {
+            name: String,
+            availabilities: [
+                {
+                    day: String,
+                    time: String
+                }
+            ]
+        }
+    ]
 });
 
 const Event = mongoose.model('Event', eventSchema, 'events');
@@ -51,19 +62,25 @@ app.post('/event/:eventId/submit', async (req, res) => {
     const { eventId } = req.params;
     const { name, availabilities } = req.body;
 
+    console.log(`Received Data:`, req.body); // ✅ Log received data
+    console.log(`Updating Event ID: ${eventId}`);
+
     try {
         const event = await Event.findById(eventId);
         if (!event) {
+            console.error("Event not found!");
             return res.status(404).json({ error: "Event not found" });
         }
 
-        // Add user availability
         event.users = event.users || [];
         event.users.push({ name, availabilities });
 
-        await event.save();
-        res.status(200).json({ message: "Availability saved successfully!" });
+        const updatedEvent = await event.save();
+        console.log(`Updated Event:`, updatedEvent); // ✅ Log the updated event
+        
+        res.status(200).json({ message: "Availability saved successfully!", event: updatedEvent });
     } catch (error) {
+        console.error(`Database update failed:`, error);
         res.status(500).json({ error: "Internal server error" });
     }
 });
