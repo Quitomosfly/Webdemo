@@ -5,10 +5,9 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 
-
-
 const app = express();
 const PORT = process.env.PORT || 3000;
+
 
 // Middleware
 app.use(cors());
@@ -27,6 +26,7 @@ app.get('/', (req, res) => {
 
 // Define Event Schema
 const eventSchema = new mongoose.Schema({
+    _id: { type: mongoose.Schema.Types.ObjectId, auto: true }, 
     eventName: String,
     selectedOption: String,
     scheduleType: String,
@@ -35,6 +35,7 @@ const eventSchema = new mongoose.Schema({
     timeRange: String
 });
 
+<<<<<<< HEAD
 const Event = mongoose.model('Event', eventSchema, 'events');
 app.post("/events", async (req, res) => {
     try {
@@ -47,6 +48,10 @@ app.post("/events", async (req, res) => {
         res.status(500).json({ error: "Failed to create event" });
     }
 });
+=======
+
+const Event = mongoose.models.Event || mongoose.model('Event', eventSchema, 'events');
+>>>>>>> 39fcad8959521ae7c30c6691ee9d4171a71faa7f
 
 // Route to handle form submission
 app.post('/events', async (req, res) => {
@@ -75,16 +80,45 @@ app.post('/events', async (req, res) => {
     }
 });
 
+<<<<<<< HEAD
 app.get('/main-page.html', async (req, res) => {
     const eventId = req.query.id;
     
     if (!eventId || eventId === "undefined") {
         return res.status(400).send("Invalid event ID.");
+=======
+const ScheduleSchema = new mongoose.Schema({
+    eventName: String,
+    selectedDays: [String],  // Example: ["Mon", "Tue", "Wed"]
+    timeRange: String        // Example: "04:00 - 11:00"
+});
+
+const Schedule = mongoose.models.Schedule || mongoose.model('Schedule', ScheduleSchema);
+
+
+app.get("/schedule", async (req, res) => {
+    try {
+        const schedule = await Schedule.findOne(); // Fetch first schedule entry
+        res.json(schedule);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get('/events/:eventId', async (req, res) => {
+    const { eventId } = req.params;
+
+    console.log("Received eventId:", eventId); // Debugging
+
+    if (!mongoose.Types.ObjectId.isValid(eventId)) {
+        return res.status(400).json({ error: "Invalid event ID format" });
+>>>>>>> 39fcad8959521ae7c30c6691ee9d4171a71faa7f
     }
 
     try {
         const event = await Event.findById(eventId);
         if (!event) {
+<<<<<<< HEAD
             return res.status(404).send("Event not found.");
         }
         res.json(event);
@@ -110,10 +144,22 @@ app.get("/events/:id", async (req, res) => {
         res.json(event);
     } catch (error) {
         console.error("Error fetching event:", error);
+=======
+            return res.status(404).json({ error: "Event not found" });
+        }
+
+        console.log("Returning event data:", event); // Debugging
+        res.json(event);
+    } catch (err) {
+>>>>>>> 39fcad8959521ae7c30c6691ee9d4171a71faa7f
         res.status(500).json({ error: "Server error" });
     }
 });
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 39fcad8959521ae7c30c6691ee9d4171a71faa7f
 // Health check endpoint for Render
 app.get('/health', (req, res) => {
     res.status(200).send('Server is running smoothly!');
@@ -123,3 +169,5 @@ app.get('/health', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+mongoose.set("debug", true);

@@ -284,17 +284,16 @@
 
                     const result = await response.json();
 
-                    if (!response.ok) {
-                        throw new Error(result.error || "Unknown error occurred.");
-                    }
+                        if (!response.ok) {
+                            throw new Error(result.error || 'Unknown error occurred.');
+                        }
 
-                    // Redirect to main-page.html with the event ID
-                    window.location.href = `/main-page.html?id=${result._id}`;
-                } catch (error) {
-                    console.error("Error:", error);
-                    alert(`Failed to submit the form: ${error.message}`);
-                }
-            });
+                        alert(result.message);
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert(`Failed to submit the form: ${error.message}`);
+                    }
+        });
         </script>
             <button type = "submit">Submit</button>
         </form>
