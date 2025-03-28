@@ -217,7 +217,7 @@
             document.getElementById('timeSelection').style.display = 'none';
         }
 
-        document.getElementById('calendarContainer').style.display = 'none';
+        document.getElementById('calendarContainer').style.display = 'block';
         document.getElementById('dayContainer').style.display = 'none';
     }
 
@@ -235,7 +235,10 @@
         }
     }
 
-    toggleVisibility();
+    window.onload = function () {
+        toggleVisibility();
+    };
+
     datesMethod.addEventListener('change', toggleVisibility);
 
     const days = document.querySelectorAll('.day');
