@@ -54,16 +54,14 @@
         button:hover {
             background-color: #45a049;
         }
-        .day-container, .date-container {
+        .day-container, .calendar-container {
             display: none;
             margin-top: 10px;
         }
-
         .visible {
             display: flex;
             gap: 5px;
         }
-
         .day {
             width: 40px;
             height: 40px;
@@ -75,17 +73,28 @@
             cursor: pointer;
             user-select: none;
         }
-
         .selected {
             background-color: #d1e7dd;
             color: #198754;
             font-weight: bold;
         }
-
         .flatpickr-calendar {
             display: block;
             width: 100%;
             max-width: 320px;
+        }
+        .toggle-btn {
+            padding: 10px 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #f3f3f3;
+            outline: none;
+        }
+        .active {
+            background-color: #d1e7dd;  /* Green active state */
+            color: #198754;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -102,14 +111,9 @@
     <div class="form-group">
         <label>Event Type:</label>
         <div class="button-group">
-            <button id="datesTimesButton" class="toggle-btn-active" onclick="selectEventType('datesAndTimes')">Dates and Times</button>
-            <button id="datesOnlyButton" class="toggle-btn" onclick="selectEventType('datesOnly')">Dates Only</button>
+            <button id="datesTimesButton" class="toggle-btn" onclick="selectEventType('datesAndTimes')">Dates and Times</button>
+            <button id="datesOnlyButton" class="toggle-btn active" onclick="selectEventType('datesOnly')">Dates Only</button>
         </div>
-    </div>
-
-    <div class="form-group" id="dateSelection">
-        <label for="eventDate">Choose Date:</label>
-        <input type="date" id="eventDate" name="eventDate">
     </div>
 
     <div class="form-group" id="timeSelection" style="display: none;">
@@ -175,16 +179,22 @@
             <option value="specific-dates">Specific dates</option>
             <option value="days-of-the-week">Days of the week</option>
         </select>
+    </div>
 
-        <div class="day-container" id="dayContainer">
-            <div class="day" data-day="Sun">Sun</div>
-            <div class="day" data-day="Mon">Mon</div>
-            <div class="day" data-day="Tue">Tue</div>
-            <div class="day" data-day="Wed">Wed</div>
-            <div class="day" data-day="Thu">Thu</div>
-            <div class="day" data-day="Fri">Fri</div>
-            <div class="day" data-day="Sat">Sat</div>
-        </div>
+    <!-- Days of the Week -->
+    <div class="day-container" id="dayContainer">
+        <div class="day" data-day="Sun">Sun</div>
+        <div class="day" data-day="Mon">Mon</div>
+        <div class="day" data-day="Tue">Tue</div>
+        <div class="day" data-day="Wed">Wed</div>
+        <div class="day" data-day="Thu">Thu</div>
+        <div class="day" data-day="Fri">Fri</div>
+        <div class="day" data-day="Sat">Sat</div>
+    </div>
+
+    <div class="calendar-container" id="calendarContainer">
+        <label for="datePicker">What dates might work?</label>
+        <div id="datePicker"></div>
     </div>
 
     <button id="submitEvent" onclick="submitEvent()">Create Event</button>
@@ -207,17 +217,21 @@
             document.getElementById('timeSelection').style.display = 'none';
         }
 
-        document.getElementById('dateSelection').style.display = 'block';
+        document.getElementById('calendarContainer').style.display = 'none';
+        document.getElementById('dayContainer').style.display = 'none';
     }
 
     const datesMethod = document.getElementById('dates-method');
-    const dayContainer = document.getElementById('dayContainer'); 
+    const dayContainer = document.getElementById('dayContainer');
+    const calendarContainer = document.getElementById('calendarContainer');
 
     function toggleVisibility() {
         if (datesMethod.value === 'days-of-the-week') {
-            dayContainer.classList.add('visible');
+            dayContainer.style.display = 'flex';
+            calendarContainer.style.display = 'none';
         } else {
-            dayContainer.classList.remove('visible');
+            dayContainer.style.display = 'none';
+            calendarContainer.style.display = 'block';
         }
     }
 
@@ -233,12 +247,23 @@
         });
     });
 
+    let selectedDates = [];
+    flatpickr("#datePicker", {
+        inline: true,
+        mode: "multiple",
+        dateFormat: "Y-m-d",
+        minDate: "today",
+        onChange: function (dates) {
+            selectedDates = dates.map(date => date.toISOString().slice(0, 10));
+        }
+    });
+
     function submitEvent() {
         const eventName = document.getElementById('eventName').value;
-        const eventDate = document.getElementById('eventDate').value;
+        const eventDate = selectedDates.join(', ');
         const eventTime = eventType === 'datesAndTimes' ? `${document.getElementById('event_first_interval_time').value} to ${document.getElementById('event_second_interval_time').value}` : 'N/A';
 
-        alert(`Event Created! \nName: ${eventName} \nDate: ${eventDate} \nType: ${eventType} \nTime: ${eventTime}`);
+        alert(`Event Created! \nName: ${eventName} \nDate(s): ${eventDate} \nType: ${eventType} \nTime: ${eventTime}`);
     }
 </script>
 
