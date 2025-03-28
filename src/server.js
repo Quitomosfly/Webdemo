@@ -47,6 +47,26 @@ app.post("/events", async (req, res) => {
         res.status(500).json({ error: "Failed to create event" });
     }
 });
+app.post('/event/:eventId/submit', async (req, res) => {
+    const { eventId } = req.params;
+    const { name, availabilities } = req.body;
+
+    try {
+        const event = await Event.findById(eventId);
+        if (!event) {
+            return res.status(404).json({ error: "Event not found" });
+        }
+
+        // Add user availability
+        event.users = event.users || [];
+        event.users.push({ name, availabilities });
+
+        await event.save();
+        res.status(200).json({ message: "Availability saved successfully!" });
+    } catch (error) {
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
 
 // Route to handle form submission
 app.post('/events', async (req, res) => {
