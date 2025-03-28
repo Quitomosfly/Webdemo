@@ -35,8 +35,23 @@ const eventSchema = new mongoose.Schema({
     timeRange: String
 });
 
+<<<<<<< HEAD
+const Event = mongoose.model('Event', eventSchema, 'events');
+app.post("/events", async (req, res) => {
+    try {
+        const newEvent = new Event(req.body); // Ensure `Event` model is correct
+        await newEvent.save();
+
+        res.status(201).json({ _id: newEvent._id }); // Ensure _id is sent back
+    } catch (error) {
+        console.error("Error creating event:", error);
+        res.status(500).json({ error: "Failed to create event" });
+    }
+});
+=======
 
 const Event = mongoose.models.Event || mongoose.model('Event', eventSchema, 'events');
+>>>>>>> 39fcad8959521ae7c30c6691ee9d4171a71faa7f
 
 // Route to handle form submission
 app.post('/events', async (req, res) => {
@@ -65,6 +80,13 @@ app.post('/events', async (req, res) => {
     }
 });
 
+<<<<<<< HEAD
+app.get('/main-page.html', async (req, res) => {
+    const eventId = req.query.id;
+    
+    if (!eventId || eventId === "undefined") {
+        return res.status(400).send("Invalid event ID.");
+=======
 const ScheduleSchema = new mongoose.Schema({
     eventName: String,
     selectedDays: [String],  // Example: ["Mon", "Tue", "Wed"]
@@ -90,22 +112,54 @@ app.get('/events/:eventId', async (req, res) => {
 
     if (!mongoose.Types.ObjectId.isValid(eventId)) {
         return res.status(400).json({ error: "Invalid event ID format" });
+>>>>>>> 39fcad8959521ae7c30c6691ee9d4171a71faa7f
     }
 
     try {
         const event = await Event.findById(eventId);
         if (!event) {
+<<<<<<< HEAD
+            return res.status(404).send("Event not found.");
+        }
+        res.json(event);
+    } catch (error) {
+        console.error("Error fetching event:", error);
+        res.status(500).send("Server error.");
+    }
+});
+
+app.get("/events/:id", async (req, res) => {
+    const { id } = req.params;
+
+    // Check if ID is valid (MongoDB ObjectId must be 24 characters)
+    if (!id || id.length !== 24) {
+        return res.status(400).json({ error: "Invalid event ID" });
+    }
+
+    try {
+        const event = await Event.findById(id);
+        if (!event) {
+            return res.status(404).json({ error: "Event not found" });
+        }
+        res.json(event);
+    } catch (error) {
+        console.error("Error fetching event:", error);
+=======
             return res.status(404).json({ error: "Event not found" });
         }
 
         console.log("Returning event data:", event); // Debugging
         res.json(event);
     } catch (err) {
+>>>>>>> 39fcad8959521ae7c30c6691ee9d4171a71faa7f
         res.status(500).json({ error: "Server error" });
     }
 });
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> 39fcad8959521ae7c30c6691ee9d4171a71faa7f
 // Health check endpoint for Render
 app.get('/health', (req, res) => {
     res.status(200).send('Server is running smoothly!');

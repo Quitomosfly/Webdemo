@@ -1,6 +1,62 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<<<<<<< HEAD
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Schedule</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        td, th {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .selected {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Event Schedule</h1>
+    <h2 id="eventName"></h2>
+    <p><strong>Schedule Type:</strong> <span id="scheduleType"></span></p>
+    <p><strong>Time Range:</strong> <span id="timeRange"></span></p>
+    <p><strong>Selected Dates:</strong> <span id="selectedDates"></span></p>
+    <p><strong>Selected Days:</strong> <span id="selectedDays"></span></p>
+    
+    <h3>Share this link:</h3>
+    <input type="text" id="shareLink" readonly>
+    <button onclick="copyLink()">Copy Link</button>
+
+    <h2>Schedule Grid</h2>
+    <table id="scheduleTable">
+        <thead>
+            <tr>
+                <th>Time</th>
+                <!-- Headers inserted dynamically -->
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Time slots inserted dynamically -->
+        </tbody>
+    </table>
+
+    <script>
+        let isMouseDown = false;
+
+        async function fetchEventData() {
+            const params = new URLSearchParams(window.location.search);
+            const eventId = params.get("id");
+
+            if (!eventId) {
+                document.body.innerHTML = "<h2>Invalid Event ID</h2>";
+=======
     <title>Main Event Page</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
@@ -27,11 +83,35 @@
 
             if (!eventId) {
                 alert("Event not found!");
+>>>>>>> 39fcad8959521ae7c30c6691ee9d4171a71faa7f
                 return;
             }
 
             try {
                 const response = await fetch(`/events/${eventId}`);
+<<<<<<< HEAD
+
+                const contentType = response.headers.get("content-type");
+                if (!response.ok || !contentType.includes("application/json")) {
+                    const errorText = await response.text();
+                    throw new Error(`Server Error: ${errorText}`);
+                }
+
+                const event = await response.json();
+
+                document.getElementById("eventName").innerText = event.eventName;
+                document.getElementById("scheduleType").innerText = event.scheduleType;
+                document.getElementById("timeRange").innerText = event.timeRange;
+                document.getElementById("selectedDates").innerText = event.selectedDates ? event.selectedDates.join(", ") : "N/A";
+                document.getElementById("selectedDays").innerText = event.selectedDays ? event.selectedDays.join(", ") : "N/A";
+
+                const shareURL = `${window.location.origin}/main-page.html?id=${eventId}`;
+                document.getElementById("shareLink").value = shareURL;
+
+                generateScheduleGrid(event);
+            } catch (error) {
+                document.body.innerHTML = `<h2>Error loading event: ${error.message}</h2>`;
+=======
                 if (!response.ok) {
                     throw new Error("Could not fetch event data.");
                 }
@@ -53,8 +133,111 @@
             } catch (error) {
                 console.error("Error fetching event data:", error);
                 alert("Failed to load event details: " + error.message);
+>>>>>>> 39fcad8959521ae7c30c6691ee9d4171a71faa7f
             }
         }
+
+        function generateScheduleGrid(event) {
+            const scheduleTable = document.getElementById("scheduleTable");
+            const theadRow = scheduleTable.querySelector("thead tr");
+            const tbody = scheduleTable.querySelector("tbody");
+
+            // Clear existing table data
+            theadRow.innerHTML = "<th>Time</th>";
+            tbody.innerHTML = "";
+
+            // Determine if schedule is based on specific dates or days of the week
+            const isDaysOfWeek = event.scheduleType === "Days of the Week";
+            const headers = isDaysOfWeek ? event.selectedDays : event.selectedDates;
+
+            if (!headers || headers.length === 0) {
+                console.error("No headers available:", headers);
+                return;
+            }
+
+            const timeRange = event.timeRange.split(" - "); // Example: "9 AM - 5 PM"
+            const startHour = convertTo24HourFormat(timeRange[0]);
+            const endHour = convertTo24HourFormat(timeRange[1]);
+
+            // Add headers (days of the week or specific dates)
+            headers.forEach(header => {
+                const th = document.createElement("th");
+                th.innerText = header;
+                theadRow.appendChild(th);
+            });
+
+            // Create time slots
+            for (let hour = startHour; hour <= endHour; hour++) {
+                const tr = document.createElement("tr");
+                const timeCell = document.createElement("td");
+                timeCell.innerText = formatTime(hour);
+                tr.appendChild(timeCell);
+
+                headers.forEach(header => {
+                    const td = document.createElement("td");
+                    td.classList.add("time-slot");
+                    td.dataset.header = header;
+                    td.dataset.hour = hour;
+                    td.addEventListener("mousedown", () => toggleSelection(td));
+                    td.addEventListener("mouseover", (e) => { if (isMouseDown) toggleSelection(td); });
+                    tr.appendChild(td);
+                });
+
+                tbody.appendChild(tr);
+            }
+        }
+
+            // Handle drag selection for touch screens
+            document.addEventListener("mouseup", () => {
+                isMouseDown = false;
+            });
+
+            document.addEventListener("touchstart", (event) => {
+                if (event.target.classList.contains("time-slot")) {
+                    isMouseDown = true;
+                    toggleSelection(event.target);
+                }
+            });
+
+            document.addEventListener("touchmove", (event) => {
+                if (isMouseDown) {
+                    const touch = event.touches[0];
+                    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                    if (element && element.classList.contains("time-slot")) {
+                        toggleSelection(element);
+                    }
+                }
+            });
+
+            document.addEventListener("touchend", () => {
+                isMouseDown = false;
+            });
+        function toggleSelection(td) {
+            td.classList.toggle("selected");
+        }
+
+        function convertTo24HourFormat(time) {
+            const [hour, modifier] = time.split(" ");
+            let hourInt = parseInt(hour);
+            if (modifier === "PM" && hourInt !== 12) hourInt += 12;
+            if (modifier === "AM" && hourInt === 12) hourInt = 0;
+            return hourInt;
+        }
+
+        function formatTime(hour) {
+            const suffix = hour >= 12 ? "PM" : "AM";
+            let displayHour = hour % 12 || 12; // Convert 24-hour to 12-hour format
+            return `${displayHour} ${suffix}`;
+        }
+
+        function copyLink() {
+            const shareLink = document.getElementById("shareLink");
+            shareLink.select();
+            document.execCommand("copy");
+            alert("Link copied to clipboard!");
+        }
+
+        fetchEventData();
     </script>
     <script src="./script.js"></script>
 
