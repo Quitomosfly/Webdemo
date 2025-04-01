@@ -112,35 +112,21 @@
         </div>
     </div>
     
-    <div class="container">
-        <div class="event-container">
-            <div class="event-details">
-                <div class="event-name" id="eventTitle">Event Name</div>
-                <p id="eventSchedule"></p>
-                <p id="eventTimeRange"></p>
-                <p id="eventSelectedDates"></p>
-                <p id="eventSelectedDays"></p>
-            </div>
-            <div class="methods-participants">
-                <h3>Methods</h3>
-                <div class="button-container">
-                    <button>EAF</button>
-                    <button>CSV</button>
-                </div>
-                <h3>Participants</h3>
-                <p>Participant’s Name</p>
-                <p>Participant’s Name</p>
-                <p>Participant’s Name</p>
-                <p>Participant’s Name</p>
-                <button class="add-guest">Add Guest Availability</button>
-            </div>
-        </div>
+    <h1>Event Details</h1>
+    <div class="event-details">
+        <h2 id="eventTitle">Loading...</h2>
+        <p id="eventSchedule"></p>
+        <p id="eventTimeRange"></p>
+        <p id="eventSelectedDates"></p>
+        <p id="eventSelectedDays"></p>
     </div>
 
     <script>
         async function loadEventDetails() {
             const urlParams = new URLSearchParams(window.location.search);
             const eventId = urlParams.get("eventId");
+
+            console.log("Fetching event with ID:", eventId); // Debugging
 
             if (!eventId) {
                 alert("Event not found!");
@@ -154,17 +140,26 @@
                 }
 
                 const eventData = await response.json();
+                console.log("Received event data:", eventData); // Debugging
+
+                if (!eventData._id) {
+                    throw new Error("Invalid event data received.");
+                }
+
+                // Update the event details in HTML
                 document.getElementById("eventTitle").textContent = eventData.eventName;
                 document.getElementById("eventSchedule").textContent = `Schedule Type: ${eventData.scheduleType}`;
                 document.getElementById("eventTimeRange").textContent = `Time Range: ${eventData.timeRange}`;
                 document.getElementById("eventSelectedDates").textContent = `Selected Dates: ${eventData.selectedDates.join(", ") || "N/A"}`;
                 document.getElementById("eventSelectedDays").textContent = `Selected Days: ${eventData.selectedDays.join(", ") || "N/A"}`;
+
             } catch (error) {
                 console.error("Error fetching event data:", error);
                 alert("Failed to load event details: " + error.message);
             }
         }
-        loadEventDetails();
     </script>
+    <script src="./script.js"></script>
+
 </body>
 </html>
