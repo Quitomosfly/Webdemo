@@ -1,55 +1,55 @@
+
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    <title>Main Event Page</title>
-    <style>
-        .event-details { border: 1px solid #ccc; padding: 20px; border-radius: 5px; }
-        h2 { margin-top: 0; }
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 30px;
-            background-color: #ffffff;
-            border-bottom: 2px solid pink;
-        }
-        .navbar .logo {
-            font-size: 24px;
-            font-weight: bold;
-        }
-        .navbar .nav-links {
-            display: flex;
-            gap: 20px;
-        }
-        .navbar .nav-links a {
-            text-decoration: none;
-            color: black;
-            font-size: 16px;
-            margin: 0 15px;
-        }
-        .navbar .nav-links a:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
+    <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="styles.css">
+        <title>Main Event Page</title>
+        <style>
+            .event-details { border: 1px solid #ccc; padding: 20px; border-radius: 5px; }
+            h2 { margin-top: 0; }
+            .navbar {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 15px 30px;
+                background-color: #ffffff;
+                border-bottom: 2px solid pink;
+            }
+            .navbar .logo {
+                font-size: 24px;
+                font-weight: bold;
+            }
+            .navbar .nav-links {
+                display: flex;
+                gap: 20px;
+            }
+            .navbar .nav-links a {
+                text-decoration: none;
+                color: black;
+                font-size: 16px;
+                margin: 0 15px;
+            }
+            .navbar .nav-links a:hover {
+                text-decoration: underline;
+            }
+        </style>
+    </head>
 <body>
+    <h1>Event Schedule</h1>
     <h2 id="eventName"></h2>
+    <p><strong>Schedule Type:</strong> <span id="scheduleType"></span></p>
+    <p><strong>Time Range:</strong> <span id="timeRange"></span></p>
+    <p><strong>Selected Dates:</strong> <span id="selectedDates"></span></p>
+    <p><strong>Selected Days:</strong> <span id="selectedDays"></span></p>
     
     <h3>Share this link:</h3>
     <input type="text" id="shareLink" readonly>
     <button onclick="copyLink()">Copy Link</button>
 
     <h2>Schedule Grid</h2>
-
-    <!-- User Input Form -->
-    <label for="userName">Enter your name:</label>
-    <input type="text" id="userName" placeholder="Your Name">
-    <button onclick="submitAvailability()">Submit Availability</button>
-
     <table id="scheduleTable">
         <thead>
             <tr>
@@ -64,10 +64,11 @@
 
     <script>
         let isMouseDown = false;
-        let selectedSlots = new Set();  // Store selected time slots
-        let eventId = new URLSearchParams(window.location.search).get("id");
 
         async function fetchEventData() {
+            const params = new URLSearchParams(window.location.search);
+            const eventId = params.get("id");
+
             if (!eventId) {
                 document.body.innerHTML = "<h2>Invalid Event ID</h2>";
                 return;
@@ -75,6 +76,7 @@
 
             try {
                 const response = await fetch(`/events/${eventId}`);
+
                 const contentType = response.headers.get("content-type");
                 if (!response.ok || !contentType.includes("application/json")) {
                     const errorText = await response.text();
@@ -82,8 +84,16 @@
                 }
 
                 const event = await response.json();
+
                 document.getElementById("eventName").innerText = event.eventName;
-                document.getElementById("shareLink").value = `${window.location.origin}/main-page.html?id=${eventId}`;
+                document.getElementById("scheduleType").innerText = event.scheduleType;
+                document.getElementById("timeRange").innerText = event.timeRange;
+                document.getElementById("selectedDates").innerText = event.selectedDates ? event.selectedDates.join(", ") : "N/A";
+                document.getElementById("selectedDays").innerText = event.selectedDays ? event.selectedDays.join(", ") : "N/A";
+
+                const shareURL = `${window.location.origin}/main-page.html?id=${eventId}`;
+                document.getElementById("shareLink").value = shareURL;
+
                 generateScheduleGrid(event);
             } catch (error) {
                 document.body.innerHTML = `<h2>Error loading event: ${error.message}</h2>`;
@@ -95,9 +105,11 @@
             const theadRow = scheduleTable.querySelector("thead tr");
             const tbody = scheduleTable.querySelector("tbody");
 
+            // Clear existing table data
             theadRow.innerHTML = "<th>Time</th>";
             tbody.innerHTML = "";
 
+            // Determine if schedule is based on specific dates or days of the week
             const isDaysOfWeek = event.scheduleType === "Days of the Week";
             const headers = isDaysOfWeek ? event.selectedDays : event.selectedDates;
 
@@ -106,16 +118,18 @@
                 return;
             }
 
-            const timeRange = event.timeRange.split(" - ");
+            const timeRange = event.timeRange.split(" - "); // Example: "9 AM - 5 PM"
             const startHour = convertTo24HourFormat(timeRange[0]);
             const endHour = convertTo24HourFormat(timeRange[1]);
 
+            // Add headers (days of the week or specific dates)
             headers.forEach(header => {
                 const th = document.createElement("th");
                 th.innerText = header;
                 theadRow.appendChild(th);
             });
 
+            // Create time slots
             for (let hour = startHour; hour <= endHour; hour++) {
                 const tr = document.createElement("tr");
                 const timeCell = document.createElement("td");
@@ -136,14 +150,33 @@
             }
         }
 
+            // Handle drag selection for touch screens
+            document.addEventListener("mouseup", () => {
+                isMouseDown = false;
+            });
+
+            document.addEventListener("touchstart", (event) => {
+                if (event.target.classList.contains("time-slot")) {
+                    isMouseDown = true;
+                    toggleSelection(event.target);
+                }
+            });
+
+            document.addEventListener("touchmove", (event) => {
+                if (isMouseDown) {
+                    const touch = event.touches[0];
+                    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                    if (element && element.classList.contains("time-slot")) {
+                        toggleSelection(element);
+                    }
+                }
+            });
+
+            document.addEventListener("touchend", () => {
+                isMouseDown = false;
+            });
         function toggleSelection(td) {
             td.classList.toggle("selected");
-            const key = `${td.dataset.header}-${td.dataset.hour}`;
-            if (td.classList.contains("selected")) {
-                selectedSlots.add(key);
-            } else {
-                selectedSlots.delete(key);
-            }
         }
 
         function convertTo24HourFormat(time) {
@@ -156,7 +189,7 @@
 
         function formatTime(hour) {
             const suffix = hour >= 12 ? "PM" : "AM";
-            let displayHour = hour % 12 || 12;
+            let displayHour = hour % 12 || 12; // Convert 24-hour to 12-hour format
             return `${displayHour} ${suffix}`;
         }
 
@@ -166,44 +199,6 @@
             document.execCommand("copy");
             alert("Link copied to clipboard!");
         }
-
-        async function submitAvailability() {
-            const params = new URLSearchParams(window.location.search);
-            const eventId = params.get("id");
-            const name = document.getElementById("userName").value;
-            const selectedTimes = Array.from(document.querySelectorAll(".selected")).map(td => ({
-                day: td.dataset.header,
-                time: td.dataset.hour
-            }));
-
-            if (!name || selectedTimes.length === 0) {
-                alert("Please enter your name and select availability.");
-                return;
-            }
-
-            const requestData = { name, availabilities: selectedTimes };
-            console.log(`Sending Data:`, requestData); // ✅ Log request data
-
-            try {
-                const response = await fetch(`/event/${eventId}/submit`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(requestData)
-                });
-
-                const data = await response.json();
-                console.log(`Response Data:`, data); // ✅ Log response data
-
-                if (!response.ok) throw new Error(data.error);
-                alert("Availability saved successfully!");
-            } catch (error) {
-                console.error(`Error submitting availability:`, error);
-                alert(`Error: ${error.message}`);
-            }
-        }   
-
-        document.addEventListener("mouseup", () => { isMouseDown = false; });
-        document.addEventListener("mousedown", () => { isMouseDown = true; });
 
         fetchEventData();
     </script>
