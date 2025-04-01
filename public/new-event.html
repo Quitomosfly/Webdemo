@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create New Event</title>
+<<<<<<< HEAD
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
@@ -12,6 +13,16 @@
             font-family: Arial, sans-serif;
             padding: 20px;
         }
+=======
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+>>>>>>> 115ea6768e4d05c48ea06235e14eacc734656002
         .container {
             width: 300px;
             margin: 0 auto;
@@ -173,7 +184,11 @@
         </select><br>
     </div>
 
+<<<<<<< HEAD
     <div class="form-group">
+=======
+    <div id="dates-method-container" style="display: none;">
+>>>>>>> 115ea6768e4d05c48ea06235e14eacc734656002
         <label for="dates-method">What dates might work?</label><br>
         <select id="dates-method">
             <option value="specific-dates">Specific dates</option>
@@ -193,7 +208,10 @@
     </div>
 
     <div class="calendar-container" id="calendarContainer">
+<<<<<<< HEAD
         <label for="datePicker">What dates might work?</label>
+=======
+>>>>>>> 115ea6768e4d05c48ea06235e14eacc734656002
         <div id="datePicker"></div>
     </div>
 
@@ -212,12 +230,23 @@
         if (type === 'datesAndTimes') {
             document.getElementById('datesTimesButton').classList.add('active');
             document.getElementById('timeSelection').style.display = 'block';
+<<<<<<< HEAD
         } else {
             document.getElementById('datesOnlyButton').classList.add('active');
             document.getElementById('timeSelection').style.display = 'none';
         }
 
         document.getElementById('calendarContainer').style.display = 'none';
+=======
+            document.getElementById('dates-method-container').style.display = 'block'; // Show specific/days selection
+        } else {
+            document.getElementById('datesOnlyButton').classList.add('active');
+            document.getElementById('timeSelection').style.display = 'none';
+            document.getElementById('dates-method-container').style.display = 'none'; // Hide when dates only
+        }
+
+        document.getElementById('calendarContainer').style.display = 'block';
+>>>>>>> 115ea6768e4d05c48ea06235e14eacc734656002
         document.getElementById('dayContainer').style.display = 'none';
     }
 
@@ -235,7 +264,14 @@
         }
     }
 
+<<<<<<< HEAD
     toggleVisibility();
+=======
+    window.onload = function () {
+        selectEventType('datesOnly'); // Ensures dates only and calendar appear on load
+    };
+
+>>>>>>> 115ea6768e4d05c48ea06235e14eacc734656002
     datesMethod.addEventListener('change', toggleVisibility);
 
     const days = document.querySelectorAll('.day');
@@ -268,4 +304,8 @@
 </script>
 
 </body>
+<<<<<<< HEAD
 </html>
+=======
+</html>
+>>>>>>> 115ea6768e4d05c48ea06235e14eacc734656002

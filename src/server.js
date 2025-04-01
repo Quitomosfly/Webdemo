@@ -5,10 +5,9 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 
-
-
 const app = express();
 const PORT = process.env.PORT || 3000;
+
 
 // Middleware
 app.use(cors());
@@ -27,6 +26,7 @@ app.get('/', (req, res) => {
 
 // Define Event Schema
 const eventSchema = new mongoose.Schema({
+    _id: { type: mongoose.Schema.Types.ObjectId, auto: true }, 
     eventName: String,
     selectedOption: String,
     scheduleType: String,
@@ -160,3 +160,5 @@ app.get('/health', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+mongoose.set("debug", true);
