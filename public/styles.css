@@ -1,6 +1,6 @@
 /* General Page Styling */
 body {
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-family: Tahoma, sans-serif;
     background-color: #fff5f5;
     text-align: center;
 }
@@ -83,4 +83,8 @@ button[type="submit"] {
 
 button[type="submit"]:hover {
     background: #57c973;
+}
+
+html {
+    scroll-behavior: smooth;
 }
