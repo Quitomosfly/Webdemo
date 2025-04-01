@@ -1,97 +1,304 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Event Scheduler</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <style>
+        .day-container, .date-container {
+            display: none; /* Initially hidden */
+            margin-top: 10px;
+        }
+
+        .visible {
+            display: flex;
+            gap: 5px;
+        }
+
+        .day {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .selected {
+            background-color: #d1e7dd;  
+            color: #198754;            
+            font-weight: bold;
+        }
+
+        .flatpickr-calendar {
+            display: block;  /* Force calendar to be always visible */
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .toggle-btn {
+            padding: 10px 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #f3f3f3;
+            outline: none;
+        }
+
+        .timeContainer{
+            display: flex;
+        }
+
+        .active {
+            background-color: #d1e7dd;  /* Green active state */
+            color: #198754;
+            font-weight: bold;
+        }
+
+        .calendar-container {
+            display: none; /* Hidden by default */
+            margin-top: 10px;
+        }
+
+        .calendar-visible {
+            display: block; /* Visible when 'Dates Only' is active */
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <nav>
-            <span>Logo</span>
-            <a href="#">Home</a>
-            <a href="#how-it-works">How It Works</a>
-        </nav>
-    </header>
+    <h1>New Event</h1>
+    <form id = "eventForm">
+        <input type="text" id="event_name" name="event_name" placeholder="Name your event..."><br>
 
-    <main>
-        <section class="event-form">
-            <h2>New Event</h2>
-            <input type="text" placeholder="Event Name" required>
-            
-            <div class="toggle-buttons">
-                <button class="active">Date and Time</button>
-                <button>Date Only</button>
-            </div>
-            
-            <label>What times might work?</label>
-            <select>
-                <option>Select Option</option>
+        <div class="btn-container">
+            <button type="button" class="toggle-btn" id="datesAndTimesBtn">Dates and times</button>
+            <button type="button" class="toggle-btn active" id="datesOnlyBtn">Dates only</button>
+        </div>
+
+        <div class="timeContainer" id ="timeContainer">
+            <label for="event-time">What times might work?</label><br>
+                <select id="event_first_interval_time" name="event_first_interval_time">
+                    <option value="00:00">12 am</option>
+                    <option value="01:00">1 am</option>
+                    <option value="02:00">2 am</option>
+                    <option value="03:00">3 am</option>
+                    <option value="04:00">4 am</option>
+                    <option value="05:00">5 am</option>
+                    <option value="06:00">6 am</option>
+                    <option value="07:00">7 am</option>
+                    <option value="08:00">8 am</option>
+                    <option value="09:00">9 am</option>
+                    <option value="10:00">10 am</option>
+                    <option value="11:00">11 am</option>
+                    <option value="12:00">12 pm</option>
+                    <option value="13:00">1 pm</option>
+                    <option value="14:00">2 pm</option>
+                    <option value="15:00">3 pm</option>
+                    <option value="16:00">4 pm</option>
+                    <option value="17:00">5 pm</option>
+                    <option value="18:00">6 pm</option>
+                    <option value="19:00">7 pm</option>
+                    <option value="20:00">8 pm</option>
+                    <option value="21:00">9 pm</option>
+                    <option value="22:00">10 pm</option>
+                    <option value="23:00">11 pm</option>
+                </select>
+        
+                <label>to</label>
+                <select id="event_second_interval_time" name="event_second_interval_time">
+                    <option value="00:00">12 am</option>
+                    <option value="01:00">1 am</option>
+                    <option value="02:00">2 am</option>
+                    <option value="03:00">3 am</option>
+                    <option value="04:00">4 am</option>
+                    <option value="05:00">5 am</option>
+                    <option value="06:00">6 am</option>
+                    <option value="07:00">7 am</option>
+                    <option value="08:00">8 am</option>
+                    <option value="09:00">9 am</option>
+                    <option value="10:00">10 am</option>
+                    <option value="11:00">11 am</option>
+                    <option value="12:00">12 pm</option>
+                    <option value="13:00">1 pm</option>
+                    <option value="14:00">2 pm</option>
+                    <option value="15:00">3 pm</option>
+                    <option value="16:00">4 pm</option>
+                    <option value="17:00">5 pm</option>
+                    <option value="18:00">6 pm</option>
+                    <option value="19:00">7 pm</option>
+                    <option value="20:00">8 pm</option>
+                    <option value="21:00">9 pm</option>
+                    <option value="22:00">10 pm</option>
+                    <option value="23:00">11 pm</option>
+                </select><br>
+        </div>
+
+        <div id="scheduleTypeContainer">
+            <label for="event_type">Choose Schedule Type:</label>
+            <select id="event_type">
+                <option value="specificDates">Specific Dates</option>
+                <option value="daysOfTheWeek" selected>Days of the Week</option>
             </select>
-            to
-            <select>
-                <option>Select Option</option>
-            </select>
+        </div>
+
+        
+        <div class="calendar-container" id="calendarContainer">
+            <label for="datePicker">What dates might work?</label>
+            <div id="datePicker"></div>
+        </div>
+
+
+        <!-- Days of the Week -->
+        <div class="day-container" id="dayContainer">
+            <div class="day" data-day="Sun">Sun</div>
+            <div class="day" data-day="Mon">Mon</div>
+            <div class="day" data-day="Tue">Tue</div>
+            <div class="day" data-day="Wed">Wed</div>
+            <div class="day" data-day="Thu">Thu</div>
+            <div class="day" data-day="Fri">Fri</div>
+            <div class="day" data-day="Sat">Sat</div>
+        </div>
+
+
+        <pre id="output"></pre>
+
+        <script>
+            const datesAndTimesBtn = document.getElementById('datesAndTimesBtn');
+            const datesOnlyBtn = document.getElementById('datesOnlyBtn');
+            const calendarContainer = document.getElementById('calendarContainer');
+            const eventType = document.getElementById('event_type');
+            const dayContainer = document.getElementById('dayContainer');
+            const output = document.getElementById('output');
+            const scheduleTypeContainer = document.getElementById('scheduleTypeContainer'); // Correct targeting
+            const timeContainer = document.getElementById('timeContainer')
             
-            <label>What dates might work?</label>
-            <select>
-                <option>Specific Dates</option>
-            </select>
-            
-            <button class="create-event">Create New Event</button>
-        </section>
-    </main>
+            function showCalendarOnly() {
+                calendarContainer.classList.add('calendar-visible');
+                datesOnlyBtn.classList.add('active');
+                datesAndTimesBtn.classList.remove('active');
 
-    <!-- How It Works Section -->
-    <section id="how-it-works">
-        <h2>How It Works</h2>
-        <div class="step">
-            <h3>1. Create an Event</h3>
-            <p>Enter the details of your event, including dates and times that might work.</p>
-        </div>
-        <div class="step">
-            <h3>2. Share the Link</h3>
-            <p>Send the event link to your friends, colleagues, or attendees.</p>
-        </div>
-        <div class="step">
-            <h3>3. Find the Best Date</h3>
-            <p>See when most people are available and finalize your event date.</p>
-        </div>
-    </section>
+                // Correctly hide schedule type and day container
+                scheduleTypeContainer.style.display = 'none';
+                dayContainer.classList.remove('visible');  
+                timeContainer.style.display = 'none';  // Hides the time container
+            }
 
-    <!-- FAQ Section -->
-    <section id="faq">
-        <h2>Frequently Asked Questions</h2>
-        <div class="faq-item">
-            <button class="faq-question">How do I create an event? <span>+</span></button>
-            <div class="faq-answer">
-                <p>Click on 'Create New Event' and fill in the required details.</p>
-            </div>
-        </div>
-        <div class="faq-item">
-            <button class="faq-question">Can I edit an event after creating it? <span>+</span></button>
-            <div class="faq-answer">
-                <p>Yes, you can edit event details by navigating to your event page.</p>
-            </div>
-        </div>
-        <div class="faq-item">
-            <button class="faq-question">Is this service free? <span>+</span></button>
-            <div class="faq-answer">
-                <p>Yes, this service is completely free to use.</p>
-            </div>
-        </div>
-    </section>
+            function showDatesAndTimes() {
+                calendarContainer.classList.remove('calendar-visible'); // Initially hide calendar
+                datesAndTimesBtn.classList.add('active');
+                datesOnlyBtn.classList.remove('active');
 
-    <script>
-        document.querySelectorAll(".faq-question").forEach(button => {
-            button.addEventListener("click", () => {
-                button.classList.toggle("active");
-                let answer = button.nextElementSibling;
-                answer.style.display = answer.style.display === "block" ? "none" : "block";
-                button.querySelector("span").textContent = button.classList.contains("active") ? "-" : "+";
+                // Show schedule type and toggle visibility
+                scheduleTypeContainer.style.display = 'block';
+                timeContainer.style.display = 'flex'; // Show the time container
+                toggleVisibility(); // Ensures the right content appears
+            }   
+                    // Button Event Listeners
+
+            let selectedOption = 'Dates only';
+
+            datesOnlyBtn.addEventListener('click',() => {
+                selectedOption = 'Dates only';
+                showCalendarOnly();
             });
-        });
-    </script>
-</body>
+            datesAndTimesBtn.addEventListener('click', () => {
+                selectedOption = 'Dates and times';
+                showDatesAndTimes();
+            });
+            // Show calendar by default
+            showCalendarOnly();
+
+            
+            function toggleVisibility() {
+                if (eventType.value === 'daysOfTheWeek') {
+                    calendarContainer.classList.remove('calendar-visible');
+                    dayContainer.classList.add('visible');
+                } else if (eventType.value === 'specificDates') {
+                    dayContainer.classList.remove('visible');
+                    calendarContainer.classList.add('calendar-visible');
+                }
+
+                // Refresh Flatpickr visibility state
+                document.getElementById("datePicker")._flatpickr.redraw();
+            }
+            // Listen for dropdown changes
+            eventType.addEventListener('change', toggleVisibility);
+
+            // Days of the Week Logic
+            const days = document.querySelectorAll('.day');
+            const selectedDays = new Array(7).fill(0);
+
+            days.forEach((day, index) => {
+                day.addEventListener('click', () => {
+                    day.classList.toggle('selected');
+                    selectedDays[index] = day.classList.contains('selected') ? 1 : 0;
+                });
+            });
+
+            let selectedDates = [];
+            // Flatpickr for Inline Calendar (Always Visible)
+            flatpickr("#datePicker", {
+                inline: true,
+                mode: "multiple",
+                dateFormat: "Y-m-d",
+                minDate: "today",
+                onChange: function (dates) {
+                    selectedDates = dates.map(date => date.toISOString().slice(0, 10));
+                }
+            });
+            document.querySelector("#eventForm").addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const eventName = document.getElementById('event_name').value;
+                const scheduleType = document.getElementById('event_type').value;
+
+                const selectedDays = Array.from(document.querySelectorAll('.day.selected')).map(day =>
+                    day.dataset.day
+                );
+
+                const timeRange = `${document.getElementById('event_first_interval_time').value} - ${document.getElementById('event_second_interval_time').value}`;
+
+                const eventData = {
+                    eventName,
+                    selectedOption,
+                    scheduleType,
+                    selectedDates,
+                    selectedDays,
+                    timeRange
+                };
+
+                try {
+                        const response = await fetch('/events', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(eventData)
+                        });
+
+                        const result = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(result.error || 'Unknown error occurred.');
+                        }
+                        window.location.href = `main-page.html?eventId=${event._id}`;
+
+                        
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert(`Failed to submit the form: ${error.message}`);
+                    }
+                });
+            </script>
+            <button type = "submit">Submit</button>
+        </form>
+    </body>
 </html>
