@@ -1,14 +1,17 @@
 /* General Page Styling */
 body {
-    font-family: Tahoma, sans-serif;
+    font-family: "Reddit Sans", sans-serif;
     background-color: #fff5f5;
     text-align: center;
+    margin: 0;
+    padding: 0;
 }
 
-/* Header Styling */
+/* Navigation Bar */
 nav {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 15px 30px;
     background-color: white;
     border-bottom: 2px solid pink;
@@ -19,72 +22,137 @@ nav a {
     color: black;
     font-size: 16px;
     margin: 0 15px;
+    transition: color 0.3s ease;
 }
 
 nav a:hover {
     text-decoration: underline;
+    color: #d63384;
 }
 
 /* Event Form Container */
 form {
     background: #fff;
-    border: 5px solid pink;
+    border: 3px solid pink;
     padding: 30px;
     width: 400px;
     margin: 50px auto;
     border-radius: 15px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* Input Fields */
 input[type="text"] {
-    width: 80%;
+    width: 85%;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
-    background: #fff8e1;
+    background: #fffae5;
     text-align: center;
     font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus {
+    border-color: #d63384;
 }
 
 /* Buttons */
 .toggle-btn {
-    padding: 10px;
+    padding: 10px 15px;
     border: 1px solid #ccc;
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
     margin: 5px;
+    background-color: #f3f3f3;
+    transition: all 0.3s ease;
 }
 
 .toggle-btn.active {
-    background-color: black;
+    background-color: #333;
     color: white;
+}
+
+.toggle-btn:hover {
+    background-color: #d1e7dd;
 }
 
 /* Dropdowns */
 select {
-    background: #fff8e1;
+    background: #fffae5;
     padding: 8px;
     font-size: 16px;
     border-radius: 5px;
     border: 1px solid #ddd;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+select:focus {
+    border-color: #d63384;
 }
 
 /* Submit Button */
 button[type="submit"] {
     background: #6be186;
     border: none;
-    padding: 15px;
+    padding: 12px 20px;
     color: white;
     font-size: 16px;
     border-radius: 5px;
     cursor: pointer;
+    transition: background 0.3s ease;
 }
 
 button[type="submit"]:hover {
     background: #57c973;
 }
 
-html {
-    scroll-behavior: smooth;
+/* Days of the Week Selection */
+.day-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.day {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    user-select: none;
+    background-color: white;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.day.selected {
+    background-color: #d1e7dd;
+    color: #198754;
+    font-weight: bold;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 480px) {
+    form {
+        width: 90%;
+        padding: 20px;
+    }
+    
+    nav {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .day {
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+    }
 }
