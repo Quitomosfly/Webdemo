@@ -6,9 +6,42 @@
     <style>
         .event-details { border: 1px solid #ccc; padding: 20px; border-radius: 5px; }
         h2 { margin-top: 0; }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: #ffffff;
+            border-bottom: 2px solid pink;
+        }
+        .navbar .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .navbar .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        .navbar .nav-links a {
+            text-decoration: none;
+            color: black;
+            font-size: 16px;
+            margin: 0 15px;
+        }
+        .navbar .nav-links a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
+    <div class="navbar">
+        <div class="logo">CTAF</div>
+        <div class="nav-links">
+            <a href="home.html">Home</a>
+            <a href="home.html#howItWorks">How It Works</a>
+        </div>
+    </div>
+    
     <h1>Event Details</h1>
     <div class="event-details">
         <h2 id="eventTitle">Loading...</h2>
