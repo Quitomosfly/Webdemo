@@ -1,86 +1,129 @@
-/* General Page Styling */
+/* General Styles */
 body {
     font-family: Arial, sans-serif;
-    background-color: #fff5f5;
-    text-align: center;
+    margin: 0;
+    padding: 0;
+    background-color: #fff;
 }
 
-/* Header Styling */
+/* Navigation Bar */
 nav {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 15px 30px;
-    background-color: white;
-    border-bottom: 2px solid pink;
+    background-color: #fff;
+    border-bottom: 2px solid #f3c6c6;
 }
 
 nav a {
     text-decoration: none;
     color: black;
-    font-size: 16px;
     margin: 0 15px;
+    font-weight: bold;
 }
 
-nav a:hover {
-    text-decoration: underline;
-}
-
-/* Event Form Container */
-form {
-    background: #fff;
-    border: 5px solid pink;
-    padding: 30px;
-    width: 400px;
+/* Event Creation Section */
+.event-container {
+    background-color: #fce4e4;
+    padding: 40px;
+    max-width: 500px;
     margin: 50px auto;
     border-radius: 15px;
-}
-
-/* Input Fields */
-input[type="text"] {
-    width: 80%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background: #fff8e1;
     text-align: center;
-    font-size: 16px;
 }
 
-/* Buttons */
-.toggle-btn {
+.event-container h1 {
+    background-color: #fff5d7;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.event-container input,
+.event-container select,
+.event-container button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.event-container .toggle-btn {
+    width: 48%;
+    display: inline-block;
+    cursor: pointer;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    margin: 5px;
+    font-weight: bold;
 }
 
 .toggle-btn.active {
-    background-color: black;
-    color: white;
+    background-color: #fce4e4;
+    color: black;
 }
 
-/* Dropdowns */
-select {
-    background: #fff8e1;
-    padding: 8px;
-    font-size: 16px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-}
-
-/* Submit Button */
-button[type="submit"] {
-    background: #6be186;
-    border: none;
-    padding: 15px;
-    color: white;
-    font-size: 16px;
-    border-radius: 5px;
+.event-container button {
+    background-color: #76e88a;
+    color: black;
+    font-weight: bold;
     cursor: pointer;
 }
 
-button[type="submit"]:hover {
-    background: #57c973;
+/* How It Works Section */
+.how-it-works {
+    text-align: center;
+    padding: 50px 20px;
+    background-color: #fff;
+}
+
+.how-it-works h2 {
+    color: #333;
+}
+
+.steps {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.step {
+    background-color: #ffe6e6;
+    padding: 20px;
+    border-radius: 10px;
+    width: 200px;
+}
+
+/* FAQ Section */
+.faq-section {
+    background-color: #f9f9f9;
+    padding: 50px 20px;
+    text-align: center;
+}
+
+.faq-item {
+    max-width: 600px;
+    margin: 10px auto;
+    text-align: left;
+}
+
+.faq-item button {
+    width: 100%;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: left;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.faq-content {
+    display: none;
+    padding: 10px;
+    background-color: #f3f3f3;
+    border-left: 3px solid #ff9999;
 }
