@@ -30,6 +30,11 @@ nav a:hover {
     color: #d63384;
 }
 
+.navbar {
+    display: flex !important;
+    visibility: visible !important;
+}
+
 /* Event Form Container */
 form {
     background: #fff;
