@@ -32,11 +32,58 @@ const eventSchema = new mongoose.Schema({
     scheduleType: String,
     selectedDates: [String],
     selectedDays: [String],
-    timeRange: String
+    timeRange: String,
+    users: [
+        {
+            name: String,
+            availabilities: [
+                {
+                    day: String,
+                    time: String
+                }
+            ]
+        }
+    ]
 });
 
+const Event = mongoose.model('Event', eventSchema, 'events');
+app.post("/events", async (req, res) => {
+    try {
+        const newEvent = new Event(req.body); // Ensure `Event` model is correct
+        await newEvent.save();
 
-const Event = mongoose.models.Event || mongoose.model('Event', eventSchema, 'events');
+        res.status(201).json({ _id: newEvent._id }); // Ensure _id is sent back
+    } catch (error) {
+        console.error("Error creating event:", error);
+        res.status(500).json({ error: "Failed to create event" });
+    }
+});
+app.post('/event/:eventId/submit', async (req, res) => {
+    const { eventId } = req.params;
+    const { name, availabilities } = req.body;
+
+    console.log(`Received Data:`, req.body); // ✅ Log received data
+    console.log(`Updating Event ID: ${eventId}`);
+
+    try {
+        const event = await Event.findById(eventId);
+        if (!event) {
+            console.error("Event not found!");
+            return res.status(404).json({ error: "Event not found" });
+        }
+
+        event.users = event.users || [];
+        event.users.push({ name, availabilities });
+
+        const updatedEvent = await event.save();
+        console.log(`Updated Event:`, updatedEvent); // ✅ Log the updated event
+        
+        res.status(200).json({ message: "Availability saved successfully!", event: updatedEvent });
+    } catch (error) {
+        console.error(`Database update failed:`, error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
 
 // Route to handle form submission
 app.post('/events', async (req, res) => {
@@ -65,46 +112,44 @@ app.post('/events', async (req, res) => {
     }
 });
 
-const ScheduleSchema = new mongoose.Schema({
-    eventName: String,
-    selectedDays: [String],  // Example: ["Mon", "Tue", "Wed"]
-    timeRange: String        // Example: "04:00 - 11:00"
-});
-
-const Schedule = mongoose.models.Schedule || mongoose.model('Schedule', ScheduleSchema);
-
-
-app.get("/schedule", async (req, res) => {
-    try {
-        const schedule = await Schedule.findOne(); // Fetch first schedule entry
-        res.json(schedule);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-app.get('/events/:eventId', async (req, res) => {
-    const { eventId } = req.params;
-
-    console.log("Received eventId:", eventId); // Debugging
-
-    if (!mongoose.Types.ObjectId.isValid(eventId)) {
-        return res.status(400).json({ error: "Invalid event ID format" });
+app.get('/main-page.html', async (req, res) => {
+    const eventId = req.query.id;
+    
+    if (!eventId || eventId === "undefined") {
+        return res.status(400).send("Invalid event ID.");
     }
 
     try {
         const event = await Event.findById(eventId);
         if (!event) {
-            return res.status(404).json({ error: "Event not found" });
+            return res.status(404).send("Event not found.");
         }
-
-        console.log("Returning event data:", event); // Debugging
         res.json(event);
-    } catch (err) {
-        res.status(500).json({ error: "Server error" });
+    } catch (error) {
+        console.error("Error fetching event:", error);
+        res.status(500).send("Server error.");
     }
 });
 
+app.get("/events/:id", async (req, res) => {
+    const { id } = req.params;
+
+    // Check if ID is valid (MongoDB ObjectId must be 24 characters)
+    if (!id || id.length !== 24) {
+        return res.status(400).json({ error: "Invalid event ID" });
+    }
+
+    try {
+        const event = await Event.findById(id);
+        if (!event) {
+            return res.status(404).json({ error: "Event not found" });
+        }
+        res.json(event);
+    } catch (error) {
+        console.error("Error fetching event:", error);
+        res.status(500).json({ error: "Server error" });
+    }
+});
 
 // Health check endpoint for Render
 app.get('/health', (req, res) => {
