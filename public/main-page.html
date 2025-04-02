@@ -1,43 +1,63 @@
 
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="styles.css">
-        <title>Main Event Page</title>
-        <style>
-            .event-details { border: 1px solid #ccc; padding: 20px; border-radius: 5px; }
-            h2 { margin-top: 0; }
-            .navbar {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 15px 30px;
-                background-color: #ffffff;
-                border-bottom: 2px solid pink;
-            }
-            .navbar .logo {
-                font-size: 24px;
-                font-weight: bold;
-            }
-            .navbar .nav-links {
-                display: flex;
-                gap: 20px;
-            }
-            .navbar .nav-links a {
-                text-decoration: none;
-                color: black;
-                font-size: 16px;
-                margin: 0 15px;
-            }
-            .navbar .nav-links a:hover {
-                text-decoration: underline;
-            }
-        </style>
-    </head>
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <title>Main Event Page</title>
+    <style>
+        .event-details { border: 1px solid #ccc; padding: 20px; border-radius: 5px; }
+        h2 { margin-top: 0; }
+        body {
+            font-family: 'Reddit Sans', sans-serif;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: #ffffff;
+            border-bottom: 2px solid pink;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+        .navbar .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .navbar .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        .navbar .nav-links a {
+            text-decoration: none;
+            color: black;
+            font-size: 16px;
+            margin: 0 15px;
+        }
+        .navbar .nav-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
 <body>
+    <div class="navbar">
+        <div class="logo">
+            <a href="https://ctaf-q8o9.onrender.com/home.html">CTAF</a>
+        </div>
+        <div class="nav-links">
+            <a href="https://ctaf-q8o9.onrender.com/home.html">Home</a>
+            <a href="https://ctaf-q8o9.onrender.com/home.html#howItWorks">How It Works</a>
+        </div>
+    </div>
     <h1>Event Schedule</h1>
     <h2 id="eventName"></h2>
     <p><strong>Schedule Type:</strong> <span id="scheduleType"></span></p>
@@ -70,7 +90,7 @@
             const eventId = params.get("id");
 
             if (!eventId) {
-                document.body.innerHTML = "<h2>Invalid Event ID</h2>";
+                document.body.innerHTML = "<h2>Invalid Event ID</h2>...";
                 return;
             }
 

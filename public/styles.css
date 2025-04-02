@@ -30,6 +30,17 @@ nav a:hover {
     color: #d63384;
 }
 
+.navbar {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+    background-color: white;
+    padding: 15px 30px;
+    border-bottom: 2px solid pink;
+}
+
+
 /* Event Form Container */
 form {
     background: #fff;
@@ -156,3 +167,11 @@ button[type="submit"]:hover {
         font-size: 14px;
     }
 }
+
+nav {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+}
+
