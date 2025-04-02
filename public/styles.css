@@ -39,12 +39,35 @@ nav a:hover {
     padding: 15px 30px;
     border-bottom: 2px solid pink;
 }
+.navbar .logo a {
+    font-size: 30px;
+    font-weight: bold;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;  /* Adjust line height to match the height of the text */
+    transition: color 0.3s ease, transform 0.3s ease;
+}
 
+.logo-icon {
+    max-width: 30px;
+    margin-right: 10px;
+    vertical-align: middle;  /* Ensures vertical alignment of the icon */
+}
+
+.navbar .logo a:hover {
+    color: #198754;
+    transform: scale(1.1);
+}
 
 /* Event Form Container */
 form {
     background: #fff;
     border: 3px solid pink;
+    flex-direction: column;
     padding: 30px;
     width: 400px;
     margin: 50px auto;

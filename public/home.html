@@ -36,11 +36,12 @@
             color: #198754;            
             font-weight: bold;
         }
-
+        
         .flatpickr-calendar {
-            display: block;  /* Force calendar to be always visible */
+            display: block;
             width: 100%;
             max-width: 320px;
+            margin: 0 auto; /* This centers the calendar */
         }
 
         .btn-container {
@@ -69,9 +70,10 @@
         }
 
         .calendar-container {
-            display: none; /* Hidden by default */
+            display: flex;
+            justify-content: center;
             margin-top: 10px;
-        }
+        }   
 
         .calendar-visible {
             display: block; /* Visible when 'Dates Only' is active */
