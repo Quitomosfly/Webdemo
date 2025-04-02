@@ -50,10 +50,12 @@
 </head>
 <body>
     <div class="navbar">
-        <div class="logo">CTAF</div>
+        <div class="logo">
+            <a href="https://ctaf-q8o9.onrender.com/home.html">CTAF</a>
+        </div>
         <div class="nav-links">
-            <a href="#">Home</a>
-            <a href="#howItWorks">How It Works</a>
+            <a href="https://ctaf-q8o9.onrender.com/home.html">Home</a>
+            <a href="https://ctaf-q8o9.onrender.com/home.html#howItWorks">How It Works</a>
         </div>
     </div>
     <h1>Event Schedule</h1>
@@ -88,7 +90,7 @@
             const eventId = params.get("id");
 
             if (!eventId) {
-                document.body.innerHTML = "<h2>Invalid Event ID</h2>";
+                document.body.innerHTML = "<h2>Invalid Event ID</h2>...";
                 return;
             }
 
