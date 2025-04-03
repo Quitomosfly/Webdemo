@@ -183,79 +183,79 @@
             return `${formattedHour}:00 ${ampm}`;
         }
 
-        function enableSelection() {
-            document.querySelectorAll(".time-slot").forEach(td => {
-                td.addEventListener("mousedown", () => {
-                    if (!td.classList.contains("disabled")) {
-                        isMouseDown = true;
-                        toggleSelection(td);
-                    }
-                });
-
-                td.addEventListener("mouseover", (e) => {
-                    if (isMouseDown && !td.classList.contains("disabled")) {
-                        toggleSelection(td);
-                    }
-                });
-
-                td.addEventListener("mouseup", () => {
-                    isMouseDown = false;
-                });
+    function enableSelection() {
+        document.querySelectorAll(".time-slot").forEach(td => {
+            td.addEventListener("mousedown", () => {
+                if (!td.classList.contains("disabled")) {
+                    isMouseDown = true;
+                    toggleSelection(td);
+                }
             });
 
-            document.addEventListener("mouseup", () => isMouseDown = false);
-        }
-
-        function generateScheduleGrid(event) {
-                const scheduleTable = document.getElementById("scheduleTable");
-                scheduleTable.innerHTML = ""; // Clear table before generating new data
-
-                const headers = event.scheduleType === "Days of the Week" ? event.selectedDays : event.selectedDates;
-                
-                if (!headers || headers.length === 0) {
-                    console.error("No headers available for schedule grid.");
-                    return;
+            td.addEventListener("mouseover", (e) => {
+                if (isMouseDown && !td.classList.contains("disabled")) {
+                    toggleSelection(td);
                 }
+            });
 
-                // Convert time range into 24-hour format
-                const [startHour, endHour] = event.timeRange.split(" - ").map(convertTo24HourFormat);
+            td.addEventListener("mouseup", () => {
+                isMouseDown = false;
+            });
+        });
 
-                // Create table header
-                const thead = document.createElement("thead");
-                const headerRow = document.createElement("tr");
-                headerRow.innerHTML = `<th>Time</th>` + headers.map(day => `<th>${day}</th>`).join("");
-                thead.appendChild(headerRow);
-                scheduleTable.appendChild(thead);
+        document.addEventListener("mouseup", () => isMouseDown = false);
+    }
 
-                // Create table body
-                const tbody = document.createElement("tbody");
+    function generateScheduleGrid(event) {
+            const scheduleTable = document.getElementById("scheduleTable");
+            scheduleTable.innerHTML = ""; // Clear table before generating new data
 
-                for (let hour = startHour; hour <= endHour; hour++) {
-                    const row = document.createElement("tr");
-                    row.innerHTML = `<td>${formatTime(hour)}</td>` + headers.map(day => 
-                        `<td class="time-slot disabled" data-day="${day}" data-time="${formatTime(hour)}"></td>`
-                    ).join("");
-                    tbody.appendChild(row);
-                }
-
-                scheduleTable.appendChild(tbody);
-
-                enableSelection(); // Enable click and drag selection
+            const headers = event.scheduleType === "Days of the Week" ? event.selectedDays : event.selectedDates;
+            
+            if (!headers || headers.length === 0) {
+                console.error("No headers available for schedule grid.");
+                return;
             }
 
-        
-        function toggleSelection(td) {
-            if (!activeUser || td.classList.contains("disabled")) return;
+            // Convert time range into 24-hour format
+            const [startHour, endHour] = event.timeRange.split(" - ").map(convertTo24HourFormat);
 
-            td.classList.toggle("selected");
-            const availability = { day: td.dataset.day, time: td.dataset.time };
+            // Create table header
+            const thead = document.createElement("thead");
+            const headerRow = document.createElement("tr");
+            headerRow.innerHTML = `<th>Time</th>` + headers.map(day => `<th>${day}</th>`).join("");
+            thead.appendChild(headerRow);
+            scheduleTable.appendChild(thead);
 
-            if (td.classList.contains("selected")) {
-                selectedAvailability.push(availability);
-            } else {
-                selectedAvailability = selectedAvailability.filter(a => !(a.day === availability.day && a.time === availability.time));
+            // Create table body
+            const tbody = document.createElement("tbody");
+
+            for (let hour = startHour; hour <= endHour; hour++) {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td>${formatTime(hour)}</td>` + headers.map(day => 
+                    `<td class="time-slot disabled" data-day="${day}" data-time="${formatTime(hour)}"></td>`
+                ).join("");
+                tbody.appendChild(row);
             }
+
+            scheduleTable.appendChild(tbody);
+
+            enableSelection(); // Enable click and drag selection
         }
+
+    
+    function toggleSelection(td) {
+        if (!activeUser || td.classList.contains("disabled")) return;
+
+        td.classList.toggle("selected");
+        const availability = { day: td.dataset.day, time: td.dataset.time };
+
+        if (td.classList.contains("selected")) {
+            selectedAvailability.push(availability);
+        } else {
+            selectedAvailability = selectedAvailability.filter(a => !(a.day === availability.day && a.time === availability.time));
+        }
+    }
 
 
     
@@ -310,13 +310,12 @@
                 if (!response.ok) throw new Error("Failed to save availability.");
 
                 alert("Availability saved successfully!");
-                await loadAvailability(); // Reload availability
+                await loadAvailability(); // Reload availability data to reflect changes
             } catch (error) {
                 console.error("Error saving availability:", error);
                 alert("Error saving availability. Please try again.");
             }
         }
-
 
 
     
