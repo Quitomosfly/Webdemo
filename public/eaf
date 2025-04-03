@@ -1,0 +1,29 @@
+import fitz  # PyMuPDF
+
+# Load the PDF
+pdf_path = "EAF_Y03_02.pdf"
+doc = fitz.open(pdf_path)
+
+# Extract text from all pages
+text = ""
+for page in doc:
+    text += page.get_text("text") + "\n"
+
+# Find lines that contain schedule details
+lines = text.split("\n")
+schedule_data = []
+
+for line in lines:
+    parts = line.split()
+    if len(parts) >= 3:  # Ensures we have at least day and time
+        day = parts[-2]  # Second last should be the day (e.g., M, H, S)
+        time = parts[-1]  # Last should be the time (e.g., 0915-1045)
+
+        # Check if day is a valid schedule day (M, T, W, H, F, S, U)
+        if day.isalpha() and len(day) <= 2 and time.replace("-", "").isdigit():
+            schedule_data.append(f"{day} {time}")
+
+# Print extracted schedules
+for schedule in schedule_data:
+    print(schedule)
+
