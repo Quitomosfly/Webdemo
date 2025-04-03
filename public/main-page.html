@@ -135,23 +135,25 @@
                 document.body.innerHTML = "<h2>Invalid Event ID</h2>";
                 return;
             }
-    
+
             try {
                 const response = await fetch(`/events/${eventId}`);
                 if (!response.ok) throw new Error("Failed to fetch event data.");
-    
+
                 const event = await response.json();
                 document.getElementById("eventName").innerText = event.eventName;
-                document.getElementById("scheduleType").innerText = event.scheduleType;
+                document.getElementById("scheduleType").innerText = event.scheduleType || "N/A";
                 document.getElementById("timeRange").innerText = event.timeRange;
                 document.getElementById("selectedDates").innerText = event.selectedDates ? event.selectedDates.join(", ") : "N/A";
                 document.getElementById("selectedDays").innerText = event.selectedDays ? event.selectedDays.join(", ") : "N/A";
-    
+
                 generateScheduleGrid(event);
+                await loadAvailability(); // Fetch availability after setting up the table
             } catch (error) {
                 document.body.innerHTML = `<h2>Error loading event: ${error.message}</h2>`;
             }
         }
+
     
         function askUserName() {
             const userName = prompt("Enter your name:");
@@ -264,6 +266,34 @@
         }
  
    
+        async function loadAvailability() {
+            try {
+                const response = await fetch(`/event/${eventId}/availability`);
+                if (!response.ok) throw new Error("Failed to load availability.");
+
+                const availabilityData = await response.json();
+                updateTableWithAvailability(availabilityData);
+            } catch (error) {
+                console.error("Error loading availability:", error);
+            }
+        }
+
+        function updateTableWithAvailability(availabilityData) {
+            document.querySelectorAll(".time-slot").forEach(td => {
+                td.classList.remove("selected");
+                td.innerText = ""; // Clear existing selections
+            });
+
+            availabilityData.forEach(({ name, day, time }) => {
+                const td = document.querySelector(`td[data-day="${day}"][data-time="${time}"]`);
+                if (td) {
+                    td.classList.add("selected");
+                    td.innerText += (td.innerText ? ", " : "") + name; // Append multiple names
+                }
+            });
+        }
+
+
         async function saveAvailability() {
             if (!activeUser || selectedAvailability.length === 0) {
                 alert("Please select availability before saving.");
@@ -280,11 +310,13 @@
                 if (!response.ok) throw new Error("Failed to save availability.");
 
                 alert("Availability saved successfully!");
+                await loadAvailability(); // Reload availability data to reflect changes
             } catch (error) {
                 console.error("Error saving availability:", error);
                 alert("Error saving availability. Please try again.");
             }
         }
+
 
     
         document.addEventListener("mousedown", () => isMouseDown = true);
