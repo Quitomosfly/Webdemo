@@ -151,11 +151,6 @@
     <form id = "eventForm">
         <input type="text" id="event_name" name="event_name" placeholder="Name your event..."><br>
 
-        <div class="btn-container">
-            <button type="button" class="toggle-btn" id="datesAndTimesBtn">Dates and times</button>
-            <button type="button" class="toggle-btn active" id="datesOnlyBtn">Dates only</button>
-        </div>
-
         <div class="timeContainer" id ="timeContainer">
             <label for="event-time">What times might work?</label><br>
                 <select id="event_first_interval_time" name="event_first_interval_time">
@@ -244,51 +239,14 @@
         <pre id="output"></pre>
 
         <script>
-            const datesAndTimesBtn = document.getElementById('datesAndTimesBtn');
-            const datesOnlyBtn = document.getElementById('datesOnlyBtn');
             const calendarContainer = document.getElementById('calendarContainer');
             const eventType = document.getElementById('event_type');
             const dayContainer = document.getElementById('dayContainer');
             const output = document.getElementById('output');
             const scheduleTypeContainer = document.getElementById('scheduleTypeContainer'); // Correct targeting
             const timeContainer = document.getElementById('timeContainer')
-            
-            function showCalendarOnly() {
-                calendarContainer.classList.add('calendar-visible');
-                datesOnlyBtn.classList.add('active');
-                datesAndTimesBtn.classList.remove('active');
-
-                // Correctly hide schedule type and day container
-                scheduleTypeContainer.style.display = 'none';
-                dayContainer.classList.remove('visible');  
-                timeContainer.style.display = 'none';  // Hides the time container
-            }
-
-            function showDatesAndTimes() {
-                calendarContainer.classList.remove('calendar-visible'); // Initially hide calendar
-                datesAndTimesBtn.classList.add('active');
-                datesOnlyBtn.classList.remove('active');
-
-                // Show schedule type and toggle visibility
-                scheduleTypeContainer.style.display = 'block';
-                timeContainer.style.display = 'flex'; // Show the time container
-                toggleVisibility(); // Ensures the right content appears
-            }   
-                    // Button Event Listeners
-
+     
             let selectedOption = 'Dates only';
-
-            datesOnlyBtn.addEventListener('click',() => {
-                selectedOption = 'Dates only';
-                showCalendarOnly();
-            });
-            datesAndTimesBtn.addEventListener('click', () => {
-                selectedOption = 'Dates and times';
-                showDatesAndTimes();
-            });
-            // Show calendar by default
-            showCalendarOnly();
-
             
             function toggleVisibility() {
                 if (eventType.value === 'daysOfTheWeek') {
