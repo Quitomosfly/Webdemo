@@ -161,39 +161,25 @@
                 document.getElementById("saveButton").classList.remove("hidden");
             }
         }
-        function generateScheduleGrid(event) {
-            const scheduleTable = document.getElementById("scheduleTable");
-            scheduleTable.innerHTML = ""; // Clear table
 
-            const headers = event.scheduleType === "Days of the Week" ? event.selectedDays : event.selectedDates;
-            if (!headers || headers.length === 0) return;
-
-            const [startHour, endHour] = event.timeRange.split(" - ").map(convertTo24HourFormat);
-
-            // Create table header
-            const thead = document.createElement("thead");
-            const headerRow = document.createElement("tr");
-            headerRow.innerHTML = `<th>Time</th>` + headers.map(day => `<th>${day}</th>`).join("");
-            thead.appendChild(headerRow);
-            scheduleTable.appendChild(thead);
-
-            // Create table body
-            const tbody = document.createElement("tbody");
-
-            for (let hour = startHour; hour <= endHour; hour++) {
-                const row = document.createElement("tr");
-                row.innerHTML = `<td>${formatTime(hour)}</td>` + headers.map(day => 
-                    `<td class="time-slot disabled" data-day="${day}" data-time="${formatTime(hour)}"></td>`
-                ).join("");
-                tbody.appendChild(row);
+        function convertTo24HourFormat(timeStr) {
+            const [time, modifier] = timeStr.split(" ");
+            let [hours, minutes] = time.split(":").map(Number);
+            
+            if (modifier === "PM" && hours !== 12) {
+                hours += 12;
+            } else if (modifier === "AM" && hours === 12) {
+                hours = 0;
             }
 
-            scheduleTable.appendChild(tbody);
-
-            enableSelection(); // Enable interactive selection
+            return hours;  // Returning hours only, assuming minutes are always ":00"
         }
 
-        let isMouseDown = false;
+        function formatTime(hour) {
+            const ampm = hour >= 12 ? "PM" : "AM";
+            const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
+            return `${formattedHour}:00 ${ampm}`;
+        }
 
     function enableSelection() {
         document.querySelectorAll(".time-slot").forEach(td => {
@@ -217,6 +203,43 @@
 
         document.addEventListener("mouseup", () => isMouseDown = false);
     }
+
+    function generateScheduleGrid(event) {
+            const scheduleTable = document.getElementById("scheduleTable");
+            scheduleTable.innerHTML = ""; // Clear table before generating new data
+
+            const headers = event.scheduleType === "Days of the Week" ? event.selectedDays : event.selectedDates;
+            
+            if (!headers || headers.length === 0) {
+                console.error("No headers available for schedule grid.");
+                return;
+            }
+
+            // Convert time range into 24-hour format
+            const [startHour, endHour] = event.timeRange.split(" - ").map(convertTo24HourFormat);
+
+            // Create table header
+            const thead = document.createElement("thead");
+            const headerRow = document.createElement("tr");
+            headerRow.innerHTML = `<th>Time</th>` + headers.map(day => `<th>${day}</th>`).join("");
+            thead.appendChild(headerRow);
+            scheduleTable.appendChild(thead);
+
+            // Create table body
+            const tbody = document.createElement("tbody");
+
+            for (let hour = startHour; hour <= endHour; hour++) {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td>${formatTime(hour)}</td>` + headers.map(day => 
+                    `<td class="time-slot disabled" data-day="${day}" data-time="${formatTime(hour)}"></td>`
+                ).join("");
+                tbody.appendChild(row);
+            }
+
+            scheduleTable.appendChild(tbody);
+
+            enableSelection(); // Enable click and drag selection
+        }
 
     
     function toggleSelection(td) {
