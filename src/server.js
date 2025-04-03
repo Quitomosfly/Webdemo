@@ -159,4 +159,12 @@ app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
 
+fetch(`/events/${eventId}`)
+  .then(response => response.json())
+  .then(data => {
+    console.log("Fetched event data:", data);
+  })
+  .catch(error => console.error("Error fetching event:", error));
+
+
 mongoose.set("debug", true);
