@@ -1,60 +1,243 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+    <!-- <link rel="stylesheet" href="styles.css"> -->
     <title>Main Event Page</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
         .event-details { border: 1px solid #ccc; padding: 20px; border-radius: 5px; }
         h2 { margin-top: 0; }
+        body {
+            font-family: 'Reddit Sans', sans-serif;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: #ffffff;
+            border-bottom: 2px solid pink;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .navbar .logo a {
+        font-size: 28px;
+        font-weight: bold;
+        color: #333; 
+        text-transform: uppercase;  
+        letter-spacing: 2px;  
+        text-decoration: none; 
+        transition: color 0.3s ease, transform 0.3s ease;  
+        }
+
+        .navbar .logo a:hover {
+            color: #198754; 
+            transform: scale(1.1); 
+        }
+
+        .navbar .logo img {
+            max-width: 30px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        .navbar .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        .navbar .nav-links a {
+            text-decoration: none;
+            color: black;
+            font-size: 16px;
+            margin: 0 15px;
+        }
+        .navbar .nav-links a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
-    <h1>Event Details</h1>
-    <div class="event-details">
-        <h2 id="eventTitle">Loading...</h2>
-        <p id="eventSchedule"></p>
-        <p id="eventTimeRange"></p>
-        <p id="eventSelectedDates"></p>
-        <p id="eventSelectedDays"></p>
+    <div class="navbar">
+        <div class="logo">
+            <a href="https://ctaf-q8o9.onrender.com/home.html">CTAF</a>
+        </div>
+        <div class="nav-links">
+            <a href="https://ctaf-q8o9.onrender.com/home.html">Home</a>
+            <a href="https://ctaf-q8o9.onrender.com/home.html#howItWorks">How It Works</a>
+        </div>
     </div>
+    <h1>Event Schedule</h1>
+    <h2 id="eventName"></h2>
+    <p><strong>Schedule Type:</strong> <span id="scheduleType"></span></p>
+    <p><strong>Time Range:</strong> <span id="timeRange"></span></p>
+    <p><strong>Selected Dates:</strong> <span id="selectedDates"></span></p>
+    <p><strong>Selected Days:</strong> <span id="selectedDays"></span></p>
+    
+    <h3>Share this link:</h3>
+    <input type="text" id="shareLink" readonly>
+    <button onclick="copyLink()">Copy Link</button>
+
+    <h2>Schedule Grid</h2>
+    <table id="scheduleTable">
+        <thead>
+            <tr>
+                <th>Time</th>
+                <!-- Headers inserted dynamically -->
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Time slots inserted dynamically -->
+        </tbody>
+    </table>
 
     <script>
-        async function loadEventDetails() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const eventId = urlParams.get("eventId");
+        let isMouseDown = false;
 
-            console.log("Fetching event with ID:", eventId); // Debugging
+        async function fetchEventData() {
+            const params = new URLSearchParams(window.location.search);
+            const eventId = params.get("id");
 
             if (!eventId) {
-                alert("Event not found!");
+                document.body.innerHTML = "<h2>Invalid Event ID</h2>...";
                 return;
             }
 
             try {
                 const response = await fetch(`/events/${eventId}`);
-                if (!response.ok) {
-                    throw new Error("Could not fetch event data.");
+
+                const contentType = response.headers.get("content-type");
+                if (!response.ok || !contentType.includes("application/json")) {
+                    const errorText = await response.text();
+                    throw new Error(`Server Error: ${errorText}`);
                 }
 
-                const eventData = await response.json();
-                console.log("Received event data:", eventData); // Debugging
+                const event = await response.json();
 
-                if (!eventData._id) {
-                    throw new Error("Invalid event data received.");
-                }
+                document.getElementById("eventName").innerText = event.eventName;
+                document.getElementById("scheduleType").innerText = event.scheduleType;
+                document.getElementById("timeRange").innerText = event.timeRange;
+                document.getElementById("selectedDates").innerText = event.selectedDates ? event.selectedDates.join(", ") : "N/A";
+                document.getElementById("selectedDays").innerText = event.selectedDays ? event.selectedDays.join(", ") : "N/A";
 
-                // Update the event details in HTML
-                document.getElementById("eventTitle").textContent = eventData.eventName;
-                document.getElementById("eventSchedule").textContent = `Schedule Type: ${eventData.scheduleType}`;
-                document.getElementById("eventTimeRange").textContent = `Time Range: ${eventData.timeRange}`;
-                document.getElementById("eventSelectedDates").textContent = `Selected Dates: ${eventData.selectedDates.join(", ") || "N/A"}`;
-                document.getElementById("eventSelectedDays").textContent = `Selected Days: ${eventData.selectedDays.join(", ") || "N/A"}`;
+                const shareURL = `${window.location.origin}/main-page.html?id=${eventId}`;
+                document.getElementById("shareLink").value = shareURL;
 
+                generateScheduleGrid(event);
             } catch (error) {
-                console.error("Error fetching event data:", error);
-                alert("Failed to load event details: " + error.message);
+                document.body.innerHTML = `<h2>Error loading event: ${error.message}</h2>`;
             }
         }
+
+        function generateScheduleGrid(event) {
+            const scheduleTable = document.getElementById("scheduleTable");
+            const theadRow = scheduleTable.querySelector("thead tr");
+            const tbody = scheduleTable.querySelector("tbody");
+
+            // Clear existing table data
+            theadRow.innerHTML = "<th>Time</th>";
+            tbody.innerHTML = "";
+
+            // Determine if schedule is based on specific dates or days of the week
+            const isDaysOfWeek = event.scheduleType === "Days of the Week";
+            const headers = isDaysOfWeek ? event.selectedDays : event.selectedDates;
+
+            if (!headers || headers.length === 0) {
+                console.error("No headers available:", headers);
+                return;
+            }
+
+            const timeRange = event.timeRange.split(" - "); // Example: "9 AM - 5 PM"
+            const startHour = convertTo24HourFormat(timeRange[0]);
+            const endHour = convertTo24HourFormat(timeRange[1]);
+
+            // Add headers (days of the week or specific dates)
+            headers.forEach(header => {
+                const th = document.createElement("th");
+                th.innerText = header;
+                theadRow.appendChild(th);
+            });
+
+            // Create time slots
+            for (let hour = startHour; hour <= endHour; hour++) {
+                const tr = document.createElement("tr");
+                const timeCell = document.createElement("td");
+                timeCell.innerText = formatTime(hour);
+                tr.appendChild(timeCell);
+
+                headers.forEach(header => {
+                    const td = document.createElement("td");
+                    td.classList.add("time-slot");
+                    td.dataset.header = header;
+                    td.dataset.hour = hour;
+                    td.addEventListener("mousedown", () => toggleSelection(td));
+                    td.addEventListener("mouseover", (e) => { if (isMouseDown) toggleSelection(td); });
+                    tr.appendChild(td);
+                });
+
+                tbody.appendChild(tr);
+            }
+        }
+
+            // Handle drag selection for touch screens
+            document.addEventListener("mouseup", () => {
+                isMouseDown = false;
+            });
+
+            document.addEventListener("touchstart", (event) => {
+                if (event.target.classList.contains("time-slot")) {
+                    isMouseDown = true;
+                    toggleSelection(event.target);
+                }
+            });
+
+            document.addEventListener("touchmove", (event) => {
+                if (isMouseDown) {
+                    const touch = event.touches[0];
+                    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                    if (element && element.classList.contains("time-slot")) {
+                        toggleSelection(element);
+                    }
+                }
+            });
+
+            document.addEventListener("touchend", () => {
+                isMouseDown = false;
+            });
+        function toggleSelection(td) {
+            td.classList.toggle("selected");
+        }
+
+        function convertTo24HourFormat(time) {
+            const [hour, modifier] = time.split(" ");
+            let hourInt = parseInt(hour);
+            if (modifier === "PM" && hourInt !== 12) hourInt += 12;
+            if (modifier === "AM" && hourInt === 12) hourInt = 0;
+            return hourInt;
+        }
+
+        function formatTime(hour) {
+            const suffix = hour >= 12 ? "PM" : "AM";
+            let displayHour = hour % 12 || 12; // Convert 24-hour to 12-hour format
+            return `${displayHour} ${suffix}`;
+        }
+
+        function copyLink() {
+            const shareLink = document.getElementById("shareLink");
+            shareLink.select();
+            document.execCommand("copy");
+            alert("Link copied to clipboard!");
+        }
+
+        fetchEventData();
     </script>
     <script src="./script.js"></script>
 

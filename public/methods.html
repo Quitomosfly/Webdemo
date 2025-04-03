@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Schedule Extractor</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        #schedule {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            display: inline-block;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h2>Extract Days and Times from PDF</h2>
+    <input type="file" id="pdfUpload" accept="application/pdf">
+    <div id="schedule"></div>
+
+    <script>
+        document.getElementById('pdfUpload').addEventListener('change', async function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = async function() {
+                const typedArray = new Uint8Array(this.result);
+                const pdf = await pdfjsLib.getDocument(typedArray).promise;
+                
+                let textContent = '';
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const text = await page.getTextContent();
+                    textContent += text.items.map(item => item.str).join(" ") + "\n";
+                }
+
+                extractSchedule(textContent);
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        function extractSchedule(text) {
+        const dayMap = {
+            "M": "Monday",
+            "T": "Tuesday",
+            "W": "Wednesday",
+            "H": "Thursday",
+            "F": "Friday",
+            "S": "Saturday"
+        };
+
+        // Regular Expressions
+        const timeRegex = /(\d{4})-(\d{4})/g;
+        const dayRegex = /\b(M|T|W|H|F|S)\b/g;  // Removed "U" since no Sunday classes
+
+        // Convert 24-hour time to 12-hour format
+        function convertTo12Hour(time) {
+            let hours = parseInt(time.substring(0, 2));
+            let minutes = time.substring(2);
+            let period = hours >= 12 ? "PM" : "AM";
+            hours = hours % 12 || 12;
+            return `${hours}:${minutes} ${period}`;
+        }
+
+        let extractedDays = [];
+        let extractedTimes = [];
+
+        // Extract Days
+        let matchedDays = text.match(dayRegex);
+        if (matchedDays) {
+            extractedDays = matchedDays.map(d => dayMap[d] || d);
+        }
+
+        // Extract Times
+        let matchedTimes = text.match(timeRegex);
+        if (matchedTimes) {
+            extractedTimes = matchedTimes.map(time => {
+                let parts = time.split("-");
+                return `${convertTo12Hour(parts[0])} - ${convertTo12Hour(parts[1])}`;
+            });
+        }
+
+        // Display extracted data
+        const scheduleDiv = document.getElementById("schedule");
+        if (extractedDays.length === 0 && extractedTimes.length === 0) {
+            scheduleDiv.innerHTML = "<p>No valid days and times found.</p>";
+        } else {
+            let output = "<h3>Extracted Schedule</h3><ul>";
+            for (let i = 0; i < Math.min(extractedDays.length, extractedTimes.length); i++) {
+                output += `<li><strong>${extractedDays[i]}</strong>: ${extractedTimes[i]}</li>`;
+            }
+            output += "</ul>";
+            scheduleDiv.innerHTML = output;
+        }
+    }
+
+    </script>
+</body>
+</html>

@@ -2,6 +2,10 @@
 <html>
 <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     <style>
@@ -34,15 +38,18 @@
         }
 
         .flatpickr-calendar {
-            display: block;  /* Force calendar to be always visible */
+            display: block;
             width: 100%;
             max-width: 320px;
+            margin: 0 auto; /* This centers the calendar */
         }
 
         .btn-container {
             display: flex;
             gap: 5px;
             margin-bottom: 10px;
+            justify-content: center; 
+            align-items: center;     
         }
 
         .toggle-btn {
@@ -65,16 +72,81 @@
         }
 
         .calendar-container {
-            display: none; /* Hidden by default */
+            display: flex;
+            justify-content: center;
             margin-top: 10px;
-        }
+        }   
 
         .calendar-visible {
             display: block; /* Visible when 'Dates Only' is active */
         }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: #ffffff;
+            border-bottom: 2px solid pink;
+        }
+        .navbar .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .navbar .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        .navbar .nav-links a {
+            text-decoration: none;
+            color: black;
+            font-size: 16px;
+            margin: 0 15px;
+        }
+        .navbar .nav-links a:hover {
+            text-decoration: underline;
+        }
+        .dropdown {
+            margin-top: 20px;
+        }
+        .dropdown-content {
+            display: none;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            margin-top: 5px;
+        }
+        .dropdown-btn {
+            cursor: pointer;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f3f3f3;
+            outline: none;
+            width: 100%;
+            text-align: left;
+        }
+        .content-section {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            text-align:justify;
+        }
     </style>
 </head>
 <body>
+    <div class="navbar">
+        <div class="logo">
+            <a href="https://ctaf-q8o9.onrender.com/home.html">CTAF</a>
+        </div>
+        <div class="nav-links">
+            <a href="https://ctaf-q8o9.onrender.com/home.html">Home</a>
+            <a href="https://ctaf-q8o9.onrender.com/home.html#howItWorks">How It Works</a>
+        </div>
+    </div>
     <h1>New Event</h1>
     <form id = "eventForm">
         <input type="text" id="event_name" name="event_name" placeholder="Name your event..."><br>
@@ -255,17 +327,16 @@
                     selectedDates = dates.map(date => date.toISOString().slice(0, 10));
                 }
             });
-            document.querySelector("#eventForm").addEventListener('submit', async (e) => {
+            
+            document.querySelector("#eventForm").addEventListener("submit", async (e) => {
                 e.preventDefault();
 
-                const eventName = document.getElementById('event_name').value;
-                const scheduleType = document.getElementById('event_type').value;
+                const eventName = document.getElementById("event_name").value;
+                const scheduleType = document.getElementById("event_type").value;
 
-                const selectedDays = Array.from(document.querySelectorAll('.day.selected')).map(day =>
-                    day.dataset.day
-                );
+                const selectedDays = Array.from(document.querySelectorAll(".day.selected")).map(day => day.dataset.day);
 
-                const timeRange = `${document.getElementById('event_first_interval_time').value} - ${document.getElementById('event_second_interval_time').value}`;
+                const timeRange = `${document.getElementById("event_first_interval_time").value} - ${document.getElementById("event_second_interval_time").value}`;
 
                 const eventData = {
                     eventName,
@@ -277,27 +348,56 @@
                 };
 
                 try {
-                        const response = await fetch('/events', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(eventData)
-                        });
+                    const response = await fetch("/events", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(eventData)
+                    });
 
-                        const result = await response.json();
+                    const result = await response.json();
 
-                        if (!response.ok) {
-                            throw new Error(result.error || 'Unknown error occurred.');
-                        }
-                        window.location.href = `main-page.html?eventId=${event._id}`;
-
-                        
-                    } catch (error) {
-                        console.error('Error:', error);
-                        alert(`Failed to submit the form: ${error.message}`);
+                    if (!response.ok) {
+                        throw new Error(result.error || "Unknown error occurred.");
                     }
-                });
-            </script>
+
+                    // Redirect to main-page.html with the event ID
+                    window.location.href = `/main-page.html?id=${result._id}`;
+                } catch (error) {
+                    console.error("Error:", error);
+                    alert(`Failed to submit the form: ${error.message}`);
+                }
+            });
+        </script>
             <button type = "submit">Submit</button>
         </form>
+
+                    <div id="howItWorks" class="content-section">
+                    <h2>How It Works</h2>
+                    <p>Our system allows you to easily schedule events with flexibility and precision. Here's how it works:</p>
+                    <ul>
+                        <li>Choose between scheduling by specific dates or recurring days of the week.</li>
+                        <li>Define the time ranges that suit your needs.</li>
+                        <li>Submit your event, and our system will handle availability coordination.</li>
+                        <li>Participants can select their preferred time slots based on your settings.</li>
+                    </ul>
+                    <p>This approach ensures that scheduling conflicts are minimized and that everyone involved can participate at their convenience.</p>
+                </div>
+                    
+                <div class="dropdown">
+                    <button type="button" class="dropdown-btn" onclick="toggleDropdown('faqContent')">FAQ</button>
+                    <div id="faqContent" class="dropdown-content">
+                        <p><strong>Q:</strong> Can I select multiple dates? <br> <strong>A:</strong> Yes, you can choose multiple dates in the date picker.</p>
+                        <p><strong>Q:</strong> What if my event spans different time slots? <br> <strong>A:</strong> You can define a time range that works for you.</p>
+                    </div>
+                </div>
+            </form>
+        
+            <script>
+                function toggleDropdown(id) {
+                    var content = document.getElementById(id);
+                    content.style.display = (content.style.display === 'block' || content.style.display === '') ? 'none' : 'block';
+                }
+
+            </script>
     </body>
 </html>
