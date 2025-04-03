@@ -13,46 +13,51 @@
             padding: 0;
         }
         .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 30px;
-            background-color: #ffffff;
-            border-bottom: 2px solid pink;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            left: 0;
-            z-index: 1000;
-        }
-        .navbar .logo a {
-            font-size: 28px;
-            font-weight: bold;
-            color: #333;
-            text-decoration: none;
-            transition: color 0.3s ease, transform 0.3s ease;
-        }
-        .navbar .logo a:hover {
-            color: #198754;
-            transform: scale(1.1);
-        }
-        .navbar .logo {
-            font-size: 24px;
-            font-weight: bold;
-        }
-        .navbar .nav-links {
-            display: flex;
-            gap: 20px;
-        }
-        .navbar .nav-links a {
-            text-decoration: none;
-            color: black;
-            font-size: 16px;
-            margin: 0 15px;
-        }
-        .navbar .nav-links a:hover {
-            text-decoration: underline;
-        }
+    display: flex;
+    justify-content: space-between; /* Pushes logo left, links right */
+    align-items: center;
+    padding: 15px 30px;
+    background-color: #ffffff;
+    border-bottom: 2px solid pink;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+.navbar .logo a {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    text-decoration: none;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.navbar .logo a:hover {
+    color: #198754;
+    transform: scale(1.1);
+}
+
+.navbar .nav-links {
+    display: flex;
+    gap: 20px;
+}
+
+.navbar .nav-links a {
+    text-decoration: none; /* Removes default underline */
+    color: black; /* Ensures link color is black */
+    font-size: 16px;
+    padding: 10px 15px;
+    display: inline-block;
+    transition: color 0.3s ease, text-decoration 0.3s ease;
+}
+
+.navbar .nav-links a:hover {
+    text-decoration: underline; /* Adds underline only on hover */
+    color: #198754; /* Changes color on hover */
+}
+
         .container {
             max-width: 900px;
             margin: auto;
