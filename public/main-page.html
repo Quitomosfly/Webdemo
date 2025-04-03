@@ -1,15 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
-    <!-- <link rel="stylesheet" href="styles.css"> -->
+    <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@300;400;700&display=swap" rel="stylesheet">
     <title>Main Event Page</title>
     <style>
-        .event-details { border: 1px solid #ccc; padding: 20px; border-radius: 5px; }
-        h2 { margin-top: 0; }
         body {
             font-family: 'Reddit Sans', sans-serif;
             background-color: #f8f8f8;
@@ -29,26 +25,16 @@
             left: 0;
             z-index: 1000;
         }
-
         .navbar .logo a {
-        font-size: 28px;
-        font-weight: bold;
-        color: #333; 
-        text-transform: uppercase;  
-        letter-spacing: 2px;  
-        text-decoration: none; 
-        transition: color 0.3s ease, transform 0.3s ease;  
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            text-decoration: none;
+            transition: color 0.3s ease, transform 0.3s ease;
         }
-
         .navbar .logo a:hover {
-            color: #198754; 
-            transform: scale(1.1); 
-        }
-
-        .navbar .logo img {
-            max-width: 30px;
-            margin-right: 10px;
-            vertical-align: middle;
+            color: #198754;
+            transform: scale(1.1);
         }
         .navbar .nav-links {
             display: flex;
@@ -58,10 +44,44 @@
             text-decoration: none;
             color: black;
             font-size: 16px;
-            margin: 0 15px;
         }
         .navbar .nav-links a:hover {
             text-decoration: underline;
+        }
+        h1, h2, p {
+            text-align: center;
+            margin-top: 80px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        td {
+            cursor: pointer;
+        }
+        input.time-input {
+            width: 100%;
+            border: none;
+            text-align: center;
+            font-size: 14px;
+            padding: 5px;
+            background: transparent;
+            outline: none;
         }
     </style>
 </head>
@@ -75,33 +95,34 @@
             <a href="https://ctaf-q8o9.onrender.com/home.html#howItWorks">How It Works</a>
         </div>
     </div>
-    <h1>Event Schedule</h1>
-    <h2 id="eventName"></h2>
-    <p><strong>Schedule Type:</strong> <span id="scheduleType"></span></p>
-    <p><strong>Time Range:</strong> <span id="timeRange"></span></p>
-    <p><strong>Selected Dates:</strong> <span id="selectedDates"></span></p>
-    <p><strong>Selected Days:</strong> <span id="selectedDays"></span></p>
-    
-    <h3>Share this link:</h3>
-    <input type="text" id="shareLink" readonly>
-    <button onclick="copyLink()">Copy Link</button>
 
-    <h2>Schedule Grid</h2>
-    <table id="scheduleTable">
-        <thead>
-            <tr>
-                <th>Time</th>
-                <!-- Headers inserted dynamically -->
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Time slots inserted dynamically -->
-        </tbody>
-    </table>
+    <h1>Event Schedule</h1>
+    <div class="container">
+        <h2 id="eventName"></h2>
+        <p><strong>Schedule Type:</strong> <span id="scheduleType"></span></p>
+        <p><strong>Time Range:</strong> <span id="timeRange"></span></p>
+        <p><strong>Selected Dates:</strong> <span id="selectedDates"></span></p>
+        <p><strong>Selected Days:</strong> <span id="selectedDays"></span></p>
+        
+        <h3>Share this link:</h3>
+        <input type="text" id="shareLink" readonly>
+        <button onclick="copyLink()">Copy Link</button>
+
+        <h2>Schedule Grid</h2>
+        <table id="scheduleTable">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <!-- Headers inserted dynamically -->
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Time slots inserted dynamically -->
+            </tbody>
+        </table>
+    </div>
 
     <script>
-        let isMouseDown = false;
-
         async function fetchEventData() {
             const params = new URLSearchParams(window.location.search);
             const eventId = params.get("id");
@@ -114,10 +135,8 @@
             try {
                 const response = await fetch(`/events/${eventId}`);
 
-                const contentType = response.headers.get("content-type");
-                if (!response.ok || !contentType.includes("application/json")) {
-                    const errorText = await response.text();
-                    throw new Error(`Server Error: ${errorText}`);
+                if (!response.ok) {
+                    throw new Error("Failed to fetch event data.");
                 }
 
                 const event = await response.json();
@@ -142,31 +161,26 @@
             const theadRow = scheduleTable.querySelector("thead tr");
             const tbody = scheduleTable.querySelector("tbody");
 
-            // Clear existing table data
             theadRow.innerHTML = "<th>Time</th>";
             tbody.innerHTML = "";
 
-            // Determine if schedule is based on specific dates or days of the week
             const isDaysOfWeek = event.scheduleType === "Days of the Week";
             const headers = isDaysOfWeek ? event.selectedDays : event.selectedDates;
 
             if (!headers || headers.length === 0) {
-                console.error("No headers available:", headers);
                 return;
             }
 
-            const timeRange = event.timeRange.split(" - "); // Example: "9 AM - 5 PM"
+            const timeRange = event.timeRange.split(" - ");
             const startHour = convertTo24HourFormat(timeRange[0]);
             const endHour = convertTo24HourFormat(timeRange[1]);
 
-            // Add headers (days of the week or specific dates)
             headers.forEach(header => {
                 const th = document.createElement("th");
                 th.innerText = header;
                 theadRow.appendChild(th);
             });
 
-            // Create time slots
             for (let hour = startHour; hour <= endHour; hour++) {
                 const tr = document.createElement("tr");
                 const timeCell = document.createElement("td");
@@ -175,45 +189,16 @@
 
                 headers.forEach(header => {
                     const td = document.createElement("td");
-                    td.classList.add("time-slot");
-                    td.dataset.header = header;
-                    td.dataset.hour = hour;
-                    td.addEventListener("mousedown", () => toggleSelection(td));
-                    td.addEventListener("mouseover", (e) => { if (isMouseDown) toggleSelection(td); });
+                    const input = document.createElement("input");
+                    input.type = "text";
+                    input.classList.add("time-input");
+                    input.placeholder = "Enter info";
+                    td.appendChild(input);
                     tr.appendChild(td);
                 });
 
                 tbody.appendChild(tr);
             }
-        }
-
-            // Handle drag selection for touch screens
-            document.addEventListener("mouseup", () => {
-                isMouseDown = false;
-            });
-
-            document.addEventListener("touchstart", (event) => {
-                if (event.target.classList.contains("time-slot")) {
-                    isMouseDown = true;
-                    toggleSelection(event.target);
-                }
-            });
-
-            document.addEventListener("touchmove", (event) => {
-                if (isMouseDown) {
-                    const touch = event.touches[0];
-                    const element = document.elementFromPoint(touch.clientX, touch.clientY);
-                    if (element && element.classList.contains("time-slot")) {
-                        toggleSelection(element);
-                    }
-                }
-            });
-
-            document.addEventListener("touchend", () => {
-                isMouseDown = false;
-            });
-        function toggleSelection(td) {
-            td.classList.toggle("selected");
         }
 
         function convertTo24HourFormat(time) {
@@ -226,7 +211,7 @@
 
         function formatTime(hour) {
             const suffix = hour >= 12 ? "PM" : "AM";
-            let displayHour = hour % 12 || 12; // Convert 24-hour to 12-hour format
+            let displayHour = hour % 12 || 12;
             return `${displayHour} ${suffix}`;
         }
 
@@ -239,7 +224,5 @@
 
         fetchEventData();
     </script>
-    <script src="./script.js"></script>
-
 </body>
 </html>
