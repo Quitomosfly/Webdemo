@@ -131,13 +131,16 @@ app.get('/main-page.html', async (req, res) => {
 });
 
 app.get("/event/:eventId", async (req, res) => {
-    const { eventId } = req.params;  // ✅ Define eventId correctly
-    fetch(`/events/${eventId}`)
-        .then(response => response.json())
-        .then(data => {
-            console.log("Fetched event data:", data);
-        })
-        .catch(error => console.error("Error fetching event:", error));
+    try {
+        const event = await Event.findById(req.params.eventId);
+        if (!event) {
+            return res.status(404).json({ error: "Event not found" });
+        }
+        res.json(event);  // ✅ Return the event data
+    } catch (error) {
+        console.error("Error fetching event:", error);
+        res.status(500).json({ error: "Server error" });
+    }
 });
 
 
