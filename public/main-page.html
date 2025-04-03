@@ -310,12 +310,13 @@
                 if (!response.ok) throw new Error("Failed to save availability.");
 
                 alert("Availability saved successfully!");
-                await loadAvailability(); // Reload availability data to reflect changes
+                await loadAvailability(); // Reload availability
             } catch (error) {
                 console.error("Error saving availability:", error);
                 alert("Error saving availability. Please try again.");
             }
         }
+
 
 
     
