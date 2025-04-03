@@ -26,7 +26,6 @@ app.get('/', (req, res) => {
 
 // Define Event Schema
 const eventSchema = new mongoose.Schema({
-    _id: { type: mongoose.Schema.Types.ObjectId, auto: true }, 
     eventName: String,
     scheduleType: String,
     selectedDates: [String],
@@ -61,25 +60,27 @@ app.post('/event/:eventId/submit', async (req, res) => {
     const { eventId } = req.params;
     const { name, availabilities } = req.body;
 
-    console.log(`Received Data:`, req.body); // ✅ Log received data
-    console.log(`Updating Event ID: ${eventId}`);
+    if (!name || !availabilities || !Array.isArray(availabilities) || availabilities.length === 0) {
+        return res.status(400).json({ error: "Invalid input data" });
+    }
 
     try {
         const event = await Event.findById(eventId);
         if (!event) {
-            console.error("Event not found!");
             return res.status(404).json({ error: "Event not found" });
         }
 
-        event.users = event.users || [];
-        event.users.push({ name, availabilities });
+        const existingUser = event.users.find(user => user.name === name);
+        if (existingUser) {
+            existingUser.availabilities = availabilities;
+        } else {
+            event.users.push({ name, availabilities });
+        }
 
-        const updatedEvent = await event.save();
-        console.log(`Updated Event:`, updatedEvent); // ✅ Log the updated event
-        
-        res.status(200).json({ message: "Availability saved successfully!", event: updatedEvent });
+        await event.save();
+        res.status(200).json({ message: "Availability saved successfully!" });
     } catch (error) {
-        console.error(`Database update failed:`, error);
+        console.error("Database update failed:", error);
         res.status(500).json({ error: "Internal server error" });
     }
 });
@@ -132,7 +133,6 @@ app.get('/main-page.html', async (req, res) => {
 app.get("/events/:id", async (req, res) => {
     const { id } = req.params;
 
-    // Check if ID is valid (MongoDB ObjectId must be 24 characters)
     if (!id || id.length !== 24) {
         return res.status(400).json({ error: "Invalid event ID" });
     }

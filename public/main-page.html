@@ -129,88 +129,30 @@
         let activeUser = null;
         let selectedAvailability = [];
         let eventId = new URLSearchParams(window.location.search).get("id");
-
+    
         async function fetchEventData() {
             if (!eventId) {
                 document.body.innerHTML = "<h2>Invalid Event ID</h2>";
                 return;
             }
-
+    
             try {
                 const response = await fetch(`/events/${eventId}`);
                 if (!response.ok) throw new Error("Failed to fetch event data.");
-
+    
                 const event = await response.json();
                 document.getElementById("eventName").innerText = event.eventName;
                 document.getElementById("scheduleType").innerText = event.scheduleType;
                 document.getElementById("timeRange").innerText = event.timeRange;
                 document.getElementById("selectedDates").innerText = event.selectedDates ? event.selectedDates.join(", ") : "N/A";
                 document.getElementById("selectedDays").innerText = event.selectedDays ? event.selectedDays.join(", ") : "N/A";
-
+    
                 generateScheduleGrid(event);
             } catch (error) {
                 document.body.innerHTML = `<h2>Error loading event: ${error.message}</h2>`;
             }
         }
-        function convertTo24HourFormat(timeString) {
-            const [time, period] = timeString.split(" ");
-            let [hours, minutes] = time.split(":").map(Number);
-
-            if (period === "PM" && hours !== 12) {
-                hours += 12;
-            } else if (period === "AM" && hours === 12) {
-                hours = 0;
-            }
-
-            return hours;
-        }
-
-        // Function to format time back to 12-hour format
-        function formatTime(hour) {
-            const period = hour >= 12 ? "PM" : "AM";
-            let formattedHour = hour % 12 || 12;
-            return `${formattedHour}:00 ${period}`;
-        }
-
-        function generateScheduleGrid(event) {
-            const scheduleTable = document.getElementById("scheduleTable");
-            const theadRow = scheduleTable.querySelector("thead tr");
-            const tbody = scheduleTable.querySelector("tbody");
-
-            theadRow.innerHTML = "<th>Time</th>";
-            tbody.innerHTML = "";
-
-            const headers = event.scheduleType === "Days of the Week" ? event.selectedDays : event.selectedDates;
-            if (!headers || headers.length === 0) return;
-
-            const [startHour, endHour] = event.timeRange.split(" - ").map(convertTo24HourFormat);
-
-            headers.forEach(header => {
-                const th = document.createElement("th");
-                th.innerText = header;
-                theadRow.appendChild(th);
-            });
-
-            for (let hour = startHour; hour <= endHour; hour++) {
-                const tr = document.createElement("tr");
-                const timeCell = document.createElement("td");
-                timeCell.innerText = formatTime(hour);
-                tr.appendChild(timeCell);
-
-                headers.forEach(header => {
-                    const td = document.createElement("td");
-                    td.classList.add("time-slot", "disabled");
-                    td.dataset.day = header;
-                    td.dataset.time = formatTime(hour);
-                    td.addEventListener("mousedown", () => toggleSelection(td));
-                    td.addEventListener("mouseover", (e) => { if (isMouseDown) toggleSelection(td); });
-                    tr.appendChild(td);
-                });
-
-                tbody.appendChild(tr);
-            }
-        }
-
+    
         function askUserName() {
             const userName = prompt("Enter your name:");
             if (userName) {
@@ -219,41 +161,51 @@
                 document.getElementById("saveButton").classList.remove("hidden");
             }
         }
-
+    
         function enableGrid() {
             document.querySelectorAll(".time-slot").forEach(td => {
                 td.classList.remove("disabled");
             });
         }
-
+    
         function toggleSelection(td) {
             if (!activeUser || td.classList.contains("disabled")) return;
-
+    
             td.classList.toggle("selected");
             const availability = { day: td.dataset.day, time: td.dataset.time };
-            selectedAvailability = td.classList.contains("selected") 
-                ? [...selectedAvailability, availability]
-                : selectedAvailability.filter(a => !(a.day === availability.day && a.time === availability.time));
+    
+            if (td.classList.contains("selected")) {
+                selectedAvailability.push(availability);
+            } else {
+                selectedAvailability = selectedAvailability.filter(a => !(a.day === availability.day && a.time === availability.time));
+            }
         }
-
+    
         async function saveAvailability() {
             if (!activeUser || selectedAvailability.length === 0) {
                 alert("Please select availability before saving.");
                 return;
             }
-
-            await fetch(`/event/${eventId}/submit`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name: activeUser, availabilities: selectedAvailability }),
-            });
-
-            alert("Availability saved successfully!");
+    
+            try {
+                const response = await fetch(`/event/${eventId}/submit`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name: activeUser, availabilities: selectedAvailability }),
+                });
+    
+                if (!response.ok) throw new Error("Failed to save availability.");
+    
+                alert("Availability saved successfully!");
+            } catch (error) {
+                alert("Error saving availability: " + error.message);
+            }
         }
-
+    
         document.addEventListener("mousedown", () => isMouseDown = true);
         document.addEventListener("mouseup", () => isMouseDown = false);
         fetchEventData();
     </script>
+    
 </body>
 </html>
