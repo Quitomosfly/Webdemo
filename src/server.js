@@ -130,24 +130,16 @@ app.get('/main-page.html', async (req, res) => {
     }
 });
 
-app.get("/events/:id", async (req, res) => {
-    const { id } = req.params;
-
-    if (!id || id.length !== 24) {
-        return res.status(400).json({ error: "Invalid event ID" });
-    }
-
-    try {
-        const event = await Event.findById(id);
-        if (!event) {
-            return res.status(404).json({ error: "Event not found" });
-        }
-        res.json(event);
-    } catch (error) {
-        console.error("Error fetching event:", error);
-        res.status(500).json({ error: "Server error" });
-    }
+app.get("/event/:eventId", async (req, res) => {
+    const { eventId } = req.params;  // ✅ Define eventId correctly
+    fetch(`/events/${eventId}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log("Fetched event data:", data);
+        })
+        .catch(error => console.error("Error fetching event:", error));
 });
+
 
 // Health check endpoint for Render
 app.get('/health', (req, res) => {
@@ -159,12 +151,6 @@ app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
 
-fetch(`/events/${eventId}`)
-  .then(response => response.json())
-  .then(data => {
-    console.log("Fetched event data:", data);
-  })
-  .catch(error => console.error("Error fetching event:", error));
 
 
 mongoose.set("debug", true);
