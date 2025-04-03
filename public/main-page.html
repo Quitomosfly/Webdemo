@@ -5,7 +5,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <!-- <link rel="stylesheet" href="styles.css"> -->
     <title>Main Event Page</title>
     <style>
         .event-details { border: 1px solid #ccc; padding: 20px; border-radius: 5px; }
@@ -29,9 +29,26 @@
             left: 0;
             z-index: 1000;
         }
-        .navbar .logo {
-            font-size: 24px;
-            font-weight: bold;
+
+        .navbar .logo a {
+        font-size: 28px;
+        font-weight: bold;
+        color: #333; 
+        text-transform: uppercase;  
+        letter-spacing: 2px;  
+        text-decoration: none; 
+        transition: color 0.3s ease, transform 0.3s ease;  
+        }
+
+        .navbar .logo a:hover {
+            color: #198754; 
+            transform: scale(1.1); 
+        }
+
+        .navbar .logo img {
+            max-width: 30px;
+            margin-right: 10px;
+            vertical-align: middle;
         }
         .navbar .nav-links {
             display: flex;
@@ -50,10 +67,12 @@
 </head>
 <body>
     <div class="navbar">
-        <div class="logo">CTAF</div>
+        <div class="logo">
+            <a href="https://ctaf-q8o9.onrender.com/home.html">CTAF</a>
+        </div>
         <div class="nav-links">
-            <a href="#">Home</a>
-            <a href="#howItWorks">How It Works</a>
+            <a href="https://ctaf-q8o9.onrender.com/home.html">Home</a>
+            <a href="https://ctaf-q8o9.onrender.com/home.html#howItWorks">How It Works</a>
         </div>
     </div>
     <h1>Event Schedule</h1>
@@ -88,7 +107,7 @@
             const eventId = params.get("id");
 
             if (!eventId) {
-                document.body.innerHTML = "<h2>Invalid Event ID</h2>";
+                document.body.innerHTML = "<h2>Invalid Event ID</h2>...";
                 return;
             }
 

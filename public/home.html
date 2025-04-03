@@ -38,15 +38,18 @@
         }
 
         .flatpickr-calendar {
-            display: block;  /* Force calendar to be always visible */
+            display: block;
             width: 100%;
             max-width: 320px;
+            margin: 0 auto; /* This centers the calendar */
         }
 
         .btn-container {
             display: flex;
             gap: 5px;
             margin-bottom: 10px;
+            justify-content: center; 
+            align-items: center;     
         }
 
         .toggle-btn {
@@ -69,9 +72,10 @@
         }
 
         .calendar-container {
-            display: none; /* Hidden by default */
+            display: flex;
+            justify-content: center;
             margin-top: 10px;
-        }
+        }   
 
         .calendar-visible {
             display: block; /* Visible when 'Dates Only' is active */
@@ -135,10 +139,12 @@
 </head>
 <body>
     <div class="navbar">
-        <div class="logo">CTAF</div>
+        <div class="logo">
+            <a href="https://ctaf-q8o9.onrender.com/home.html">CTAF</a>
+        </div>
         <div class="nav-links">
-            <a href="#">Home</a>
-            <a href="#howItWorks">How It Works</a>
+            <a href="https://ctaf-q8o9.onrender.com/home.html">Home</a>
+            <a href="https://ctaf-q8o9.onrender.com/home.html#howItWorks">How It Works</a>
         </div>
     </div>
     <h1>New Event</h1>
@@ -365,8 +371,7 @@
             <button type = "submit">Submit</button>
         </form>
 
-                <!-- How It Works Section -->
-                <div id="howItWorks" class="content-section">
+                    <div id="howItWorks" class="content-section">
                     <h2>How It Works</h2>
                     <p>Our system allows you to easily schedule events with flexibility and precision. Here's how it works:</p>
                     <ul>
@@ -378,7 +383,6 @@
                     <p>This approach ensures that scheduling conflicts are minimized and that everyone involved can participate at their convenience.</p>
                 </div>
                     
-                <!-- FAQ Section -->
                 <div class="dropdown">
                     <button type="button" class="dropdown-btn" onclick="toggleDropdown('faqContent')">FAQ</button>
                     <div id="faqContent" class="dropdown-content">
