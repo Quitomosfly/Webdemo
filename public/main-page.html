@@ -28,28 +28,13 @@
         .navbar .logo a {
             font-size: 28px;
             font-weight: bold;
-            color: #333; 
-            text-transform: uppercase;  
-            letter-spacing: 2px;  
-            text-decoration: none; 
-            transition: color 0.3s ease, transform 0.3s ease;  
+            color: #333;
+            text-decoration: none;
+            transition: color 0.3s ease, transform 0.3s ease;
         }
         .navbar .logo a:hover {
             color: #198754;
             transform: scale(1.1);
-        }
-        .navbar .nav-links {
-            display: flex;
-            gap: 20px;
-        }
-        .navbar .nav-links a {
-            text-decoration: none;
-            color: black;
-            font-size: 16px;
-            margin: 0 15px;
-        }
-        .navbar .nav-links a:hover {
-            text-decoration: underline;
         }
         .container {
             max-width: 900px;
@@ -97,6 +82,9 @@
         .button:hover {
             background-color: #0056b3;
         }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -120,6 +108,7 @@
 
         <div class="button-container">
             <button class="button" onclick="askUserName()">Add Availability</button>
+            <button id="saveButton" class="button hidden" onclick="saveAvailability()">Save Availability</button>
         </div>
 
         <h2>Schedule Grid</h2>
@@ -137,13 +126,11 @@
 
     <script>
         let isMouseDown = false;
-        let scheduleData = {};
         let activeUser = null;
+        let selectedAvailability = [];
+        let eventId = new URLSearchParams(window.location.search).get("id");
 
         async function fetchEventData() {
-            const params = new URLSearchParams(window.location.search);
-            const eventId = params.get("id");
-
             if (!eventId) {
                 document.body.innerHTML = "<h2>Invalid Event ID</h2>";
                 return;
@@ -152,9 +139,8 @@
             try {
                 const response = await fetch(`/events/${eventId}`);
                 if (!response.ok) throw new Error("Failed to fetch event data.");
-                
-                const event = await response.json();
 
+                const event = await response.json();
                 document.getElementById("eventName").innerText = event.eventName;
                 document.getElementById("scheduleType").innerText = event.scheduleType;
                 document.getElementById("timeRange").innerText = event.timeRange;
@@ -175,13 +161,10 @@
             theadRow.innerHTML = "<th>Time</th>";
             tbody.innerHTML = "";
 
-            const isDaysOfWeek = event.scheduleType === "Days of the Week";
-            const headers = isDaysOfWeek ? event.selectedDays : event.selectedDates;
+            const headers = event.scheduleType === "Days of the Week" ? event.selectedDays : event.selectedDates;
             if (!headers || headers.length === 0) return;
 
-            const timeRange = event.timeRange.split(" - ");
-            const startHour = convertTo24HourFormat(timeRange[0]);
-            const endHour = convertTo24HourFormat(timeRange[1]);
+            const [startHour, endHour] = event.timeRange.split(" - ").map(convertTo24HourFormat);
 
             headers.forEach(header => {
                 const th = document.createElement("th");
@@ -198,8 +181,8 @@
                 headers.forEach(header => {
                     const td = document.createElement("td");
                     td.classList.add("time-slot", "disabled");
-                    td.dataset.header = header;
-                    td.dataset.hour = hour;
+                    td.dataset.day = header;
+                    td.dataset.time = formatTime(hour);
                     td.addEventListener("mousedown", () => toggleSelection(td));
                     td.addEventListener("mouseover", (e) => { if (isMouseDown) toggleSelection(td); });
                     tr.appendChild(td);
@@ -214,6 +197,7 @@
             if (userName) {
                 activeUser = userName;
                 enableGrid();
+                document.getElementById("saveButton").classList.remove("hidden");
             }
         }
 
@@ -227,23 +211,29 @@
             if (!activeUser || td.classList.contains("disabled")) return;
 
             td.classList.toggle("selected");
+            const availability = { day: td.dataset.day, time: td.dataset.time };
+            selectedAvailability = td.classList.contains("selected") 
+                ? [...selectedAvailability, availability]
+                : selectedAvailability.filter(a => !(a.day === availability.day && a.time === availability.time));
         }
 
-        function convertTo24HourFormat(time) {
-            const [hour, modifier] = time.split(" ");
-            let hourInt = parseInt(hour);
-            if (modifier === "PM" && hourInt !== 12) hourInt += 12;
-            if (modifier === "AM" && hourInt === 12) hourInt = 0;
-            return hourInt;
-        }
+        async function saveAvailability() {
+            if (!activeUser || selectedAvailability.length === 0) {
+                alert("Please select availability before saving.");
+                return;
+            }
 
-        function formatTime(hour) {
-            return `${hour % 12 || 12} ${hour >= 12 ? "PM" : "AM"}`;
+            await fetch(`/event/${eventId}/submit`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: activeUser, availabilities: selectedAvailability }),
+            });
+
+            alert("Availability saved successfully!");
         }
 
         document.addEventListener("mousedown", () => isMouseDown = true);
         document.addEventListener("mouseup", () => isMouseDown = false);
-
         fetchEventData();
     </script>
 </body>
