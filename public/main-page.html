@@ -161,6 +161,36 @@
                 document.getElementById("saveButton").classList.remove("hidden");
             }
         }
+        function generateScheduleGrid(event) {
+            const scheduleTable = document.getElementById("scheduleTable");
+            scheduleTable.innerHTML = ""; // Clear existing grid if any
+
+            const days = event.selectedDays || [];
+            const timeSlots = event.timeRange ? event.timeRange.split(",") : [];
+
+            // Create table header
+            const thead = document.createElement("thead");
+            const headerRow = document.createElement("tr");
+            headerRow.innerHTML = `<th>Time</th>` + days.map(day => `<th>${day}</th>`).join("");
+            thead.appendChild(headerRow);
+            scheduleTable.appendChild(thead);
+
+            // Create table body
+            const tbody = document.createElement("tbody");
+            timeSlots.forEach(time => {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td>${time}</td>` + days.map(day => `<td class="time-slot disabled" data-day="${day}" data-time="${time}"></td>`).join("");
+                tbody.appendChild(row);
+            });
+
+            scheduleTable.appendChild(tbody);
+
+            // Attach event listeners to time slots
+            document.querySelectorAll(".time-slot").forEach(td => {
+                td.addEventListener("click", () => toggleSelection(td));
+            });
+        }
+
     
         function enableGrid() {
             document.querySelectorAll(".time-slot").forEach(td => {
