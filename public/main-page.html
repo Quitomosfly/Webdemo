@@ -78,8 +78,24 @@
             background-color: #28a745;
             color: white;
         }
-        td.hover {
-            background-color: #c3e6cb;
+        td.disabled {
+            background-color: #ddd;
+            cursor: not-allowed;
+        }
+        .button-container {
+            margin: 20px 0;
+        }
+        .button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        .button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
@@ -102,6 +118,10 @@
         <p><strong>Selected Dates:</strong> <span id="selectedDates"></span></p>
         <p><strong>Selected Days:</strong> <span id="selectedDays"></span></p>
 
+        <div class="button-container">
+            <button class="button" onclick="askUserName()">Add Availability</button>
+        </div>
+
         <h2>Schedule Grid</h2>
         <table id="scheduleTable">
             <thead>
@@ -118,6 +138,7 @@
     <script>
         let isMouseDown = false;
         let scheduleData = {};
+        let activeUser = null;
 
         async function fetchEventData() {
             const params = new URLSearchParams(window.location.search);
@@ -176,34 +197,36 @@
 
                 headers.forEach(header => {
                     const td = document.createElement("td");
-                    td.classList.add("time-slot");
+                    td.classList.add("time-slot", "disabled");
                     td.dataset.header = header;
                     td.dataset.hour = hour;
                     td.addEventListener("mousedown", () => toggleSelection(td));
                     td.addEventListener("mouseover", (e) => { if (isMouseDown) toggleSelection(td); });
                     tr.appendChild(td);
-
-                    if (!scheduleData[header]) {
-                        scheduleData[header] = {};
-                    }
-                    scheduleData[header][hour] = false;
                 });
 
                 tbody.appendChild(tr);
             }
         }
 
-        function toggleSelection(td) {
-            const header = td.dataset.header;
-            const hour = td.dataset.hour;
-            const isSelected = scheduleData[header][hour];
-
-            if (isSelected) {
-                td.classList.remove("selected");
-            } else {
-                td.classList.add("selected");
+        function askUserName() {
+            const userName = prompt("Enter your name:");
+            if (userName) {
+                activeUser = userName;
+                enableGrid();
             }
-            scheduleData[header][hour] = !isSelected;
+        }
+
+        function enableGrid() {
+            document.querySelectorAll(".time-slot").forEach(td => {
+                td.classList.remove("disabled");
+            });
+        }
+
+        function toggleSelection(td) {
+            if (!activeUser || td.classList.contains("disabled")) return;
+
+            td.classList.toggle("selected");
         }
 
         function convertTo24HourFormat(time) {
@@ -215,9 +238,7 @@
         }
 
         function formatTime(hour) {
-            const suffix = hour >= 12 ? "PM" : "AM";
-            let displayHour = hour % 12 || 12;
-            return `${displayHour} ${suffix}`;
+            return `${hour % 12 || 12} ${hour >= 12 ? "PM" : "AM"}`;
         }
 
         document.addEventListener("mousedown", () => isMouseDown = true);
