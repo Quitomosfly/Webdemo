@@ -130,6 +130,14 @@ app.get('/main-page.html', async (req, res) => {
     }
 });
 
+app.get('/events/:eventId', async (req, res) => {
+    const eventId = req.params.eventId;  // Ensure eventId comes from params
+    const response = await fetch(`/events/${eventId}`);
+    res.json(await response.json());
+});
+
+
+
 app.get("/events/:id", async (req, res) => {
     const { id } = req.params;
 
