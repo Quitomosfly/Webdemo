@@ -28,7 +28,6 @@ app.get('/', (req, res) => {
 const eventSchema = new mongoose.Schema({
     _id: { type: mongoose.Schema.Types.ObjectId, auto: true }, 
     eventName: String,
-    selectedOption: String,
     scheduleType: String,
     selectedDates: [String],
     selectedDays: [String],
@@ -87,7 +86,7 @@ app.post('/event/:eventId/submit', async (req, res) => {
 
 // Route to handle form submission
 app.post('/events', async (req, res) => {
-    const { eventName, selectedOption, scheduleType, selectedDates, selectedDays, timeRange } = req.body;
+    const { eventName, scheduleType, selectedDates, selectedDays, timeRange } = req.body;
 
     // Validation for required fields
     if (!eventName || !scheduleType) {
@@ -96,7 +95,6 @@ app.post('/events', async (req, res) => {
 
     const newEvent = new Event({
         eventName,
-        selectedOption,
         scheduleType,
         selectedDates: selectedDates || [],
         selectedDays: selectedDays || [],

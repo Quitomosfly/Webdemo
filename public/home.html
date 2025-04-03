@@ -212,8 +212,8 @@
         <div id="scheduleTypeContainer">
             <label for="event_type">Choose Schedule Type:</label>
             <select id="event_type">
-                <option value="specificDates">Specific Dates</option>
-                <option value="daysOfTheWeek" selected>Days of the Week</option>
+                <option value="specificDates" selected>Specific Dates</option>
+                <option value="daysOfTheWeek" >Days of the Week</option>
             </select>
         </div>
 
@@ -250,16 +250,14 @@
             
             function toggleVisibility() {
                 if (eventType.value === 'daysOfTheWeek') {
-                    calendarContainer.classList.remove('calendar-visible');
-                    dayContainer.classList.add('visible');
+                    calendarContainer.style.display = 'none';
+                    dayContainer.style.display = 'flex';
                 } else if (eventType.value === 'specificDates') {
-                    dayContainer.classList.remove('visible');
-                    calendarContainer.classList.add('calendar-visible');
+                    dayContainer.style.display = 'none';
+                    calendarContainer.style.display = 'block';
                 }
-
-                // Refresh Flatpickr visibility state
-                document.getElementById("datePicker")._flatpickr.redraw();
             }
+            toggleVisibility();
             // Listen for dropdown changes
             eventType.addEventListener('change', toggleVisibility);
 
