@@ -4,7 +4,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@300;400;700&display=swap" rel="stylesheet">
-    <title>Event Scheduler</title>
+    <title>Main Event Page</title>
     <style>
         body {
             font-family: 'Reddit Sans', sans-serif;
@@ -12,11 +12,51 @@
             margin: 0;
             padding: 0;
         }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: #ffffff;
+            border-bottom: 2px solid pink;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+        .navbar .logo a {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333; 
+            text-transform: uppercase;  
+            letter-spacing: 2px;  
+            text-decoration: none; 
+            transition: color 0.3s ease, transform 0.3s ease;  
+        }
+        .navbar .logo a:hover {
+            color: #198754;
+            transform: scale(1.1);
+        }
+        .navbar .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        .navbar .nav-links a {
+            text-decoration: none;
+            color: black;
+            font-size: 16px;
+            margin: 0 15px;
+        }
+        .navbar .nav-links a:hover {
+            text-decoration: underline;
+        }
         .container {
             max-width: 900px;
             margin: auto;
             padding: 20px;
             text-align: center;
+            margin-top: 80px;
         }
         table {
             width: 100%;
@@ -35,15 +75,25 @@
             background-color: #f2f2f2;
         }
         td.selected {
-            background-color: #28a745; /* Green */
+            background-color: #28a745;
             color: white;
         }
         td.hover {
-            background-color: #c3e6cb; /* Light green */
+            background-color: #c3e6cb;
         }
     </style>
 </head>
 <body>
+    <div class="navbar">
+        <div class="logo">
+            <a href="https://ctaf-q8o9.onrender.com/home.html">CTAF</a>
+        </div>
+        <div class="nav-links">
+            <a href="https://ctaf-q8o9.onrender.com/home.html">Home</a>
+            <a href="https://ctaf-q8o9.onrender.com/home.html#howItWorks">How It Works</a>
+        </div>
+    </div>
+
     <div class="container">
         <h1>Event Schedule</h1>
         <h2 id="eventName"></h2>
@@ -67,7 +117,7 @@
 
     <script>
         let isMouseDown = false;
-        let scheduleData = {};  // Stores user selections
+        let scheduleData = {};
 
         async function fetchEventData() {
             const params = new URLSearchParams(window.location.search);
@@ -85,6 +135,10 @@
                 const event = await response.json();
 
                 document.getElementById("eventName").innerText = event.eventName;
+                document.getElementById("scheduleType").innerText = event.scheduleType;
+                document.getElementById("timeRange").innerText = event.timeRange;
+                document.getElementById("selectedDates").innerText = event.selectedDates ? event.selectedDates.join(", ") : "N/A";
+                document.getElementById("selectedDays").innerText = event.selectedDays ? event.selectedDays.join(", ") : "N/A";
 
                 generateScheduleGrid(event);
             } catch (error) {
@@ -129,7 +183,6 @@
                     td.addEventListener("mouseover", (e) => { if (isMouseDown) toggleSelection(td); });
                     tr.appendChild(td);
 
-                    // Initialize scheduleData storage
                     if (!scheduleData[header]) {
                         scheduleData[header] = {};
                     }
@@ -169,22 +222,6 @@
 
         document.addEventListener("mousedown", () => isMouseDown = true);
         document.addEventListener("mouseup", () => isMouseDown = false);
-        document.addEventListener("touchstart", (event) => {
-            if (event.target.classList.contains("time-slot")) {
-                isMouseDown = true;
-                toggleSelection(event.target);
-            }
-        });
-        document.addEventListener("touchmove", (event) => {
-            if (isMouseDown) {
-                const touch = event.touches[0];
-                const element = document.elementFromPoint(touch.clientX, touch.clientY);
-                if (element && element.classList.contains("time-slot")) {
-                    toggleSelection(element);
-                }
-            }
-        });
-        document.addEventListener("touchend", () => isMouseDown = false);
 
         fetchEventData();
     </script>
