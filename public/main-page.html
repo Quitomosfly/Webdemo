@@ -322,6 +322,8 @@
         document.addEventListener("mousedown", () => isMouseDown = true);
         document.addEventListener("mouseup", () => isMouseDown = false);
         fetchEventData();
+
+        setInterval(loadAvailability, 5000); // Refresh availability every 5 seconds
     </script>
     
 </body>
