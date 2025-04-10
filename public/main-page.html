@@ -85,6 +85,22 @@
         .hidden {
             display: none;
         }
+        .time-slot.available {
+            background-color: #4CAF50;  /* Green background */
+            color: white;  /* Text color for visibility */
+        }
+
+        .time-slot.selected {
+            background-color: #8BC34A;  /* Slightly lighter green for selected time slot */
+            color: white;  /* Text color for visibility */
+        }
+
+        .time-slot {
+            /* Add other styles for the time slots here */
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
     </style>
 </head>
 <body>
@@ -282,7 +298,7 @@
         function updateTableWithAvailability(eventData) {
             // Clear previous availability data
             document.querySelectorAll(".time-slot").forEach(td => {
-                td.classList.remove("selected");
+                td.classList.remove("selected", "available"); // Remove old styles
                 td.innerText = ""; // Clear existing selections
             });
 
@@ -290,8 +306,7 @@
                 user.availabilities.forEach(({ day, time }) => {
                     const td = document.querySelector(`td[data-day="${day}"][data-time="${time}"]`);
                     if (td) {
-                        td.classList.add("selected");
-                        td.innerText += (td.innerText ? ", " : "") + user.name; // Append user's name to slot
+                        td.classList.add("available"); // Highlight the available time slot in green
                     }
                 });
             });
