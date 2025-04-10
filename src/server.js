@@ -8,6 +8,7 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
@@ -15,7 +16,6 @@ app.use(bodyParser.json());
 mongoose.connect(process.env.MONGO_URI, { dbName: 'eventsDB' })
   .then(() => console.log('Connected to MongoDB Atlas'))
   .catch(err => console.error('Connection error', err));
-
 // Serve static files (like your HTML)
 app.use(express.static(path.join(__dirname, "../public")));
 
@@ -25,7 +25,7 @@ app.get('/', (req, res) => {
 });
 
 // Define Event Schema
-const eventSchema = new mongoose.Schema({
+const EventSchema = new mongoose.Schema({
     eventName: String,
     scheduleType: String,
     selectedDates: [String],
@@ -41,10 +41,8 @@ const eventSchema = new mongoose.Schema({
     __v: { type: Number, default: 0 }
 });
 
-// Event Model
-const Event = mongoose.model('Event', eventSchema, 'events');
 
-// Route to create an event
+const Event = mongoose.model('Event', eventSchema, 'events');
 app.post("/events", async (req, res) => {
     const { eventName, scheduleType, selectedDates, selectedDays, timeRange } = req.body;
 
@@ -69,8 +67,6 @@ app.post("/events", async (req, res) => {
         res.status(500).json({ error: 'Failed to save the event.' });
     }
 });
-
-// Route to submit user availability for an event
 app.post('/event/:eventId/submit', async (req, res) => {
     const { eventId } = req.params;
     const { name, availabilities } = req.body;
@@ -100,7 +96,26 @@ app.post('/event/:eventId/submit', async (req, res) => {
     }
 });
 
-// Route to fetch event details by ID
+
+app.get('/main-page.html', async (req, res) => {
+    const eventId = req.query.id;
+    
+    if (!eventId || eventId === "undefined") {
+        return res.status(400).send("Invalid event ID.");
+    }
+
+    try {
+        const event = await Event.findById(eventId);
+        if (!event) {
+            return res.status(404).send("Event not found.");
+        }
+        res.json(event);
+    } catch (error) {
+        console.error("Error fetching event:", error);
+        res.status(500).send("Server error.");
+    }
+});
+
 app.get('/events/:id', async (req, res) => {
     const { id } = req.params;
 
