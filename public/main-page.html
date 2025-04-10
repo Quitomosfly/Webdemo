@@ -262,7 +262,7 @@
         scheduleTable.innerHTML = ""; // Clear table before generating new data
 
         const headers = event.scheduleType === "Days of the Week" ? event.selectedDays : event.selectedDates;
-        
+
         if (!headers || headers.length === 0) {
             console.error("No headers available for schedule grid.");
             return;
