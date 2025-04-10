@@ -61,8 +61,12 @@
             outline: none;
         }
 
-        .timeContainer{
+        .timeContainer {
             display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap; /* for responsiveness */
         }
 
         .active {
@@ -96,7 +100,9 @@
         .navbar .nav-links {
             display: flex;
             gap: 20px;
-        }
+            padding-right: 30px; /* Add some right padding */
+        }   
+
         .navbar .nav-links a {
             text-decoration: none;
             color: black;
