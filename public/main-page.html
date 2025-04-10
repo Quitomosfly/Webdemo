@@ -125,6 +125,7 @@
     </div>
 
     <script>
+        src="/socket.io/socket.io.js"
         let isMouseDown = false;
         let activeUser = null;
         let selectedAvailability = [];
@@ -277,6 +278,12 @@
                 console.error("Error loading availability:", error);
             }
         }
+
+        socket.on('availabilityUpdated', (data) => {
+            if (data.eventId === eventId) {
+                updateTableWithAvailability(data.availabilities);
+            }
+        });
 
         function updateTableWithAvailability(availabilityData) {
             document.querySelectorAll(".time-slot").forEach(td => {

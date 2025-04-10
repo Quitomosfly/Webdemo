@@ -1,11 +1,15 @@
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
+const socketIo = require('socket.io');
 
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server); // Set up socket.io with the server
 const PORT = process.env.PORT || 3000;
 
 
@@ -78,6 +82,10 @@ app.post('/event/:eventId/submit', async (req, res) => {
         }
 
         await event.save();
+
+        // Broadcast updated availability to all connected clients
+        io.emit('availabilityUpdated', { eventId, availabilities: event.users });
+
         res.status(200).json({ message: "Availability saved successfully!" });
     } catch (error) {
         console.error("Database update failed:", error);
