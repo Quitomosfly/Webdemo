@@ -209,6 +209,13 @@
                 </select><br>
         </div>
 
+        <div id="scheduleTypeContainer">
+            <label for="event_type">Choose Schedule Type:</label>
+            <select id="event_type">
+                <option value="specificDates" selected>Specific Dates</option>
+                <option value="daysOfTheWeek" >Days of the Week</option>
+            </select>
+        </div>
 
         
         <div class="calendar-container" id="calendarContainer">
@@ -242,10 +249,14 @@
             let selectedOption = 'Dates only';
             
             function toggleVisibility() {
-                dayContainer.style.display = 'none';
-                calendarContainer.style.display = 'block';
+                if (eventType.value === 'daysOfTheWeek') {
+                    calendarContainer.style.display = 'none';
+                    dayContainer.style.display = 'flex';
+                } else if (eventType.value === 'specificDates') {
+                    dayContainer.style.display = 'none';
+                    calendarContainer.style.display = 'block';
+                }
             }
-
             toggleVisibility();
             // Listen for dropdown changes
             eventType.addEventListener('change', toggleVisibility);
@@ -261,7 +272,6 @@
                 });
             });
 
-            
             let selectedDates = [];
             // Flatpickr for Inline Calendar (Always Visible)
             flatpickr("#datePicker", {
