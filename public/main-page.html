@@ -168,8 +168,8 @@
                 document.getElementById("selectedDates").innerText = event.selectedDates ? event.selectedDates.join(", ") : "N/A";
                 document.getElementById("selectedDays").innerText = event.selectedDays ? event.selectedDays.join(", ") : "N/A";
 
-                generateScheduleGrid(event);
-                loadAvailability(); // Fetch availability after setting up the table (automatically triggered here)
+                generateScheduleGrid(event);  // This will generate the grid dynamically
+                loadAvailability();  // Load availability automatically after the grid is generated
             } catch (error) {
                 document.body.innerHTML = `<h2>Error loading event: ${error.message}</h2>`;
             }
@@ -351,7 +351,6 @@
     
         document.addEventListener("mousedown", () => isMouseDown = true);
         document.addEventListener("mouseup", () => isMouseDown = false);
-        fetchEventData();
         window.onload = fetchEventData;
 
         setInterval(loadAvailability, 5000); // Refresh availability every 5 seconds
