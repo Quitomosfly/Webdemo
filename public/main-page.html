@@ -95,6 +95,11 @@
             color: white;  /* Text color for visibility */
         }
 
+        .time-slot.disabled {
+            background-color: #ddd;  /* Grey out the disabled slots */
+            cursor: not-allowed;     /* Change the cursor to indicate it's not interactive */
+        }
+
         .time-slot {
             /* Add other styles for the time slots here */
             padding: 10px;
@@ -177,9 +182,9 @@
                 activeUser = userName;
                 enableGrid();
                 document.getElementById("saveButton").classList.remove("hidden");
+                document.querySelector(".button-container").classList.remove("hidden");
             }
         }
-
         function convertTo24HourFormat(timeStr) {
             const [time, modifier] = timeStr.split(" ");
             let [hours, minutes] = time.split(":").map(Number);
@@ -329,11 +334,28 @@
                 if (!response.ok) throw new Error("Failed to save availability.");
 
                 alert("Availability saved successfully!");
-                await loadAvailability(); // Reload availability
+
+                // Disable further editing of the table
+                disableTable();
+
+                await loadAvailability(); // Reload availability to show updates
             } catch (error) {
                 console.error("Error saving availability:", error);
                 alert("Error saving availability. Please try again.");
             }
+        }
+
+        function disableTable() {
+            // Disable selection on all time slots
+            document.querySelectorAll(".time-slot").forEach(td => {
+                td.classList.add("disabled"); // Add a 'disabled' class to prevent interactions
+                td.removeEventListener("mousedown", toggleSelection); // Remove click events
+                td.removeEventListener("mouseover", handleMouseOver); // Remove mouseover events
+                td.removeEventListener("mouseup", handleMouseUp); // Remove mouseup events
+            });
+
+            // Hide "Add Availability" button and "Save Availability" button
+            document.querySelector(".button-container").classList.add("hidden");
         }
 
 
