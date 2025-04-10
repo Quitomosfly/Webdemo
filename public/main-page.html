@@ -122,6 +122,11 @@
     <div class="container">
         <h1>Event Schedule</h1>
         <h2 id="eventName"></h2>
+        <p><strong>Schedule Type:</strong> <span id="scheduleType"></span></p>
+        <p><strong>Time Range:</strong> <span id="timeRange"></span></p>
+        <p><strong>Selected Dates:</strong> <span id="selectedDates"></span></p>
+        <p><strong>Selected Days:</strong> <span id="selectedDays"></span></p>
+
         <div class="button-container">
             <button class="button" onclick="askUserName()">Add Availability</button>
             <button id="saveButton" class="button hidden" onclick="saveAvailability()">Save Availability</button>
@@ -156,6 +161,12 @@
                 if (!response.ok) throw new Error("Failed to fetch event data.");
 
                 const event = await response.json();
+                document.getElementById("eventName").innerText = event.eventName;
+                document.getElementById("scheduleType").innerText = event.scheduleType || "N/A";
+                document.getElementById("timeRange").innerText = event.timeRange;
+                document.getElementById("selectedDates").innerText = event.selectedDates ? event.selectedDates.join(", ") : "N/A";
+                document.getElementById("selectedDays").innerText = event.selectedDays ? event.selectedDays.join(", ") : "N/A";
+
                 generateScheduleGrid(event);  // This will generate the grid dynamically
                 loadAvailability();  // Load availability automatically after the grid is generated
             } catch (error) {
