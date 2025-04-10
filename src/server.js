@@ -97,23 +97,8 @@ app.post('/event/:eventId/submit', async (req, res) => {
 });
 
 
-app.get('/main-page.html', async (req, res) => {
-    const eventId = req.query.id;
-    
-    if (!eventId || eventId === "undefined") {
-        return res.status(400).send("Invalid event ID.");
-    }
-
-    try {
-        const event = await Event.findById(eventId);
-        if (!event) {
-            return res.status(404).send("Event not found.");
-        }
-        res.json(event);
-    } catch (error) {
-        console.error("Error fetching event:", error);
-        res.status(500).send("Server error.");
-    }
+app.get('/main-page.html', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/main-page.html'));
 });
 
 app.get('/events/:id', async (req, res) => {
