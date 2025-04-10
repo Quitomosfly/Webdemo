@@ -264,19 +264,19 @@
         enableSelection(); // Enable click and drag selection
     }
 
-    
-    function toggleSelection(td) {
-        if (!activeUser || td.classList.contains("disabled")) return;
 
-        td.classList.toggle("selected");
-        const availability = { day: td.dataset.day, time: td.dataset.time };
+        function toggleSelection(td) {
+            if (!activeUser || td.classList.contains("disabled")) return;
 
-        if (td.classList.contains("selected")) {
-            selectedAvailability.push(availability);
-        } else {
-            selectedAvailability = selectedAvailability.filter(a => !(a.day === availability.day && a.time === availability.time));
+            td.classList.toggle("selected");
+            const availability = { day: td.dataset.day, time: td.dataset.time };
+
+            if (td.classList.contains("selected")) {
+                selectedAvailability.push(availability);
+            } else {
+                selectedAvailability = selectedAvailability.filter(a => !(a.day === availability.day && a.time === availability.time));
+            }
         }
-    }
 
 
 
@@ -336,7 +336,6 @@
                 alert("Availability saved successfully!");
 
                 // Disable further editing of the table
-                disableTable();
 
                 await loadAvailability(); // Reload availability to show updates
             } catch (error) {
@@ -344,22 +343,6 @@
                 alert("Error saving availability. Please try again.");
             }
         }
-
-        function disableTable() {
-            // Disable selection on all time slots
-            document.querySelectorAll(".time-slot").forEach(td => {
-                td.classList.add("disabled"); // Add a 'disabled' class to prevent interactions
-                td.removeEventListener("mousedown", toggleSelection); // Remove click events
-                td.removeEventListener("mouseover", handleMouseOver); // Remove mouseover events
-                td.removeEventListener("mouseup", handleMouseUp); // Remove mouseup events
-            });
-
-            // Hide "Add Availability" button and "Save Availability" button
-            document.querySelector(".button-container").classList.add("hidden");
-        }
-
-
-
     
         document.addEventListener("mousedown", () => isMouseDown = true);
         document.addEventListener("mouseup", () => isMouseDown = false);
