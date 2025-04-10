@@ -111,6 +111,27 @@
         .hidden {
             display: none;
         }
+        .time-slot.available {
+            background-color: #4CAF50;  /* Green background */
+            color: white;  /* Text color for visibility */
+        }
+
+        .time-slot.selected {
+            background-color: #8BC34A;  /* Slightly lighter green for selected time slot */
+            color: white;  /* Text color for visibility */
+        }
+
+        .time-slot.disabled {
+            background-color: #ddd;  /* Grey out the disabled slots */
+            cursor: not-allowed;     /* Change the cursor to indicate it's not interactive */
+        }
+
+        .time-slot {
+            /* Add other styles for the time slots here */
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
     </style>
 </head>
 <body>
