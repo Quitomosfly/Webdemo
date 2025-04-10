@@ -156,11 +156,12 @@
                 document.getElementById("selectedDays").innerText = event.selectedDays ? event.selectedDays.join(", ") : "N/A";
 
                 generateScheduleGrid(event);
-                await loadAvailability(); // Fetch availability after setting up the table
+                await loadAvailability(event.users); // Fetch availability after setting up the table
             } catch (error) {
                 document.body.innerHTML = `<h2>Error loading event: ${error.message}</h2>`;
             }
         }
+
 
     
         function askUserName() {
@@ -175,14 +176,14 @@
         function convertTo24HourFormat(timeStr) {
             const [time, modifier] = timeStr.split(" ");
             let [hours, minutes] = time.split(":").map(Number);
-            
+
             if (modifier === "PM" && hours !== 12) {
                 hours += 12;
             } else if (modifier === "AM" && hours === 12) {
                 hours = 0;
             }
 
-            return hours;  // Returning hours only, assuming minutes are always ":00"
+            return hours; // Returning hours only, assuming minutes are always ":00"
         }
 
         function formatTime(hour) {
@@ -191,35 +192,36 @@
             return `${formattedHour}:00 ${ampm}`;
         }
 
-    function enableSelection() {
-        document.querySelectorAll(".time-slot").forEach(td => {
-            td.addEventListener("mousedown", () => {
-                if (!td.classList.contains("disabled")) {
-                    isMouseDown = true;
-                    toggleSelection(td);
-                }
+        function enableSelection() {
+            document.querySelectorAll(".time-slot").forEach(td => {
+                td.addEventListener("mousedown", () => {
+                    if (!td.classList.contains("disabled")) {
+                        isMouseDown = true;
+                        toggleSelection(td);
+                    }
+                });
+
+                td.addEventListener("mouseover", (e) => {
+                    if (isMouseDown && !td.classList.contains("disabled")) {
+                        toggleSelection(td);
+                    }
+                });
+
+                td.addEventListener("mouseup", () => {
+                    isMouseDown = false;
+                });
             });
 
-            td.addEventListener("mouseover", (e) => {
-                if (isMouseDown && !td.classList.contains("disabled")) {
-                    toggleSelection(td);
-                }
-            });
+            document.addEventListener("mouseup", () => isMouseDown = false);
+        }
 
-            td.addEventListener("mouseup", () => {
-                isMouseDown = false;
-            });
-        });
 
-        document.addEventListener("mouseup", () => isMouseDown = false);
-    }
-
-    function generateScheduleGrid(event) {
+        function generateScheduleGrid(event) {
             const scheduleTable = document.getElementById("scheduleTable");
             scheduleTable.innerHTML = ""; // Clear table before generating new data
 
-            const headers = event.scheduleType === "Days of the Week" ? event.selectedDays : event.selectedDates;
-            
+            const headers = event.scheduleType === "specificDates" ? event.selectedDates : event.selectedDays;
+
             if (!headers || headers.length === 0) {
                 console.error("No headers available for schedule grid.");
                 return;
@@ -231,7 +233,7 @@
             // Create table header
             const thead = document.createElement("thead");
             const headerRow = document.createElement("tr");
-            headerRow.innerHTML = `<th>Time</th>` + headers.map(day => `<th>${day}</th>`).join("");
+            headerRow.innerHTML = `<th>Time</th>` + headers.map(date => `<th>${date}</th>`).join("");
             thead.appendChild(headerRow);
             scheduleTable.appendChild(thead);
 
@@ -240,8 +242,8 @@
 
             for (let hour = startHour; hour <= endHour; hour++) {
                 const row = document.createElement("tr");
-                row.innerHTML = `<td>${formatTime(hour)}</td>` + headers.map(day => 
-                    `<td class="time-slot disabled" data-day="${day}" data-time="${formatTime(hour)}"></td>`
+                row.innerHTML = `<td>${formatTime(hour)}</td>` + headers.map(date =>
+                    `<td class="time-slot disabled" data-date="${date}" data-time="${formatTime(hour)}"></td>`
                 ).join("");
                 tbody.appendChild(row);
             }
@@ -256,37 +258,39 @@
             if (!activeUser || td.classList.contains("disabled")) return;
 
             td.classList.toggle("selected");
-            const availability = { day: td.dataset.day, time: td.dataset.time };
+            const availability = { date: td.dataset.date, time: td.dataset.time };
 
             if (td.classList.contains("selected")) {
                 selectedAvailability.push(availability);
             } else {
-                selectedAvailability = selectedAvailability.filter(a => !(a.day === availability.day && a.time === availability.time));
+                selectedAvailability = selectedAvailability.filter(a => !(a.date === availability.date && a.time === availability.time));
             }
         }
 
-
-
-    
         function enableGrid() {
             document.querySelectorAll(".time-slot").forEach(td => {
                 td.classList.remove("disabled");
             });
         }
  
-   
-        async function loadAvailability() {
-            try {
-                const response = await fetch(`/event/${eventId}/availability`);
-                if (!response.ok) throw new Error("Failed to load availability.");
+        async function loadAvailability(users) {
+            document.querySelectorAll(".time-slot").forEach(td => {
+                td.classList.remove("selected");
+                td.classList.remove("user-available"); // Remove previous user availability
+                td.innerText = ""; // Clear existing selections
+            });
 
-                const availabilityData = await response.json();
-                updateTableWithAvailability(availabilityData);
-            } catch (error) {
-                console.error("Error loading availability:", error);
-            }
+            // Reflect each user's availability on the table
+            users.forEach(user => {
+                user.availabilities.forEach(({ day, time }) => {
+                    const td = document.querySelector(`td[data-date="${day}"][data-time="${time}"]`);
+                    if (td) {
+                        td.classList.add("user-available");
+                        td.innerText += (td.innerText ? ", " : "") + user.name; // Append multiple names
+                    }
+                });
+            });
         }
-
         function updateTableWithAvailability(availabilityData) {
             document.querySelectorAll(".time-slot").forEach(td => {
                 td.classList.remove("selected");
