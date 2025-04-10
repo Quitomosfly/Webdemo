@@ -216,17 +216,37 @@
             <div id="datePicker"></div>
         </div>
 
+
+        <!-- Days of the Week -->
+        <div class="day-container" id="dayContainer">
+            <div class="day" data-day="Sun">Sun</div>
+            <div class="day" data-day="Mon">Mon</div>
+            <div class="day" data-day="Tue">Tue</div>
+            <div class="day" data-day="Wed">Wed</div>
+            <div class="day" data-day="Thu">Thu</div>
+            <div class="day" data-day="Fri">Fri</div>
+            <div class="day" data-day="Sat">Sat</div>
+        </div>
+
+
         <pre id="output"></pre>
 
         <script>
             const calendarContainer = document.getElementById('calendarContainer');
             const eventType = document.getElementById('event_type');
+            const dayContainer = document.getElementById('dayContainer');
             const output = document.getElementById('output');
             const scheduleTypeContainer = document.getElementById('scheduleTypeContainer'); // Correct targeting
             const timeContainer = document.getElementById('timeContainer')
      
             let selectedOption = 'Dates only';
-            calendarContainer.style.display = 'block';
+            
+            function toggleVisibility() {
+                dayContainer.style.display = 'none';
+                calendarContainer.style.display = 'block';
+            }
+
+            toggleVisibility();
             // Listen for dropdown changes
             eventType.addEventListener('change', toggleVisibility);
 
@@ -241,6 +261,7 @@
                 });
             });
 
+            
             let selectedDates = [];
             // Flatpickr for Inline Calendar (Always Visible)
             flatpickr("#datePicker", {
