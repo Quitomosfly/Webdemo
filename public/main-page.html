@@ -85,6 +85,14 @@
         .hidden {
             display: none;
         }
+        .time-slot.selected {
+        background-color: #28a745; /* Green color for user selection */
+        color: white;
+        }
+        .time-slot.user-available {
+            background-color: #28a745; /* Green background for other users' availability */
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -244,18 +252,19 @@
         }
 
     
-    function toggleSelection(td) {
-        if (!activeUser || td.classList.contains("disabled")) return;
+        function toggleSelection(td) {
+            if (!activeUser || td.classList.contains("disabled")) return;
 
-        td.classList.toggle("selected");
-        const availability = { day: td.dataset.day, time: td.dataset.time };
+            td.classList.toggle("selected");
+            const availability = { day: td.dataset.day, time: td.dataset.time };
 
-        if (td.classList.contains("selected")) {
-            selectedAvailability.push(availability);
-        } else {
-            selectedAvailability = selectedAvailability.filter(a => !(a.day === availability.day && a.time === availability.time));
+            if (td.classList.contains("selected")) {
+                selectedAvailability.push(availability);
+            } else {
+                selectedAvailability = selectedAvailability.filter(a => !(a.day === availability.day && a.time === availability.time));
+            }
         }
-    }
+
 
 
     
@@ -281,13 +290,15 @@
         function updateTableWithAvailability(availabilityData) {
             document.querySelectorAll(".time-slot").forEach(td => {
                 td.classList.remove("selected");
+                td.classList.remove("user-available"); // Remove previous user availability
                 td.innerText = ""; // Clear existing selections
             });
 
             availabilityData.forEach(({ name, day, time }) => {
                 const td = document.querySelector(`td[data-day="${day}"][data-time="${time}"]`);
                 if (td) {
-                    td.classList.add("selected");
+                    // Highlight with a green box for selected time slots
+                    td.classList.add("user-available");
                     td.innerText += (td.innerText ? ", " : "") + name; // Append multiple names
                 }
             });
