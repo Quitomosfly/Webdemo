@@ -42,7 +42,7 @@ const EventSchema = new mongoose.Schema({
 });
 
 
-const Event = mongoose.model('Event', eventSchema, 'events');
+const Event = mongoose.model('Event', EventSchema, 'events');
 app.post("/events", async (req, res) => {
     const { eventName, scheduleType, selectedDates, selectedDays, timeRange } = req.body;
 
