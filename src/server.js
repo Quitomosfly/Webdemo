@@ -25,24 +25,22 @@ app.get('/', (req, res) => {
 });
 
 // Define Event Schema
-const eventSchema = new mongoose.Schema({
+const EventSchema = new mongoose.Schema({
     eventName: String,
     scheduleType: String,
     selectedDates: [String],
     selectedDays: [String],
     timeRange: String,
-    users: [
-        {
-            name: String,
-            availabilities: [
-                {
-                    day: String,
-                    time: String
-                }
-            ]
-        }
-    ]
+    users: [{
+        name: String,
+        availabilities: [{
+            time: String,
+            _id: mongoose.Schema.Types.ObjectId
+        }]
+    }],
+    __v: { type: Number, default: 0 }
 });
+
 
 const Event = mongoose.model('Event', eventSchema, 'events');
 app.post("/events", async (req, res) => {
