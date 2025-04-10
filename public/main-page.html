@@ -190,8 +190,7 @@
         function updateTableWithAvailability(eventData) {
             // Clear previous availability data
             document.querySelectorAll(".time-slot").forEach(td => {
-                td.classList.remove("selected", "available"); // Remove old styles
-                td.innerText = ""; // Clear existing selections
+                td.classList.remove("selected", "disabled"); // Remove old styles
             });
 
             // Mark all availability for all users
@@ -199,7 +198,7 @@
                 user.availabilities.forEach(({ day, time }) => {
                     const td = document.querySelector(`td[data-day="${day}"][data-time="${time}"]`);
                     if (td) {
-                        td.classList.add("available"); // Highlight the available time slot in green
+                        td.classList.add("disabled"); // Disable the time slot for this user
                     }
                 });
             });
@@ -262,7 +261,7 @@
         scheduleTable.innerHTML = ""; // Clear table before generating new data
 
         const headers = event.scheduleType === "Days of the Week" ? event.selectedDays : event.selectedDates;
-
+        
         if (!headers || headers.length === 0) {
             console.error("No headers available for schedule grid.");
             return;
@@ -284,7 +283,7 @@
         for (let hour = startHour; hour <= endHour; hour++) {
             const row = document.createElement("tr");
             row.innerHTML = `<td>${formatTime(hour)}</td>` + headers.map(day => 
-                `<td class="time-slot disabled" data-day="${day}" data-time="${formatTime(hour)}"></td>`
+                `<td class="time-slot available" data-day="${day}" data-time="${formatTime(hour)}"></td>` // Set all to available
             ).join("");
             tbody.appendChild(row);
         }
