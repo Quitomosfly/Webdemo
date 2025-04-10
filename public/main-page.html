@@ -86,7 +86,7 @@
             display: none;
         }
         .time-slot.available {
-            background-color: #4CAF50;  /* Green background */
+            background-color: #ddd;  /* Green background */
             color: white;  /* Text color for visibility */
         }
 
@@ -96,7 +96,7 @@
         }
 
         .time-slot.disabled {
-            background-color: #ddd;  /* Grey out the disabled slots */
+            background-color: #4CAF50;  /* Grey out the disabled slots */
             cursor: not-allowed;     /* Change the cursor to indicate it's not interactive */
         }
 
@@ -293,7 +293,6 @@
         enableSelection(); // Enable click and drag selection
     }
 
-
         function toggleSelection(td) {
             if (!activeUser || td.classList.contains("disabled")) return;
 
@@ -308,20 +307,12 @@
         }
 
 
-
-    
         function enableGrid() {
             document.querySelectorAll(".time-slot").forEach(td => {
                 td.classList.remove("disabled");
             });
         }
  
-   
-        
-
-       
-
-
         async function saveAvailability() {
             if (!activeUser || selectedAvailability.length === 0) {
                 alert("Please select availability before saving.");
