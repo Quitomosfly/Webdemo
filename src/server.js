@@ -96,7 +96,6 @@ app.post('/event/:eventId/submit', async (req, res) => {
     }
 });
 
-
 app.get('/main-page.html', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/main-page.html'));
 });
