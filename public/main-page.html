@@ -282,8 +282,8 @@
 
             // Reflect each user's availability on the table
             users.forEach(user => {
-                user.availabilities.forEach(({ day, time }) => {
-                    const td = document.querySelector(`td[data-date="${day}"][data-time="${time}"]`);
+                user.availabilities.forEach(({ date, time }) => {
+                    const td = document.querySelector(`td[data-date="${date}"][data-time="${time}"]`);
                     if (td) {
                         td.classList.add("user-available");
                         td.innerText += (td.innerText ? ", " : "") + user.name; // Append multiple names
