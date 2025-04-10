@@ -156,7 +156,6 @@
                 document.body.innerHTML = "<h2>Invalid Event ID</h2>";
                 return;
             }
-
             try {
                 const response = await fetch(`/events/${eventId}`);
                 if (!response.ok) throw new Error("Failed to fetch event data.");
