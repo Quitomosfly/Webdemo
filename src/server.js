@@ -130,15 +130,9 @@ app.get('/main-page.html', async (req, res) => {
     }
 });
 
-app.get("/events/:id", async (req, res) => {
-    const { id } = req.params;
-
-    if (!id || id.length !== 24) {
-        return res.status(400).json({ error: "Invalid event ID" });
-    }
-
+app.get("/event/:eventId", async (req, res) => {
     try {
-        const event = await Event.findById(id);
+        const event = await Event.findById(req.params.eventId);
         if (!event) {
             return res.status(404).json({ error: "Event not found" });
         }
@@ -159,5 +153,7 @@ app.get('/health', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+
 
 mongoose.set("debug", true);
