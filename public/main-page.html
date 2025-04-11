@@ -63,6 +63,10 @@
             background-color: #28a745;
             color: white;
         }
+        td.saved {
+            background-color: #28a745;
+            color: white;
+        }
         td.disabled {
             background-color: #ddd;
             cursor: not-allowed;
@@ -187,8 +191,9 @@
                 user.availabilities.forEach(({ day, time }) => {
                     const td = document.querySelector(`td[data-day="${day}"][data-time="${time}"]`);
                     if (td) {
-                        td.classList.add("disabled"); // Disable the time slot for this user
+                        td.classList.add("saved"); // Disable the time slot for this user
                     }
+                    
                 });
             });
         }
