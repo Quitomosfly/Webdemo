@@ -110,6 +110,29 @@
             text-align: center;
             border: 1px solid #ddd;
         }
+
+        .participant-tooltip {
+            position: absolute;
+            display: none;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 8px 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .participant-tooltip .name-badge {
+            display: inline-block;
+            background-color: #e0f2fe;
+            color: #0369a1;
+            padding: 4px 8px;
+            margin: 2px;
+            border-radius: 999px;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -145,7 +168,7 @@
 
         <div id="participantList" style="margin-top: 20px; text-align: left; float: right; width: 250px;">
             <h3>Participants</h3>
-            <ul id="participantNames" style="list-style-type: none; padding: 0;"></ul>
+            <ul id="participantNames" class="participant-tooltip" style="list-style-type: none; padding: 0;"></ul>
         </div>
         
     </div>
@@ -236,6 +259,25 @@
                 const td = document.querySelector(`td[data-day="${day}"][data-time="${time}"]`);
                 if (td) {
                     td.classList.add("saved");
+
+                    td.addEventListener("mouseenter", (e) => {
+                        const tooltip = document.getElementById("participantNames");
+                        tooltip.innerHTML = names.map(name => `<span class="name-badge">${name}</span>`).join("");
+                        tooltip.style.display = "block";
+                        tooltip.style.left = `${e.pageX + 15}px`;
+                        tooltip.style.top = `${e.pageY + 15}px`;
+                    });
+
+                    td.addEventListener("mousemove", (e) => {
+                        const tooltip = document.getElementById("participantNames");
+                        tooltip.style.left = `${e.pageX + 15}px`;
+                        tooltip.style.top = `${e.pageY + 15}px`;
+                    });
+
+                    td.addEventListener("mouseleave", () => {
+                        const tooltip = document.getElementById("participantNames");
+                        tooltip.style.display = "none";
+                    });
                     td.setAttribute("data-participants", names.join(", "));
                 }
             });
