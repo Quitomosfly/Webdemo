@@ -185,12 +185,6 @@
               </div>
             </div>
         </div>
-
-        <div id="participantList" style="margin-top: 20px; text-align: left; float: right; width: 250px;">
-            <h3>Participants</h3>
-            <ul id="participantNames" class="participant-tooltip" style="list-style-type: none; padding: 0;"></ul>
-        </div>
-        
     </div>
 
     <script>
@@ -243,25 +237,59 @@
             });
         }
 
+        function showTooltip(event, text) {
+            let tooltip = document.getElementById("hoverTooltip");
+            if (!tooltip) {
+                tooltip = document.createElement("div");
+                tooltip.id = "hoverTooltip";
+                tooltip.style.position = "absolute";
+                tooltip.style.padding = "6px 10px";
+                tooltip.style.background = "rgba(0, 0, 0, 0.8)";
+                tooltip.style.color = "#fff";
+                tooltip.style.borderRadius = "4px";
+                tooltip.style.pointerEvents = "none";
+                tooltip.style.fontSize = "14px";
+                tooltip.style.zIndex = "9999";
+                document.body.appendChild(tooltip);
+            }
+            tooltip.innerText = text;
+            tooltip.style.display = "block";
+            moveTooltip(event);
+        }
+
+        function moveTooltip(event) {
+            const tooltip = document.getElementById("hoverTooltip");
+            if (tooltip) {
+                tooltip.style.left = (event.pageX + 10) + "px";
+                tooltip.style.top = (event.pageY + 10) + "px";
+            }
+        }
+
+
+        function hideTooltip() {
+            const tooltip = document.getElementById("hoverTooltip");
+            if (tooltip) {
+                tooltip.style.display = "none";
+            }
+        }
+
         function attachHoverListeners() {
-            const participantList = document.getElementById("participantNames");
+            const timeSlots = document.querySelectorAll(".time-slot");
 
-            document.querySelectorAll(".time-slot.saved").forEach(td => {
-                td.addEventListener("mouseenter", () => {
-                    const names = td.getAttribute("data-participants");
-                    participantList.innerHTML = "";
-
-                    if (names) {
-                        names.split(", ").forEach(name => {
-                            const li = document.createElement("li");
-                            li.textContent = name;
-                            participantList.appendChild(li);
-                        });
+            timeSlots.forEach(slot => {
+                slot.addEventListener("mouseenter", (e) => {
+                    const participants = slot.getAttribute("data-participants");
+                    if (participants) {
+                        showTooltip(e, participants);
                     }
                 });
 
-                td.addEventListener("mouseleave", () => {
-                    participantList.innerHTML = "";
+                slot.addEventListener("mousemove", (e) => {
+                    moveTooltip(e);
+                });
+
+                slot.addEventListener("mouseleave", () => {
+                    hideTooltip();
                 });
             });
         }
