@@ -63,8 +63,8 @@
 
         .timeContainer {
             display: flex;
-            align-items: center;
-            gap: 10px;
+            flex-direction: column;
+            gap: 8px;
             margin-top: 15px;
             flex-wrap: wrap; /* for responsiveness */
         }
@@ -100,15 +100,21 @@
         .navbar .nav-links {
             display: flex;
             gap: 20px;
+            padding-right: 30px; /* Add some right padding */
         }
+
+
         .navbar .nav-links a {
-            text-decoration: none;
-            color: black;
+            text-decoration: none !important;
+            color: black !important;
             font-size: 16px;
-            margin: 0 15px;
+            padding: 10px 15px;
+            display: inline-block;
+            transition: color 0.3s ease, text-decoration 0.3s ease;
         }
-        .navbar .nav-links a:hover {
-            text-decoration: underline;
+
+        .navbar .nav-links a:visited {
+            color: black !important;
         }
         .dropdown {
             margin-top: 20px;
