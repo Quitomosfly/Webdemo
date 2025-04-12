@@ -218,6 +218,21 @@
         </div>
     </div>
 
+        <!-- Second Modal for Manual or EAF -->
+    <div id="actionModal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+    background: rgba(0, 0, 0, 0.5); z-index: 9999; justify-content: center; align-items: center;">
+        <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; max-width: 300px; width: 80%;">
+            <h2 style="margin-bottom: 15px;">Choose an Action</h2>
+            <div>
+                <button onclick="selectAction('Manual')" style="padding: 8px 16px; background-color: #007bff; color: white; border: none; border-radius: 5px; margin-bottom: 10px;">Manual</button>
+            </div>
+            <div>
+                <button onclick="selectAction('EAF')" style="padding: 8px 16px; background-color: #007bff; color: white; border: none; border-radius: 5px;">EAF</button>
+            </div>
+        </div>
+    </div>
+
+
     <script>
         let isMouseDown = false;
         let activeUser = null;
@@ -384,7 +399,25 @@
             document.getElementById("nameModal").style.display = "none";
             document.getElementById("saveButton").classList.remove("hidden");
             document.querySelector(".button-container").classList.remove("hidden");
-            enableGrid();
+
+            // Display the action modal after username submission
+            document.getElementById("actionModal").style.display = "flex";
+        }
+
+        function selectAction(action) {
+            console.log(`User selected: ${action}`);
+
+            // Close the action modal after selection
+            document.getElementById("actionModal").style.display = "none";
+
+            // Perform actions based on the user's choice
+            if (action === 'Manual') {
+                // Handle Manual action (you can define your logic here)
+                console.log("Manual option selected");
+            } else if (action === 'EAF') {
+                // Handle EAF action (you can define your logic here)
+                console.log("EAF option selected");
+            }
         }
 
         function convertTo24HourFormat(timeStr) {
