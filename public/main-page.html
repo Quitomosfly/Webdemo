@@ -565,7 +565,13 @@
                 let minutes = time.substring(2);
                 let period = hours >= 12 ? "PM" : "AM";
                 hours = hours % 12 || 12;
-                return `${hours}:${minutes} ${period}`;
+                
+                // Remove any extra colon or minutes if it's `00`
+                if (minutes === "00") {
+                    return `${hours}:00 ${period}`;
+                } else {
+                    return `${hours}:${minutes} ${period}`;
+                }
             }
 
             // Round down to the nearest hour (no double colon)
