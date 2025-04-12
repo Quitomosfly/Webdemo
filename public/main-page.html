@@ -545,7 +545,7 @@
             });
         }
 
-        function extractSchedule(text) {
+        function extractSchedule(text, eventDetails) {
             const dayMap = {
                 "M": "Monday",
                 "T": "Tuesday",
@@ -555,80 +555,118 @@
                 "S": "Saturday"
             };
 
-            // Regular Expressions
             const timeRegex = /(\d{4})-(\d{4})/g;
             const dayRegex = /\b(M|T|W|H|F|S)\b/g;
 
-            // Convert 24-hour time to 12-hour format
             function convertTo12Hour(time) {
-                let hours = Math.floor(time / 100);
-                let minutes = time % 100;
+                let hours = parseInt(time.substring(0, 2));
+                let minutes = time.substring(2);
                 let period = hours >= 12 ? "PM" : "AM";
                 hours = hours % 12 || 12;
-                return `${hours}:${minutes.toString().padStart(2, '0')} ${period}`;
+                return `${hours}:${minutes} ${period}`;
             }
 
-            // Round down to the nearest hour (integer)
             function roundDownToHour(time) {
-                let hours = Math.floor(time / 100);
-                return hours * 100;
+                let hours = parseInt(time.substring(0, 2));
+                return `${hours}:00`;
             }
 
-            // Round up to the nearest hour (integer)
             function roundUpToHour(time) {
-                let hours = Math.floor(time / 100);
-                let minutes = time % 100;
-                if (minutes > 0) {
-                    hours += 1;
-                }
-                return hours * 100;
+                let hours = parseInt(time.substring(0, 2));
+                let minutes = parseInt(time.substring(2));
+                if (minutes > 0) hours += 1;
+                return `${hours}:00`;
             }
 
-            let extractedDays = new Set();
-            let extractedTimes = new Set();
-
-            // Extract Days
+            // Extract Days and Times
             let matchedDays = text.match(dayRegex);
-            if (matchedDays) {
-                matchedDays.forEach(d => extractedDays.add(dayMap[d] || d));
-            }
-
-            // Extract Times
             let matchedTimes = text.match(timeRegex);
-            if (matchedTimes) {
-                matchedTimes.forEach(time => {
-                    let parts = time.split("-");
-                    let start = parseInt(parts[0]);
-                    let end = parseInt(parts[1]);
 
-                    let roundedStart = roundDownToHour(start);
-                    let roundedEnd = roundUpToHour(end);
+            if (!matchedDays || !matchedTimes) {
+                document.getElementById("schedule").innerHTML = "<p>No valid days and times found.</p>";
+                return;
+            }
 
-                    let startTime = convertTo12Hour(roundedStart);
-                    let endTime = convertTo12Hour(roundedEnd);
+            let availabilities = [];
+            for (let i = 0; i < Math.min(matchedDays.length, matchedTimes.length); i++) {
+                let day = dayMap[matchedDays[i]];
+                let [startRaw, endRaw] = matchedTimes[i].split("-");
 
-                    extractedTimes.add(`${startTime} - ${endTime}`);
+                let start = roundDownToHour(startRaw);
+                let end = roundUpToHour(endRaw);
+
+                let start12 = convertTo12Hour(start);
+                let end12 = convertTo12Hour(end);
+
+                // Check if this availability matches the event schedule
+                let eventDayNames = eventDetails.selectedDates.map(dateStr => {
+                    let d = new Date(dateStr);
+                    return d.toLocaleDateString('en-US', { weekday: 'long' });
                 });
-            }
 
-            // Display extracted data
-            const scheduleDiv = document.getElementById("schedule");
-            if (extractedDays.size === 0 && extractedTimes.size === 0) {
-                scheduleDiv.innerHTML = "<p>No valid days and times found.</p>";
-            } else {
-                let output = "<h3>Extracted Schedule</h3><ul>";
-                const daysArray = Array.from(extractedDays);
-                const timesArray = Array.from(extractedTimes);
+                if (eventDayNames.includes(day)) {
+                    // Check if the time is within the event's timeRange
+                    let [eventStart, eventEnd] = eventDetails.timeRange.split(" - ");
 
-                for (let i = 0; i < Math.min(daysArray.length, timesArray.length); i++) {
-                    output += `<li><strong>${daysArray[i]}</strong>: ${timesArray[i]}</li>`;
+                    // Simple time comparison (in 24h)
+                    function timeToMinutes(t) {
+                        let [h, m, ampm] = t.match(/(\d+):(\d+) (AM|PM)/).slice(1);
+                        h = parseInt(h);
+                        m = parseInt(m);
+                        if (ampm === "PM" && h !== 12) h += 12;
+                        if (ampm === "AM" && h === 12) h = 0;
+                        return h * 60 + m;
+                    }
+
+                    if (timeToMinutes(start12) >= timeToMinutes(eventStart) &&
+                        timeToMinutes(end12) <= timeToMinutes(eventEnd)) {
+                        availabilities.push({
+                            day: day,
+                            time: `${start12} - ${end12}`
+                        });
+                    }
                 }
-                output += "</ul>";
-                scheduleDiv.innerHTML = output;
             }
+
+            // Display extracted valid data
+            const scheduleDiv = document.getElementById("schedule");
+            if (availabilities.length === 0) {
+                scheduleDiv.innerHTML = "<p>No valid availabilities for this event schedule.</p>";
+                return;
+            }
+
+            let output = "<h3>Valid Schedule</h3><ul>";
+            availabilities.forEach(a => {
+                output += `<li><strong>${a.day}</strong>: ${a.time}</li>`;
+            });
+            output += "</ul>";
+            scheduleDiv.innerHTML = output;
+
+            // Now send to database
+            saveAvailabilityToDatabase(availabilities, eventDetails.eventId);
         }
 
  
+        async function saveAvailabilityToDatabase(availabilities, eventId) {
+            const activeUser = prompt("Enter your name to save your availability:");
+            if (!activeUser) return;
+
+            try {
+                const response = await fetch(`/event/${eventId}/submit`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name: activeUser, availabilities })
+                });
+
+                if (!response.ok) throw new Error("Failed to save availability.");
+                alert("Availability saved successfully!");
+            } catch (error) {
+                console.error("Error saving availability:", error);
+                alert("Error saving availability. Please try again.");
+            }
+        }
+
+
         async function saveAvailability() {
             if (!activeUser || selectedAvailability.length === 0) {
                 alert("Please select availability before saving.");
@@ -686,7 +724,7 @@
                 }
 
                 // Extract and display the schedule without creating a new table
-                extractSchedule(textContent);
+                extractSchedule(textContent, eventDetails);
             };
             reader.readAsArrayBuffer(file);
         });
