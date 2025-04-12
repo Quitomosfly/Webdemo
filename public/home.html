@@ -67,6 +67,7 @@
             gap: 10px;
             margin-top: 15px;
             flex-wrap: wrap; /* for responsiveness */
+        }
 
         .active {
             background-color: #d1e7dd;  /* Green active state */
@@ -212,14 +213,6 @@
                 </select><br>
         </div>
 
-        <div id="scheduleTypeContainer">
-            <label for="event_type">Choose Schedule Type:</label>
-            <select id="event_type">
-                <option value="specificDates" selected>Specific Dates</option>
-                <option value="daysOfTheWeek" >Days of the Week</option>
-            </select>
-        </div>
-
         
         <div class="calendar-container" id="calendarContainer">
             <label for="datePicker">What dates might work?</label>
@@ -251,18 +244,8 @@
      
             let selectedOption = 'Dates only';
             
-            function toggleVisibility() {
-                if (eventType.value === 'daysOfTheWeek') {
-                    calendarContainer.style.display = 'none';
-                    dayContainer.style.display = 'flex';
-                } else if (eventType.value === 'specificDates') {
-                    dayContainer.style.display = 'none';
-                    calendarContainer.style.display = 'block';
-                }
-            }
-            toggleVisibility();
-            // Listen for dropdown changes
-            eventType.addEventListener('change', toggleVisibility);
+            calendarContainer.style.display = 'block';
+            dayContainer.style.display = 'none';
 
             // Days of the Week Logic
             const days = document.querySelectorAll('.day');
@@ -291,16 +274,12 @@
                 e.preventDefault();
 
                 const eventName = document.getElementById("event_name").value;
-                const scheduleType = document.getElementById("event_type").value;
-
                 const selectedDays = Array.from(document.querySelectorAll(".day.selected")).map(day => day.dataset.day);
 
                 const timeRange = `${document.getElementById("event_first_interval_time").value} - ${document.getElementById("event_second_interval_time").value}`;
 
                 const eventData = {
                     eventName,
-                    selectedOption,
-                    scheduleType,
                     selectedDates,
                     selectedDays,
                     timeRange

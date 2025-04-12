@@ -27,7 +27,6 @@ app.get('/', (req, res) => {
 // Define Event Schema
 const eventSchema = new mongoose.Schema({
     eventName: String,
-    scheduleType: String,
     selectedDates: [String],
     selectedDays: [String],
     timeRange: String,
@@ -86,17 +85,15 @@ app.post('/event/:eventId/submit', async (req, res) => {
 });
 
 // Route to handle form submission
-app.post('/events', async (req, res) => {
-    const { eventName, scheduleType, selectedDates, selectedDays, timeRange } = req.body;
+app.post("/events", async (req, res) => {
+    const { eventName, selectedDates, selectedDays, timeRange } = req.body;
 
-    // Validation for required fields
-    if (!eventName || !scheduleType) {
-        return res.status(400).json({ error: 'Event name and schedule type are required.' });
+    if (!eventName) {
+        return res.status(400).json({ error: 'Event name is required.' });
     }
 
     const newEvent = new Event({
         eventName,
-        scheduleType,
         selectedDates: selectedDates || [],
         selectedDays: selectedDays || [],
         timeRange
@@ -104,7 +101,7 @@ app.post('/events', async (req, res) => {
 
     try {
         await newEvent.save();
-        res.status(201).json({ message: 'Event saved successfully!' });
+        res.status(201).json({ _id: newEvent._id }); // Also return the ID for redirect
     } catch (error) {
         console.error('Database save error:', error.message);
         res.status(500).json({ error: 'Failed to save the event.' });
