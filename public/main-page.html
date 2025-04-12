@@ -601,8 +601,12 @@
                     let start = roundDownToHour(parts[0]);
                     let end = roundUpToHour(parts[1]);
 
+                    // Ensure correct formatting for start and end times
+                    let startTime = convertTo12Hour(start);
+                    let endTime = convertTo12Hour(end);
+                    
                     // Add rounded times to the set
-                    extractedTimes.add(`${convertTo12Hour(start)} - ${convertTo12Hour(end)}`);
+                    extractedTimes.add(`${startTime} - ${endTime}`);
                 });
             }
 
