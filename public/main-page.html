@@ -239,6 +239,7 @@
             <h2>PDF Schedule Extractor</h2>
             <input type="file" id="pdfUpload" accept="application/pdf" style="margin-bottom: 15px;">
             <div id="schedule" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc; text-align: left;"></div>
+            <button id="submitAvailabilityBtn" style="display:none; margin-top: 10px;">Submit Availability</button>
             <button onclick="closeEAFModal()" style="margin-top: 15px; padding: 8px 16px; background-color: #ff5733; color: white; border: none; border-radius: 5px;">Close</button>
         </div>
     </div>
@@ -626,6 +627,7 @@
                         });
                     }
                 }
+
             }
 
             // Display extracted valid data
@@ -641,8 +643,12 @@
             });
             output += "</ul>";
             scheduleDiv.innerHTML = output;
+            // Show the Submit button if we have availabilities
+            const submitBtn = document.getElementById("submitAvailabilityBtn");
+            submitBtn.style.display = "block";
 
-            // Now send to database
+            // Store availabilities globally or attach to button
+            submitBtn.onclick = () => {
             saveAvailabilityToDatabase(availabilities, eventDetails.eventId);
         }
 
@@ -660,11 +666,17 @@
 
                 if (!response.ok) throw new Error("Failed to save availability.");
                 alert("Availability saved successfully!");
+
+                // Optionally hide submit button or reset modal
+                document.getElementById("submitAvailabilityBtn").style.display = "none";
+                document.getElementById("schedule").innerHTML = "";
+
             } catch (error) {
                 console.error("Error saving availability:", error);
                 alert("Error saving availability. Please try again.");
             }
         }
+
 
 
         async function saveAvailability() {
