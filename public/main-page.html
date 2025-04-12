@@ -476,34 +476,35 @@
     }
 
     function generateScheduleGrid(days, times) {
-            const scheduleTable = document.getElementById("scheduleTable");
-            scheduleTable.innerHTML = ""; // Clear table before generating new data
+        const scheduleTable = document.getElementById("scheduleTable");
+        scheduleTable.innerHTML = ""; // Clear table before generating new data
 
-            if (!days || days.length === 0) {
-                console.error("No days available for schedule grid.");
-                return;
-            }
-
-            // Create table header
-            const thead = document.createElement("thead");
-            const headerRow = document.createElement("tr");
-            headerRow.innerHTML = `<th>Time</th>` + days.map(day => `<th>${day}</th>`).join("");
-            thead.appendChild(headerRow);
-            scheduleTable.appendChild(thead);
-
-            // Create table body with time slots
-            const tbody = document.createElement("tbody");
-
-            times.forEach(time => {
-                const row = document.createElement("tr");
-                row.innerHTML = `<td>${time}</td>` + days.map(() => 
-                    `<td class="time-slot available"></td>` // Set all to available
-                ).join("");
-                tbody.appendChild(row);
-            });
-
-            scheduleTable.appendChild(tbody);
+        // Ensure days is an array and is not empty
+        if (!Array.isArray(days) || days.length === 0) {
+            console.error("No valid days available for schedule grid.");
+            return;
         }
+
+        // Create table header
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+        headerRow.innerHTML = `<th>Time</th>` + days.map(day => `<th>${day}</th>`).join("");
+        thead.appendChild(headerRow);
+        scheduleTable.appendChild(thead);
+
+        // Create table body with time slots
+        const tbody = document.createElement("tbody");
+
+        times.forEach(time => {
+            const row = document.createElement("tr");
+            row.innerHTML = `<td>${time}</td>` + days.map(() => 
+                `<td class="time-slot available"></td>` // Set all to available
+            ).join("");
+            tbody.appendChild(row);
+        });
+
+        scheduleTable.appendChild(tbody);
+    }
 
         function toggleSelection(td) {
             if (!activeUser || td.classList.contains("disabled")) return;
