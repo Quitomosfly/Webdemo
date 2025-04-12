@@ -655,28 +655,51 @@
 
  
         async function saveAvailabilityToDatabase(availabilities, eventId) {
-            const activeUser = prompt("Enter your name to save your availability:");
-            if (!activeUser) return;
+            if (!activeUser) {
+                alert("User not set. Please reload and enter your name.");
+                return;
+            }
+
+            const formattedAvailabilities = [];
+
+            // Convert availabilities like "Monday" + "9:00 AM - 11:00 AM"
+            // into hour-by-hour slots so they match the grid's format
+            availabilities.forEach(a => {
+                const [startTime, endTime] = a.time.split(" - ");
+                let startHour = convertTo24HourFormat(startTime);
+                let endHour = convertTo24HourFormat(endTime);
+
+                for (let hour = startHour; hour < endHour; hour++) {
+                    formattedAvailabilities.push({
+                        day: a.day,
+                        time: formatTime(hour)
+                    });
+                }
+            });
 
             try {
-                const response = await fetch(`/event/${eventId}/submit`, {
+                const response = await fetch(`/events/${eventId}/availability`, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ name: activeUser, availabilities })
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        name: activeUser,
+                        availabilities: formattedAvailabilities
+                    }),
                 });
 
                 if (!response.ok) throw new Error("Failed to save availability.");
+
                 alert("Availability saved successfully!");
-
-                // Optionally hide submit button or reset modal
-                document.getElementById("submitAvailabilityBtn").style.display = "none";
-                document.getElementById("schedule").innerHTML = "";
-
+                document.getElementById("eafModal").style.display = "none";
+                loadAvailability(); // Refresh the grid with new data
             } catch (error) {
                 console.error("Error saving availability:", error);
-                alert("Error saving availability. Please try again.");
+                alert("There was an error saving your availability.");
             }
         }
+
 
 
 
