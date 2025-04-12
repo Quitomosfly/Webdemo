@@ -206,6 +206,18 @@
         </div>
     </div>
 
+        <!-- Username Input Modal -->
+    <div id="nameModal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+    background: rgba(0, 0, 0, 0.5); z-index: 9999; justify-content: center; align-items: center;">
+        <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; max-width: 300px; width: 80%;">
+            <h2 style="margin-bottom: 15px;">Enter Your Name</h2>
+            <input id="userNameInput" type="text" placeholder="Your name" style="width: 100%; padding: 8px; margin-bottom: 15px; font-size: 16px;">
+            <div>
+                <button onclick="submitUserName()" style="padding: 8px 16px; background-color: #007bff; color: white; border: none; border-radius: 5px;">Submit</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let isMouseDown = false;
         let activeUser = null;
@@ -357,18 +369,25 @@
 
             attachHoverListeners();
         }
-
-
-    
+   
         function askUserName() {
-            const userName = prompt("Enter your name:");
-            if (userName) {
-                activeUser = userName;
-                enableGrid();
-                document.getElementById("saveButton").classList.remove("hidden");
-                document.querySelector(".button-container").classList.remove("hidden");
-            }
+            document.getElementById("nameModal").style.display = "flex";
         }
+
+        function submitUserName() {
+            const userInput = document.getElementById("userNameInput").value.trim();
+            if (!userInput) {
+                alert("Please enter your name.");
+                return;
+            }
+
+            activeUser = userInput;
+            document.getElementById("nameModal").style.display = "none";
+            document.getElementById("saveButton").classList.remove("hidden");
+            document.querySelector(".button-container").classList.remove("hidden");
+            enableGrid();
+        }
+
         function convertTo24HourFormat(timeStr) {
             const [time, modifier] = timeStr.split(" ");
             let [hours, minutes] = time.split(":").map(Number);
@@ -494,6 +513,20 @@
             }
         }
     
+                // Close modal on ESC
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape") {
+                document.getElementById("nameModal").style.display = "none";
+            }
+        });
+
+        // Close modal on outside click
+        document.getElementById("nameModal").addEventListener("click", function (e) {
+            if (e.target === this) {
+                this.style.display = "none";
+            }
+        });
+
         document.addEventListener("mousedown", () => isMouseDown = true);
         document.addEventListener("mouseup", () => isMouseDown = false);
         window.onload = fetchEventData;
