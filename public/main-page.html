@@ -568,20 +568,20 @@
                 return `${hours}:${minutes} ${period}`;
             }
 
-            // Round down to the nearest hour
+            // Round down to the nearest hour (no double colon)
             function roundDownToHour(time) {
                 let hours = parseInt(time.substring(0, 2));
-                return `${hours}:00`;
+                return `${hours}:00`;  // Ensure correct time format with one colon
             }
 
-            // Round up to the nearest hour
+            // Round up to the nearest hour (no double colon)
             function roundUpToHour(time) {
                 let hours = parseInt(time.substring(0, 2));
                 let minutes = parseInt(time.substring(2));
                 if (minutes > 0) {
-                    hours += 1;
+                    hours += 1;  // Round up if minutes are greater than 0
                 }
-                return `${hours}:00`;
+                return `${hours}:00`;  // Ensure correct time format with one colon
             }
 
             let extractedDays = new Set();
