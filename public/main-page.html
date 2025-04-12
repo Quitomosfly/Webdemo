@@ -351,49 +351,49 @@
         }
 
 
-        function updateTableWithAvailability(eventData) {
-            // Reset ALL time-slots
-            document.querySelectorAll(".time-slot").forEach(td => {
-                td.classList.remove("saved", "selected", "disabled");
-                td.classList.add("available");
-                td.removeAttribute("data-participants");
-            });
+    function updateTableWithAvailability(eventData) {
+        // Reset ALL time-slots
+        document.querySelectorAll(".time-slot").forEach(td => {
+            td.classList.remove("saved", "selected", "disabled");
+            td.classList.add("available");
+            td.removeAttribute("data-participants");
+        });
 
-            // Update participants list
-            const participantList = document.getElementById("participantList");
-            participantList.innerHTML = "";
-            eventData.users.forEach(user => {
-                const participantDiv = document.createElement("div");
-                participantDiv.className = "flex items-center space-x-2";
-                participantDiv.innerHTML = `
-                    <div class="w-2 h-2 rounded-full bg-green-500"></div>
-                    <div class="text-gray-800 font-medium">${user.name}</div>
-                `;
-                participantList.appendChild(participantDiv);
-            });
+        // Update participants list
+        const participantList = document.getElementById("participantList");
+        participantList.innerHTML = "";
+        eventData.users.forEach(user => {
+            const participantDiv = document.createElement("div");
+            participantDiv.className = "flex items-center space-x-2";
+            participantDiv.innerHTML = `
+                <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                <div class="text-gray-800 font-medium">${user.name}</div>
+            `;
+            participantList.appendChild(participantDiv);
+        });
 
-            // Fill in slotMap based on eventData
-            const slotMap = {};
-            eventData.users.forEach(user => {
-                user.availabilities.forEach(slot => {
-                    const key = `${slot.day}_${slot.time}`;
-                    if (!slotMap[key]) slotMap[key] = [];
-                    slotMap[key].push(user.name);
-                });
+        // Fill in slotMap based on eventData
+        const slotMap = {};
+        eventData.users.forEach(user => {
+            user.availabilities.forEach(slot => {
+                const key = `${slot.day}_${slot.time}`;
+                if (!slotMap[key]) slotMap[key] = [];
+                slotMap[key].push(user.name);
             });
+        });
 
-            // Apply .saved class and participant names
-            Object.entries(slotMap).forEach(([key, names]) => {
-                const [day, time] = key.split("_");
-                const td = document.querySelector(`td[data-day="${day}"][data-time="${time}"]`);
-                if (td) {
-                    td.classList.add("saved");
-                    td.setAttribute("data-participants", names.join(", "));
-                }
-            });
+        // Apply .saved class and participant names
+        Object.entries(slotMap).forEach(([key, names]) => {
+            const [day, time] = key.split("_");
+            const td = document.querySelector(`td[data-day="${day}"][data-time="${time}"]`);
+            if (td) {
+                td.classList.add("saved");
+                td.setAttribute("data-participants", names.join(", "));
+            }
+        });
 
-            attachHoverListeners();
-        }
+        attachHoverListeners();
+    }
    
         function askUserName() {
             document.getElementById("nameModal").style.display = "flex";
