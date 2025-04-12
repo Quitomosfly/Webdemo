@@ -553,23 +553,21 @@
                 return `${hours}:${minutes} ${period}`;
             }
 
-            let extractedDays = [];
-            let extractedTimes = [];
+            let matchedDays = text.match(dayRegex) || [];
+            let matchedTimes = text.match(timeRegex) || [];
 
-            // Extract Days
-            let matchedDays = text.match(dayRegex);
-            if (matchedDays) {
-                extractedDays = matchedDays.map(d => dayMap[d] || d);
+            let availabilities = [];
+            let html = "<h3>Extracted Schedule</h3><ul>";
+            for (let i = 0; i < Math.min(matchedDays.length, matchedTimes.length); i++) {
+                const day = dayMap[matchedDays[i]];
+                const [start, end] = matchedTimes[i].split("-");
+                const timeFormatted = `${convertTo12Hour(start)} - ${convertTo12Hour(end)}`;
+                availabilities.push({ day, time: timeFormatted });
+                html += `<li><strong>${day}</strong>: ${timeFormatted}</li>`;
             }
+            html += "</ul>";
 
-            // Extract Times
-            let matchedTimes = text.match(timeRegex);
-            if (matchedTimes) {
-                extractedTimes = matchedTimes.map(time => {
-                    let parts = time.split("-");
-                    return `${convertTo12Hour(parts[0])} - ${convertTo12Hour(parts[1])}`;
-                });
-            }
+            return { availabilities, extractedHtml: html };
 
             // Display extracted data
             const scheduleDiv = document.getElementById("schedule");
@@ -648,12 +646,12 @@
         document.getElementById('pdfUpload').addEventListener('change', async function(event) {
             const file = event.target.files[0];
             if (!file) return;
-            
+
             const reader = new FileReader();
-            reader.onload = async function() {
+            reader.onload = async function () {
                 const typedArray = new Uint8Array(this.result);
                 const pdf = await pdfjsLib.getDocument(typedArray).promise;
-                
+
                 let textContent = '';
                 for (let i = 1; i <= pdf.numPages; i++) {
                     const page = await pdf.getPage(i);
@@ -661,7 +659,28 @@
                     textContent += text.items.map(item => item.str).join(" ") + "\n";
                 }
 
-                extractSchedule(textContent);
+                const { availabilities, extractedHtml } = extractSchedule(textContent);
+                document.getElementById("schedule").innerHTML = extractedHtml;
+
+                const userName = prompt("Enter your name for availability submission:");
+                if (!userName) {
+                    alert("Name is required to submit availability.");
+                    return;
+                }
+
+                // Send to backend
+                const res = await fetch(`/event/${eventId}/submit`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name: userName, availabilities })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    alert("Availability submitted successfully!");
+                } else {
+                    alert("Error submitting availability: " + data.error);
+                }
             };
             reader.readAsArrayBuffer(file);
         });
