@@ -546,34 +546,28 @@
         }
 
         function extractSchedule(text) {
-            // Find the part of the text between 'NO. COURSE CODE' and 'Deadline of Payment'
-            const scheduleSectionMatch = text.match(/NO\. COURSE CODE.*?Deadline of Payment/si);
-            
-            if (!scheduleSectionMatch) {
-                console.error("Could not find schedule section in the PDF text.");
-                alert("Schedule section not found in uploaded PDF.");
-                return;
-            }
-
-            const scheduleText = scheduleSectionMatch[0];
-
-            // This regex matches day and time pairs like 'M 0915-1045'
-            const lineRegex = /([MTWFSH])\s*(\d{4}-\d{4})/g;
+            // Find all schedule lines like "1. LBBC1A XXE1 1 H 1100-1400 LB581 BANTANG, JOSE PAOLO O."
+            const lineRegex = /^\s*\d+\.\s+[\w\d]+\s+[\w\d]+\s+\d+\s+([MTWFSH]+)\s+(\d{4}-\d{4})/gm;
 
             let match;
-            selectedAvailability = []; // Clear previous selections
+            selectedAvailability = [];
 
-            while ((match = lineRegex.exec(scheduleText)) !== null) {
-                const day = match[1];
-                const timeRange = match[2];
+            while ((match = lineRegex.exec(text)) !== null) {
+                const days = match[1];
+                const time = match[2];
 
-                selectedAvailability.push({ day, time: timeRange });
+                // For multiple days (like 'TH' or 'MW'), split them
+                for (const day of days) {
+                    selectedAvailability.push({ day, time });
+                }
             }
+
+            // Remove duplicates
             selectedAvailability = Array.from(new Set(selectedAvailability.map(JSON.stringify))).map(JSON.parse);
 
             console.log("Extracted Availability:", selectedAvailability);
 
-            // Highlight selected slots on the schedule grid
+            // Highlight selected slots
             highlightSelectedSlots();
         }
 
