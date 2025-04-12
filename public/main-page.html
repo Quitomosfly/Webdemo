@@ -557,37 +557,31 @@
 
             // Regular Expressions
             const timeRegex = /(\d{4})-(\d{4})/g;
-            const dayRegex = /\b(M|T|W|H|F|S)\b/g;  // Removed "U" since no Sunday classes
+            const dayRegex = /\b(M|T|W|H|F|S)\b/g;
 
             // Convert 24-hour time to 12-hour format
             function convertTo12Hour(time) {
-                let hours = parseInt(time.substring(0, 2));
-                let minutes = time.substring(2);
+                let hours = Math.floor(time / 100);
+                let minutes = time % 100;
                 let period = hours >= 12 ? "PM" : "AM";
                 hours = hours % 12 || 12;
-                
-                // Remove any extra colon or minutes if it's `00`
-                if (minutes === "00") {
-                    return `${hours}:00 ${period}`;
-                } else {
-                    return `${hours}:${minutes} ${period}`;
-                }
+                return `${hours}:${minutes.toString().padStart(2, '0')} ${period}`;
             }
 
-            // Round down to the nearest hour (no double colon)
+            // Round down to the nearest hour (integer)
             function roundDownToHour(time) {
-                let hours = parseInt(time.substring(0, 2));
-                return `${hours}:00`;  // Ensure correct time format with one colon
+                let hours = Math.floor(time / 100);
+                return hours * 100;
             }
 
-            // Round up to the nearest hour (no double colon)
+            // Round up to the nearest hour (integer)
             function roundUpToHour(time) {
-                let hours = parseInt(time.substring(0, 2));
-                let minutes = parseInt(time.substring(2));
+                let hours = Math.floor(time / 100);
+                let minutes = time % 100;
                 if (minutes > 0) {
-                    hours += 1;  // Round up if minutes are greater than 0
+                    hours += 1;
                 }
-                return `${hours}:00`;  // Ensure correct time format with one colon
+                return hours * 100;
             }
 
             let extractedDays = new Set();
@@ -604,14 +598,15 @@
             if (matchedTimes) {
                 matchedTimes.forEach(time => {
                     let parts = time.split("-");
-                    let start = roundDownToHour(parts[0]);
-                    let end = roundUpToHour(parts[1]);
+                    let start = parseInt(parts[0]);
+                    let end = parseInt(parts[1]);
 
-                    // Ensure correct formatting for start and end times
-                    let startTime = convertTo12Hour(start);
-                    let endTime = convertTo12Hour(end);
-                    
-                    // Add rounded times to the set
+                    let roundedStart = roundDownToHour(start);
+                    let roundedEnd = roundUpToHour(end);
+
+                    let startTime = convertTo12Hour(roundedStart);
+                    let endTime = convertTo12Hour(roundedEnd);
+
                     extractedTimes.add(`${startTime} - ${endTime}`);
                 });
             }
