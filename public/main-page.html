@@ -243,6 +243,8 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+
 
     <script>
         let isMouseDown = false;
@@ -531,65 +533,35 @@
         }
 
         function extractSchedule(text) {
-        const dayMap = {
-            "M": "Monday",
-            "T": "Tuesday",
-            "W": "Wednesday",
-            "H": "Thursday",
-            "F": "Friday",
-            "S": "Saturday"
-        };
+            const timeRegex = /(\d{4})-(\d{4})/g;
+            const lineRegex = /(M|T|W|H|F|S).*?(\d{4})-(\d{4})/g;
 
-        // Regular Expressions
-        const timeRegex = /(\d{4})-(\d{4})/g;
-        const dayRegex = /\b(M|T|W|H|F|S)\b/g;  // Removed "U" for Sunday
+            let match;
+            while ((match = lineRegex.exec(text)) !== null) {
+                const dayCode = match[1];
+                const startTime = match[2];
+                const endTime = match[3];
 
-        function highlightSelectedSlots() {
-            selectedAvailability.forEach(({ day, time }) => {
-                const td = document.querySelector(`td[data-day="${day}"][data-time="${time}"]`);
-                if (td) td.classList.add("selected");
-            });
-        }
+                const day = {
+                    M: "Monday",
+                    T: "Tuesday",
+                    W: "Wednesday",
+                    H: "Thursday",
+                    F: "Friday",
+                    S: "Saturday"
+                }[dayCode];
 
+                const startHour = parseInt(startTime.substring(0, 2));
+                const endHour = parseInt(endTime.substring(0, 2));
 
-        // Convert 24-hour time to 12-hour format
-        function convertTo12Hour(time) {
-            let hours = parseInt(time.substring(0, 2));
-            let minutes = time.substring(2);
-            let period = hours >= 12 ? "PM" : "AM";
-            hours = hours % 12 || 12;
-            return `${hours}:${minutes} ${period}`;
-        }
-
-        let matchedDays = text.match(dayRegex) || [];
-        let matchedTimes = [...text.matchAll(timeRegex)];
-
-        let availabilities = [];
-        let html = "<h3>Extracted Schedule</h3><ul>";
-
-        for (let i = 0; i < matchedTimes.length; i++) {
-            const [fullMatch, start, end] = matchedTimes[i];
-
-            matchedDays.forEach(d => {
-                const day = dayMap[d];
-                const startHour = parseInt(start.substring(0, 2));
-                const endHour = parseInt(end.substring(0, 2));
-
-                for (let h = startHour; h < endHour; h++) {
-                    const timeStr = formatTime(h);
-                    availabilities.push({ day, time: timeStr });
-                    html += `<li>${day} - ${timeStr}</li>`;
+                for (let hour = startHour; hour <= endHour; hour++) {
+                    const time = formatTime(hour);
+                    selectedAvailability.push({ day, time });
                 }
-            });
+            }
+
+            highlightSelectedSlots();  // Mark on the table
         }
-
-        html += "</ul>";
-        document.getElementById("schedule").innerHTML = html;
-        selectedAvailability = availabilities;
-
-        enableGrid();
-        highlightSelectedSlots();
-    }
 
         function saveScheduleToDatabase(days, times) {
             // Placeholder function to simulate saving to a database
@@ -648,46 +620,33 @@
             }
         });
 
-        document.getElementById('pdfUpload').addEventListener('change', async function(event) {
+        document.getElementById("pdfUpload").addEventListener("change", async function(event) {
             const file = event.target.files[0];
             if (!file) return;
 
-            const reader = new FileReader();
-            reader.onload = async function () {
+            const fileReader = new FileReader();
+
+            fileReader.onload = async function() {
                 const typedArray = new Uint8Array(this.result);
-                const pdf = await pdfjsLib.getDocument(typedArray).promise;
 
-                let textContent = '';
-                for (let i = 1; i <= pdf.numPages; i++) {
-                    const page = await pdf.getPage(i);
-                    const text = await page.getTextContent();
-                    textContent += text.items.map(item => item.str).join(" ") + "\n";
+                const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
+                let fullText = "";
+
+                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                    const page = await pdf.getPage(pageNum);
+                    const textContent = await page.getTextContent();
+                    const text = textContent.items.map(item => item.str).join(" ");
+                    fullText += text + "\n";
                 }
 
-                const { availabilities, extractedHtml } = extractSchedule(textContent);
-                document.getElementById("schedule").innerHTML = extractedHtml;
+                // Output raw text (optional for debugging)
+                document.getElementById("schedule").innerText = fullText;
 
-                const userName = prompt("Enter your name for availability submission:");
-                if (!userName) {
-                    alert("Name is required to submit availability.");
-                    return;
-                }
-
-                // Send to backend
-                const res = await fetch(`/event/${eventId}/submit`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ name: userName, availabilities })
-                });
-
-                const data = await res.json();
-                if (res.ok) {
-                    alert("Availability submitted successfully!");
-                } else {
-                    alert("Error submitting availability: " + data.error);
-                }
+                // Now call your extract function
+                extractSchedule(fullText);
             };
-            reader.readAsArrayBuffer(file);
+
+            fileReader.readAsArrayBuffer(file);
         });
 
         document.addEventListener("mousedown", () => isMouseDown = true);
