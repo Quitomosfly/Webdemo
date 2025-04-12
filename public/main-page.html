@@ -475,42 +475,35 @@
         document.addEventListener("mouseup", () => isMouseDown = false);
     }
 
-    function generateScheduleGrid(event) {
-        const scheduleTable = document.getElementById("scheduleTable");
-        scheduleTable.innerHTML = ""; // Clear table before generating new data
+    function generateScheduleGrid(days, times) {
+            const scheduleTable = document.getElementById("scheduleTable");
+            scheduleTable.innerHTML = ""; // Clear table before generating new data
 
-        const headers = event.scheduleType === "Days of the Week" ? event.selectedDays : event.selectedDates;
-        
-        if (!headers || headers.length === 0) {
-            console.error("No headers available for schedule grid.");
-            return;
+            if (!days || days.length === 0) {
+                console.error("No days available for schedule grid.");
+                return;
+            }
+
+            // Create table header
+            const thead = document.createElement("thead");
+            const headerRow = document.createElement("tr");
+            headerRow.innerHTML = `<th>Time</th>` + days.map(day => `<th>${day}</th>`).join("");
+            thead.appendChild(headerRow);
+            scheduleTable.appendChild(thead);
+
+            // Create table body with time slots
+            const tbody = document.createElement("tbody");
+
+            times.forEach(time => {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td>${time}</td>` + days.map(() => 
+                    `<td class="time-slot available"></td>` // Set all to available
+                ).join("");
+                tbody.appendChild(row);
+            });
+
+            scheduleTable.appendChild(tbody);
         }
-
-        // Convert time range into 24-hour format
-        const [startHour, endHour] = event.timeRange.split(" - ").map(convertTo24HourFormat);
-
-        // Create table header
-        const thead = document.createElement("thead");
-        const headerRow = document.createElement("tr");
-        headerRow.innerHTML = `<th>Time</th>` + headers.map(day => `<th>${day}</th>`).join("");
-        thead.appendChild(headerRow);
-        scheduleTable.appendChild(thead);
-
-        // Create table body
-        const tbody = document.createElement("tbody");
-
-        for (let hour = startHour; hour <= endHour; hour++) {
-            const row = document.createElement("tr");
-            row.innerHTML = `<td>${formatTime(hour)}</td>` + headers.map(day => 
-                `<td class="time-slot available" data-day="${day}" data-time="${formatTime(hour)}"></td>` // Set all to available
-            ).join("");
-            tbody.appendChild(row);
-        }
-
-        scheduleTable.appendChild(tbody);
-
-        enableSelection(); // Enable click and drag selection
-    }
 
         function toggleSelection(td) {
             if (!activeUser || td.classList.contains("disabled")) return;
@@ -546,29 +539,59 @@
         }
 
         function extractSchedule(text) {
-            // Find all schedule lines like "1. LBBC1A XXE1 1 H 1100-1400 LB581 BANTANG, JOSE PAOLO O."
-            const lineRegex = /^\s*\d+\.\s+[\w\d]+\s+[\w\d]+\s+\d+\s+([MTWFSH]+)\s+(\d{4}-\d{4})/gm;
+            const dayMap = {
+                "M": "Monday",
+                "T": "Tuesday",
+                "W": "Wednesday",
+                "H": "Thursday",
+                "F": "Friday",
+                "S": "Saturday"
+            };
 
-            let match;
-            selectedAvailability = [];
+            // Regular Expressions
+            const timeRegex = /(\d{4})-(\d{4})/g;
+            const dayRegex = /\b(M|T|W|H|F|S)\b/g;
 
-            while ((match = lineRegex.exec(text)) !== null) {
-                const days = match[1];
-                const time = match[2];
-
-                // For multiple days (like 'TH' or 'MW'), split them
-                for (const day of days) {
-                    selectedAvailability.push({ day, time });
-                }
+            // Convert 24-hour time to 12-hour format
+            function convertTo12Hour(time) {
+                let hours = parseInt(time.substring(0, 2));
+                let minutes = time.substring(2);
+                let period = hours >= 12 ? "PM" : "AM";
+                hours = hours % 12 || 12;
+                return `${hours}:${minutes} ${period}`;
             }
 
-            // Remove duplicates
-            selectedAvailability = Array.from(new Set(selectedAvailability.map(JSON.stringify))).map(JSON.parse);
+            let extractedDays = [];
+            let extractedTimes = [];
 
-            console.log("Extracted Availability:", selectedAvailability);
+            // Extract Days
+            let matchedDays = text.match(dayRegex);
+            if (matchedDays) {
+                extractedDays = matchedDays.map(d => dayMap[d] || d);
+            }
 
-            // Highlight selected slots
-            highlightSelectedSlots();
+            // Extract Times
+            let matchedTimes = text.match(timeRegex);
+            if (matchedTimes) {
+                extractedTimes = matchedTimes.map(time => {
+                    let parts = time.split("-");
+                    return `${convertTo12Hour(parts[0])} - ${convertTo12Hour(parts[1])}`;
+                });
+            }
+
+            // Display extracted data
+            const scheduleDiv = document.getElementById("schedule");
+            if (extractedDays.length === 0 && extractedTimes.length === 0) {
+                scheduleDiv.innerHTML = "<p>No valid days and times found.</p>";
+            } else {
+                let output = "<h3>Extracted Schedule</h3><ul>";
+                for (let i = 0; i < Math.min(extractedDays.length, extractedTimes.length); i++) {
+                    output += `<li><strong>${extractedDays[i]}</strong>: ${extractedTimes[i]}</li>`;
+                }
+                output += "</ul>";
+                scheduleDiv.innerHTML = output;
+                generateScheduleGrid(extractedDays, extractedTimes);
+            }
         }
 
         function saveScheduleToDatabase(days, times) {
@@ -628,33 +651,25 @@
             }
         });
 
-        document.getElementById("pdfUpload").addEventListener("change", async function(event) {
+        document.getElementById('pdfUpload').addEventListener('change', async function(event) {
             const file = event.target.files[0];
             if (!file) return;
-
-            const fileReader = new FileReader();
-
-            fileReader.onload = async function() {
+            
+            const reader = new FileReader();
+            reader.onload = async function() {
                 const typedArray = new Uint8Array(this.result);
-
-                const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
-                let fullText = "";
-
-                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                    const page = await pdf.getPage(pageNum);
-                    const textContent = await page.getTextContent();
-                    const text = textContent.items.map(item => item.str).join(" ");
-                    fullText += text + "\n";
+                const pdf = await pdfjsLib.getDocument(typedArray).promise;
+                
+                let textContent = '';
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const text = await page.getTextContent();
+                    textContent += text.items.map(item => item.str).join(" ") + "\n";
                 }
 
-                // Output raw text (optional for debugging)
-                document.getElementById("schedule").innerText = fullText;
-
-                // Now call your extract function
-                extractSchedule(fullText);
+                extractSchedule(textContent);
             };
-
-            fileReader.readAsArrayBuffer(file);
+            reader.readAsArrayBuffer(file);
         });
 
         document.addEventListener("mousedown", () => isMouseDown = true);
