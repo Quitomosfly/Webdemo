@@ -546,13 +546,16 @@
         }
 
         function extractSchedule(text) {
-            // This regex will match lines that contain day(s) and time in the format 'M 1100-1300'
-            const lineRegex = /(\d+\. [A-Z0-9]+ [A-Z0-9]+ \d+ (M|T|W|H|F|S) (\d{4}-\d{4}))/g;
+            // This regex will match day and time information in the format 'M 1430-1730' or 'H 0915-1045'
+            const lineRegex = /([MTWFSH])\s*(\d{4}-\d{4})/g;
 
             let match;
+            // Clear previous selections
+            selectedAvailability = [];
+            
             while ((match = lineRegex.exec(text)) !== null) {
-                const day = match[2]; // The day (M, T, W, H, F, S)
-                const timeRange = match[3]; // The time range (e.g., 0915-1045)
+                const day = match[1]; // The day (M, T, W, F, S, H)
+                const timeRange = match[2]; // The time range (e.g., 1430-1730)
 
                 // Save the extracted day and time to selectedAvailability
                 selectedAvailability.push({ day, time: timeRange });
