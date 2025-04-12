@@ -218,13 +218,52 @@
         </div>
     </div>
 
+    <div id="methodModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-80 text-center">
+          <h2 class="text-xl font-bold mb-4">Choose Input Method</h2>
+          <div class="flex flex-col gap-4">
+            <button id="manualBtn" class="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600">Manual</button>
+            <button id="eafBtn" class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600">EAF</button>
+          </div>
+        </div>
+      </div>
+
     <script>
         let isMouseDown = false;
         let activeUser = null;
         let selectedAvailability = [];
         let eventId = new URLSearchParams(window.location.search).get("id");
-    
+
+        const addAvailabilityBtn = document.getElementById('addAvailabilityBtn');
+        const nameModal = document.getElementById('nameModal');
+        const methodModal = document.getElementById('methodModal');
+        const submitNameBtn = document.getElementById('submitNameBtn');
+        const userNameInput = document.getElementById('userNameInput');
        
+        addAvailabilityBtn.addEventListener('click', () => {
+        nameModal.classList.remove('hidden');
+        });
+
+        submitNameBtn.addEventListener('click', () => {
+        const name = userNameInput.value.trim();
+        if (name !== '') {
+            nameModal.classList.add('hidden');
+            methodModal.classList.remove('hidden');
+        } else {
+            alert('Please enter a name');
+        }
+        });
+
+        // Optional: Add functionality to buttons
+        document.getElementById('manualBtn').addEventListener('click', () => {
+        alert('Manual method selected');
+        methodModal.classList.add('hidden');
+        });
+
+        document.getElementById('eafBtn').addEventListener('click', () => {
+        alert('EAF method selected');
+        methodModal.classList.add('hidden');
+        });
 
         async function fetchEventData() {
             if (!eventId) {
