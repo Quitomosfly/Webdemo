@@ -540,60 +540,59 @@
         }
 
         function extractSchedule(text) {
-            const dayMap = {
-                "M": "Monday",
-                "T": "Tuesday",
-                "W": "Wednesday",
-                "H": "Thursday",
-                "F": "Friday",
-                "S": "Saturday"
-            };
+        const dayMap = {
+            "M": "Monday",
+            "T": "Tuesday",
+            "W": "Wednesday",
+            "H": "Thursday",
+            "F": "Friday",
+            "S": "Saturday"
+        };
 
-            // Regular Expressions
-            const timeRegex = /(\d{4})-(\d{4})/g;
-            const dayRegex = /\b(M|T|W|H|F|S)\b/g;
+        // Regular Expressions
+        const timeRegex = /(\d{4})-(\d{4})/g;
+        const dayRegex = /\b(M|T|W|H|F|S)\b/g;  // Removed "U" since no Sunday classes
 
-            // Convert 24-hour time to 12-hour format
-            function convertTo12Hour(time) {
-                let hours = parseInt(time.substring(0, 2));
-                let minutes = time.substring(2);
-                let period = hours >= 12 ? "PM" : "AM";
-                hours = hours % 12 || 12;
-                return `${hours}:${minutes} ${period}`;
-            }
-
-            let extractedDays = [];
-            let extractedTimes = [];
-
-            // Extract Days
-            let matchedDays = text.match(dayRegex);
-            if (matchedDays) {
-                extractedDays = matchedDays.map(d => dayMap[d] || d);
-            }
-
-            // Extract Times
-            let matchedTimes = text.match(timeRegex);
-            if (matchedTimes) {
-                extractedTimes = matchedTimes.map(time => {
-                    let parts = time.split("-");
-                    return `${convertTo12Hour(parts[0])} - ${convertTo12Hour(parts[1])}`;
-                });
-            }
-
-            // Display extracted data
-            const scheduleDiv = document.getElementById("schedule");
-            if (extractedDays.length === 0 && extractedTimes.length === 0) {
-                scheduleDiv.innerHTML = "<p>No valid days and times found.</p>";
-            } else {
-                let output = "<h3>Extracted Schedule</h3><ul>";
-                for (let i = 0; i < Math.min(extractedDays.length, extractedTimes.length); i++) {
-                    output += `<li><strong>${extractedDays[i]}</strong>: ${extractedTimes[i]}</li>`;
-                }
-                output += "</ul>";
-                scheduleDiv.innerHTML = output;
-                generateScheduleGrid(extractedDays, extractedTimes);
-            }
+        // Convert 24-hour time to 12-hour format
+        function convertTo12Hour(time) {
+            let hours = parseInt(time.substring(0, 2));
+            let minutes = time.substring(2);
+            let period = hours >= 12 ? "PM" : "AM";
+            hours = hours % 12 || 12;
+            return `${hours}:${minutes} ${period}`;
         }
+
+        let extractedDays = [];
+        let extractedTimes = [];
+
+        // Extract Days
+        let matchedDays = text.match(dayRegex);
+        if (matchedDays) {
+            extractedDays = matchedDays.map(d => dayMap[d] || d);
+        }
+
+        // Extract Times
+        let matchedTimes = text.match(timeRegex);
+        if (matchedTimes) {
+            extractedTimes = matchedTimes.map(time => {
+                let parts = time.split("-");
+                return `${convertTo12Hour(parts[0])} - ${convertTo12Hour(parts[1])}`;
+            });
+        }
+
+        // Display extracted data
+        const scheduleDiv = document.getElementById("schedule");
+        if (extractedDays.length === 0 && extractedTimes.length === 0) {
+            scheduleDiv.innerHTML = "<p>No valid days and times found.</p>";
+        } else {
+            let output = "<h3>Extracted Schedule</h3><ul>";
+            for (let i = 0; i < Math.min(extractedDays.length, extractedTimes.length); i++) {
+                output += `<li><strong>${extractedDays[i]}</strong>: ${extractedTimes[i]}</li>`;
+            }
+            output += "</ul>";
+            scheduleDiv.innerHTML = output;
+        }
+    }
 
         function saveScheduleToDatabase(days, times) {
             // Placeholder function to simulate saving to a database
@@ -668,6 +667,7 @@
                     textContent += text.items.map(item => item.str).join(" ") + "\n";
                 }
 
+                // Extract and display the schedule without creating a new table
                 extractSchedule(textContent);
             };
             reader.readAsArrayBuffer(file);
