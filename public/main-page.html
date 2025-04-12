@@ -475,35 +475,41 @@
         document.addEventListener("mouseup", () => isMouseDown = false);
     }
 
-    function generateScheduleGrid(days, times) {
+    function generateScheduleGrid(event) {
         const scheduleTable = document.getElementById("scheduleTable");
         scheduleTable.innerHTML = ""; // Clear table before generating new data
 
-        // Ensure days is an array and is not empty
-        if (!Array.isArray(days) || days.length === 0) {
-            console.error("No valid days available for schedule grid.");
+        const headers = event.scheduleType === "Days of the Week" ? event.selectedDays : event.selectedDates;
+        
+        if (!headers || headers.length === 0) {
+            console.error("No headers available for schedule grid.");
             return;
         }
+
+        // Convert time range into 24-hour format
+        const [startHour, endHour] = event.timeRange.split(" - ").map(convertTo24HourFormat);
 
         // Create table header
         const thead = document.createElement("thead");
         const headerRow = document.createElement("tr");
-        headerRow.innerHTML = `<th>Time</th>` + days.map(day => `<th>${day}</th>`).join("");
+        headerRow.innerHTML = `<th>Time</th>` + headers.map(day => `<th>${day}</th>`).join("");
         thead.appendChild(headerRow);
         scheduleTable.appendChild(thead);
 
-        // Create table body with time slots
+        // Create table body
         const tbody = document.createElement("tbody");
 
-        times.forEach(time => {
+        for (let hour = startHour; hour <= endHour; hour++) {
             const row = document.createElement("tr");
-            row.innerHTML = `<td>${time}</td>` + days.map(() => 
-                `<td class="time-slot available"></td>` // Set all to available
+            row.innerHTML = `<td>${formatTime(hour)}</td>` + headers.map(day => 
+                `<td class="time-slot available" data-day="${day}" data-time="${formatTime(hour)}"></td>` // Set all to available
             ).join("");
             tbody.appendChild(row);
-        });
+        }
 
         scheduleTable.appendChild(tbody);
+
+        enableSelection(); // Enable click and drag selection
     }
 
         function toggleSelection(td) {
