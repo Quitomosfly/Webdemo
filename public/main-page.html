@@ -232,6 +232,17 @@
         </div>
     </div>
 
+        <!-- EAF Modal with PDF Schedule Extractor -->
+    <div id="eafModal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+    background: rgba(0, 0, 0, 0.5); z-index: 9999; justify-content: center; align-items: center;">
+        <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; max-width: 500px; width: 80%; overflow-y: auto;">
+            <h2>PDF Schedule Extractor</h2>
+            <input type="file" id="pdfUpload" accept="application/pdf" style="margin-bottom: 15px;">
+            <div id="schedule" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc; text-align: left;"></div>
+            <button onclick="closeEAFModal()" style="margin-top: 15px; padding: 8px 16px; background-color: #ff5733; color: white; border: none; border-radius: 5px;">Close</button>
+        </div>
+    </div>
+
 
     <script>
         let isMouseDown = false;
@@ -410,14 +421,14 @@
             // Close the action modal after selection
             document.getElementById("actionModal").style.display = "none";
 
-            // Perform actions based on the user's choice
-            if (action === 'Manual') {
-                // Handle Manual action (you can define your logic here)
-                console.log("Manual option selected");
-            } else if (action === 'EAF') {
-                // Handle EAF action (you can define your logic here)
-                console.log("EAF option selected");
+            // Show the EAF Modal if the user selects EAF
+            if (action === 'EAF') {
+                document.getElementById("eafModal").style.display = "flex";
             }
+        }
+
+        function closeEAFModal() {
+            document.getElementById("eafModal").style.display = "none";
         }
 
         function convertTo24HourFormat(timeStr) {
@@ -518,6 +529,81 @@
                 td.classList.remove("disabled");
             });
         }
+
+        function extractSchedule(text) {
+            const dayMap = {
+                "M": "Monday",
+                "T": "Tuesday",
+                "W": "Wednesday",
+                "H": "Thursday",
+                "F": "Friday",
+                "S": "Saturday"
+            };
+
+            // Regular Expressions
+            const timeRegex = /(\d{4})-(\d{4})/g;
+            const dayRegex = /\b(M|T|W|H|F|S)\b/g;  // Removed "U" since no Sunday classes
+
+            // Convert 24-hour time to 12-hour format
+            function convertTo12Hour(time) {
+                let hours = parseInt(time.substring(0, 2));
+                let minutes = time.substring(2);
+                let period = hours >= 12 ? "PM" : "AM";
+                hours = hours % 12 || 12;
+                return `${hours}:${minutes} ${period}`;
+            }
+
+            let extractedDays = [];
+            let extractedTimes = [];
+
+            // Extract Days
+            let matchedDays = text.match(dayRegex);
+            if (matchedDays) {
+                extractedDays = matchedDays.map(d => dayMap[d] || d);
+            }
+
+            // Extract Times
+            let matchedTimes = text.match(timeRegex);
+            if (matchedTimes) {
+                extractedTimes = matchedTimes.map(time => {
+                    let parts = time.split("-");
+                    return `${convertTo12Hour(parts[0])} - ${convertTo12Hour(parts[1])}`;
+                });
+            }
+
+            // Display extracted data
+            const scheduleDiv = document.getElementById("schedule");
+            if (extractedDays.length === 0 && extractedTimes.length === 0) {
+                scheduleDiv.innerHTML = "<p>No valid days and times found.</p>";
+            } else {
+                let output = "<h3>Extracted Schedule</h3><ul>";
+                for (let i = 0; i < Math.min(extractedDays.length, extractedTimes.length); i++) {
+                    output += `<li><strong>${extractedDays[i]}</strong>: ${extractedTimes[i]}</li>`;
+                }
+                output += "</ul>";
+                scheduleDiv.innerHTML = output;
+
+                // Optionally, send extracted data to the database here
+                saveScheduleToDatabase(extractedDays, extractedTimes);
+            }
+        }
+
+        function saveScheduleToDatabase(days, times) {
+            // Placeholder function to simulate saving to a database
+            console.log("Saving extracted schedule to database...");
+            console.log("Days:", days);
+            console.log("Times:", times);
+
+            // You can use AJAX, fetch, or any method to save the data to your database
+            // For example, using fetch (assuming your server handles POST requests for this):
+            // fetch('/save-schedule', {
+            //     method: 'POST',
+            //     body: JSON.stringify({ days, times }),
+            //     headers: {
+            //         'Content-Type': 'application/json'
+            //     }
+            // });
+        }
  
         async function saveAvailability() {
             if (!activeUser || selectedAvailability.length === 0) {
@@ -557,6 +643,27 @@
             if (e.target === this) {
                 this.style.display = "none";
             }
+        });
+
+        document.getElementById('pdfUpload').addEventListener('change', async function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = async function() {
+                const typedArray = new Uint8Array(this.result);
+                const pdf = await pdfjsLib.getDocument(typedArray).promise;
+                
+                let textContent = '';
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const text = await page.getTextContent();
+                    textContent += text.items.map(item => item.str).join(" ") + "\n";
+                }
+
+                extractSchedule(textContent);
+            };
+            reader.readAsArrayBuffer(file);
         });
 
         document.addEventListener("mousedown", () => isMouseDown = true);
