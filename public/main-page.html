@@ -237,7 +237,7 @@
             <h2>PDF Schedule Extractor</h2>
             <input type="file" id="pdfUpload" accept="application/pdf" style="margin-bottom: 15px;">
             <div id="schedule" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc; text-align: left;"></div>
-            <button id="submitAvailabilityBtn" style="display:none; margin-top: 10px;">Submit Availability</button>
+            <button id="submitAvailabilityBtn" style="display:none; margin-top: 10px;">Submit</button>
             <button onclick="closeEAFModal()" style="margin-top: 15px; padding: 8px 16px; background-color: #ff5733; color: white; border: none; border-radius: 5px;">Close</button>
         </div>
     </div>
@@ -247,12 +247,14 @@
 
     <script>
         let isMouseDown = false;
+        let eventDetails = null;
         let activeUser = null;
         let selectedAvailability = [];
         let eventId = new URLSearchParams(window.location.search).get("id");
 
 
         async function fetchEventData() {
+        eventDetails = event;
             if (!eventId) {
                 document.body.innerHTML = "<h2>Invalid Event ID</h2>";
                 return;
@@ -708,7 +710,7 @@
             }
 
             try {
-                const response = await fetch(`/event/${eventId}/submit`, {
+                const response = await fetch(`/events/${eventId}/submit`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ name: activeUser, availabilities: selectedAvailability }),
@@ -767,7 +769,7 @@
         document.addEventListener("mouseup", () => isMouseDown = false);
         window.onload = fetchEventData;
 
-        setInterval(loadAvailability, 5000); // Refresh availability every 5 seconds
+        await loadAvailability(); // Refresh availability every 5 seconds
         document.getElementById("scheduleTable").addEventListener("mouseleave", () => {
             document.getElementById("participantNames").innerHTML = "";
         });
