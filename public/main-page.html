@@ -533,6 +533,173 @@
             });
         }
 
+        function highlightSelectedSlots() {
+            selectedAvailability.forEach(slot => {
+                const dayColumn = slot.day; // Day (M, T, W, H, F, S)
+                const time = slot.time; // Time range (e.g., 0915-1045)
+                
+                // Find the corresponding table cell by matching the data-day and data-time attributes
+                const td = document.querySelector(`td[data-day="${dayColumn}"][data-time="${time}"]`);
+                if (td) {
+                    td.classList.add("selected"); // Mark the cell as selected
+                }
+            });
+        }
+
+        function extractSchedule(text, eventDetails) {
+            const dayMap = {
+                "M": "Monday",
+                "T": "Tuesday",
+                "W": "Wednesday",
+                "H": "Thursday",
+                "F": "Friday",
+                "S": "Saturday"
+            };
+
+            const timeRegex = /(\d{4})-(\d{4})/g;
+            const dayRegex = /\b(M|T|W|H|F|S)\b/g;
+
+            function convertTo12Hour(time) {
+                let hours = parseInt(time.substring(0, 2));
+                let minutes = time.substring(2);
+                let period = hours >= 12 ? "PM" : "AM";
+                hours = hours % 12 || 12;
+                return `${hours}:${minutes} ${period}`;
+            }
+
+            function roundDownToHour(time) {
+                let hours = parseInt(time.substring(0, 2));
+                return `${hours}:00`;
+            }
+
+            function roundUpToHour(time) {
+                let hours = parseInt(time.substring(0, 2));
+                let minutes = parseInt(time.substring(2));
+                if (minutes > 0) hours += 1;
+                return `${hours}:00`;
+            }
+
+            // Extract Days and Times
+            let matchedDays = text.match(dayRegex);
+            let matchedTimes = text.match(timeRegex);
+
+            if (!matchedDays || !matchedTimes) {
+                document.getElementById("schedule").innerHTML = "<p>No valid days and times found.</p>";
+                return;
+            }
+
+            let availabilities = [];
+            for (let i = 0; i < Math.min(matchedDays.length, matchedTimes.length); i++) {
+                let day = dayMap[matchedDays[i]];
+                let [startRaw, endRaw] = matchedTimes[i].split("-");
+
+                let start = roundDownToHour(startRaw);
+                let end = roundUpToHour(endRaw);
+
+                let start12 = convertTo12Hour(start);
+                let end12 = convertTo12Hour(end);
+
+                // Check if this availability matches the event schedule
+                let eventDayNames = eventDetails.selectedDates.map(dateStr => {
+                    let d = new Date(dateStr);
+                    return d.toLocaleDateString('en-US', { weekday: 'long' });
+                });
+
+                if (eventDayNames.includes(day)) {
+                    // Check if the time is within the event's timeRange
+                    let [eventStart, eventEnd] = eventDetails.timeRange.split(" - ");
+
+                    // Simple time comparison (in 24h)
+                    function timeToMinutes(t) {
+                        let [h, m, ampm] = t.match(/(\d+):(\d+) (AM|PM)/).slice(1);
+                        h = parseInt(h);
+                        m = parseInt(m);
+                        if (ampm === "PM" && h !== 12) h += 12;
+                        if (ampm === "AM" && h === 12) h = 0;
+                        return h * 60 + m;
+                    }
+
+                    if (timeToMinutes(start12) >= timeToMinutes(eventStart) &&
+                        timeToMinutes(end12) <= timeToMinutes(eventEnd)) {
+                        availabilities.push({
+                            day: day,
+                            time: `${start12} - ${end12}`
+                        });
+                    }
+                }
+
+            }
+
+            // Display extracted valid data
+            const scheduleDiv = document.getElementById("schedule");
+            if (availabilities.length === 0) {
+                scheduleDiv.innerHTML = "<p>No valid availabilities for this event schedule.</p>";
+                return;
+            }
+
+            let output = "<h3>Valid Schedule</h3><ul>";
+            availabilities.forEach(a => {
+                output += `<li><strong>${a.day}</strong>: ${a.time}</li>`;
+            });
+            output += "</ul>";
+            scheduleDiv.innerHTML = output;
+            // Show the Submit button if we have availabilities
+            const submitBtn = document.getElementById("submitAvailabilityBtn");
+            submitBtn.style.display = "block";
+
+            // Store availabilities globally or attach to button
+            submitBtn.onclick = () => {
+            saveAvailabilityToDatabase(availabilities, eventDetails.eventId);
+        }
+    }
+
+ 
+        async function saveAvailabilityToDatabase(availabilities, eventId) {
+            if (!activeUser) {
+                alert("User not set. Please reload and enter your name.");
+                return;
+            }
+
+            const formattedAvailabilities = [];
+
+            // Convert availabilities like "Monday" + "9:00 AM - 11:00 AM"
+            // into hour-by-hour slots so they match the grid's format
+            availabilities.forEach(a => {
+                const [startTime, endTime] = a.time.split(" - ");
+                let startHour = convertTo24HourFormat(startTime);
+                let endHour = convertTo24HourFormat(endTime);
+
+                for (let hour = startHour; hour < endHour; hour++) {
+                    formattedAvailabilities.push({
+                        day: a.day,
+                        time: formatTime(hour)
+                    });
+                }
+            });
+
+            try {
+                const response = await fetch(`/events/${eventId}/availability`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        name: activeUser,
+                        availabilities: formattedAvailabilities
+                    }),
+                });
+
+                if (!response.ok) throw new Error("Failed to save availability.");
+
+                alert("Availability saved successfully!");
+                document.getElementById("eafModal").style.display = "none";
+                loadAvailability(); // Refresh the grid with new data
+            } catch (error) {
+                console.error("Error saving availability:", error);
+                alert("There was an error saving your availability.");
+            }
+        }
+
 
 
 
