@@ -218,31 +218,16 @@
         </div>
     </div>
 
-        <!-- Second Modal for Manual or EAF -->
-    <div id="actionModal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-    background: rgba(0, 0, 0, 0.5); z-index: 9999; justify-content: center; align-items: center;">
-        <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; max-width: 300px; width: 80%;">
-            <h2 style="margin-bottom: 15px;">Choose an Action</h2>
-            <div>
-                <button onclick="selectAction('Manual')" style="padding: 8px 16px; background-color: #007bff; color: white; border: none; border-radius: 5px; margin-bottom: 10px;">Manual</button>
-            </div>
-            <div>
-                <button onclick="selectAction('EAF')" style="padding: 8px 16px; background-color: #007bff; color: white; border: none; border-radius: 5px;">EAF</button>
-            </div>
+    <div id="methodModal" style="display:none; position:fixed; z-index:1000; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+        <div style="background:#fff; padding:30px; border-radius:10px; text-align:center;">
+          <h2>Select Input Method</h2>
+          <button onclick="selectMethod('Manual')">Manual</button>
+          <button onclick="selectMethod('EAF')">EAF</button>
         </div>
     </div>
 
-        <!-- EAF Modal with PDF Schedule Extractor -->
-    <div id="eafModal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-    background: rgba(0, 0, 0, 0.5); z-index: 9999; justify-content: center; align-items: center;">
-        <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; max-width: 500px; width: 80%; overflow-y: auto;">
-            <h2>PDF Schedule Extractor</h2>
-            <input type="file" id="pdfUpload" accept="application/pdf" style="margin-bottom: 15px;">
-            <div id="schedule" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc; text-align: left;"></div>
-            <button onclick="closeEAFModal()" style="margin-top: 15px; padding: 8px 16px; background-color: #ff5733; color: white; border: none; border-radius: 5px;">Close</button>
-        </div>
-    </div>
 
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
 
@@ -401,6 +386,19 @@
             document.getElementById("nameModal").style.display = "flex";
         }
 
+
+        function selectMethod(method) {
+            document.getElementById("methodModal").style.display = "none";
+
+            if (method === "Manual") {
+                document.getElementById("saveButton").classList.remove("hidden");
+                document.querySelector(".button-container").classList.remove("hidden");
+                generateScheduleGrid(eventData);
+            } else if (method === "EAF") {
+                document.getElementById("eafModal").style.display = "flex";
+            }
+        }
+
         function submitUserName() {
             const userInput = document.getElementById("userNameInput").value.trim();
             if (!userInput) {
@@ -410,8 +408,9 @@
 
             activeUser = userInput;
             document.getElementById("nameModal").style.display = "none";
-            document.getElementById("saveButton").classList.remove("hidden");
-            document.querySelector(".button-container").classList.remove("hidden");
+
+            // Show method selection modal
+            document.getElementById("methodModal").style.display = "flex";
         }
 
 
