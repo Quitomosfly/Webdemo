@@ -412,26 +412,8 @@
             document.getElementById("nameModal").style.display = "none";
             document.getElementById("saveButton").classList.remove("hidden");
             document.querySelector(".button-container").classList.remove("hidden");
-
-            // Display the action modal after username submission
-            document.getElementById("actionModal").style.display = "flex";
         }
 
-        function selectAction(action) {
-            console.log(`User selected: ${action}`);
-
-            // Close the action modal after selection
-            document.getElementById("actionModal").style.display = "none";
-
-            // Show the EAF Modal if the user selects EAF
-            if (action === 'EAF') {
-                document.getElementById("eafModal").style.display = "flex";
-            }
-        }
-
-        function closeEAFModal() {
-            document.getElementById("eafModal").style.display = "none";
-        }
 
         function convertTo24HourFormat(timeStr) {
             const [time, modifier] = timeStr.split(" ");
@@ -443,7 +425,7 @@
                 hours = 0;
             }
 
-            return hours;  // Returning hours only, assuming minutes are always ":00"
+            return hours;
         }
 
         function formatTime(hour) {
@@ -452,65 +434,62 @@
             return `${formattedHour}:00 ${ampm}`;
         }
 
-    function enableSelection() {
-        document.querySelectorAll(".time-slot").forEach(td => {
-            td.addEventListener("mousedown", () => {
-                if (!td.classList.contains("disabled")) {
-                    isMouseDown = true;
-                    toggleSelection(td);
-                }
+        function enableSelection() {
+            document.querySelectorAll(".time-slot").forEach(td => {
+                td.addEventListener("mousedown", () => {
+                    if (!td.classList.contains("disabled")) {
+                        isMouseDown = true;
+                        toggleSelection(td);
+                    }
+                });
+
+                td.addEventListener("mouseover", () => {
+                    if (isMouseDown && !td.classList.contains("disabled")) {
+                        toggleSelection(td);
+                    }
+                });
+
+                td.addEventListener("mouseup", () => {
+                    isMouseDown = false;
+                });
             });
 
-            td.addEventListener("mouseover", (e) => {
-                if (isMouseDown && !td.classList.contains("disabled")) {
-                    toggleSelection(td);
-                }
-            });
-
-            td.addEventListener("mouseup", () => {
-                isMouseDown = false;
-            });
-        });
-
-        document.addEventListener("mouseup", () => isMouseDown = false);
-    }
-
-    function generateScheduleGrid(event) {
-        const scheduleTable = document.getElementById("scheduleTable");
-        scheduleTable.innerHTML = ""; // Clear table before generating new data
-
-        const headers = event.scheduleType === "Days of the Week" ? event.selectedDays : event.selectedDates;
-        
-        if (!headers || headers.length === 0) {
-            console.error("No headers available for schedule grid.");
-            return;
+            document.addEventListener("mouseup", () => isMouseDown = false);
         }
 
-        // Convert time range into 24-hour format
-        const [startHour, endHour] = event.timeRange.split(" - ").map(convertTo24HourFormat);
+        function generateScheduleGrid(event) {
+            const scheduleTable = document.getElementById("scheduleTable");
+            scheduleTable.innerHTML = "";
 
-        // Create table header
-        const thead = document.createElement("thead");
-        const headerRow = document.createElement("tr");
-        headerRow.innerHTML = `<th>Time</th>` + headers.map(day => `<th>${day}</th>`).join("");
-        thead.appendChild(headerRow);
-        scheduleTable.appendChild(thead);
+            const headers = event.scheduleType === "Days of the Week" ? event.selectedDays : event.selectedDates;
 
-        // Create table body
-        const tbody = document.createElement("tbody");
+            if (!headers || headers.length === 0) {
+                console.error("No headers available for schedule grid.");
+                return;
+            }
 
-        for (let hour = startHour; hour <= endHour; hour++) {
-            const row = document.createElement("tr");
-            row.innerHTML = `<td>${formatTime(hour)}</td>` + headers.map(day => 
-                `<td class="time-slot available" data-day="${day}" data-time="${formatTime(hour)}"></td>` // Set all to available
-            ).join("");
-            tbody.appendChild(row);
+            const [startHour, endHour] = event.timeRange.split(" - ").map(convertTo24HourFormat);
+
+            const thead = document.createElement("thead");
+            const headerRow = document.createElement("tr");
+            headerRow.innerHTML = `<th>Time</th>` + headers.map(day => `<th>${day}</th>`).join("");
+            thead.appendChild(headerRow);
+            scheduleTable.appendChild(thead);
+
+            const tbody = document.createElement("tbody");
+
+            for (let hour = startHour; hour <= endHour; hour++) {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td>${formatTime(hour)}</td>` + headers.map(day => 
+                    `<td class="time-slot available" data-day="${day}" data-time="${formatTime(hour)}"></td>`
+                ).join("");
+                tbody.appendChild(row);
+            }
+
+            scheduleTable.appendChild(tbody);
+
+            enableSelection();
         }
-
-        scheduleTable.appendChild(tbody);
-
-        enableSelection(); // Enable click and drag selection
-    }
 
         function toggleSelection(td) {
             if (!activeUser || td.classList.contains("disabled")) return;
@@ -534,64 +513,9 @@
 
         function highlightSelectedSlots() {
             selectedAvailability.forEach(slot => {
-                const dayColumn = slot.day; // Day (M, T, W, H, F, S)
-                const time = slot.time; // Time range (e.g., 0915-1045)
-                
-                // Find the corresponding table cell by matching the data-day and data-time attributes
-                const td = document.querySelector(`td[data-day="${dayColumn}"][data-time="${time}"]`);
-                if (td) {
-                    td.classList.add("selected"); // Mark the cell as selected
-                }
+                const td = document.querySelector(`td[data-day="${slot.day}"][data-time="${slot.time}"]`);
+                if (td) td.classList.add("selected");
             });
-        }
-
-        function extractSchedule(text) {
-            // Find the part of the text between 'NO. COURSE CODE' and 'Deadline of Payment'
-            const scheduleSectionMatch = text.match(/NO\. COURSE CODE.*?Deadline of Payment/si);
-            
-            if (!scheduleSectionMatch) {
-                console.error("Could not find schedule section in the PDF text.");
-                alert("Schedule section not found in uploaded PDF.");
-                return;
-            }
-
-            const scheduleText = scheduleSectionMatch[0];
-
-            // This regex matches day and time pairs like 'M 0915-1045'
-            const lineRegex = /([MTWFSH])\s*(\d{4}-\d{4})/g;
-
-            let match;
-            selectedAvailability = []; // Clear previous selections
-
-            while ((match = lineRegex.exec(scheduleText)) !== null) {
-                const day = match[1];
-                const timeRange = match[2];
-
-                selectedAvailability.push({ day, time: timeRange });
-            }
-            selectedAvailability = Array.from(new Set(selectedAvailability.map(JSON.stringify))).map(JSON.parse);
-
-            console.log("Extracted Availability:", selectedAvailability);
-
-            // Highlight selected slots on the schedule grid
-            highlightSelectedSlots();
-        }
-
-        function saveScheduleToDatabase(days, times) {
-            // Placeholder function to simulate saving to a database
-            console.log("Saving extracted schedule to database...");
-            console.log("Days:", days);
-            console.log("Times:", times);
-
-            // You can use AJAX, fetch, or any method to save the data to your database
-            // For example, using fetch (assuming your server handles POST requests for this):
-            // fetch('/save-schedule', {
-            //     method: 'POST',
-            //     body: JSON.stringify({ days, times }),
-            //     headers: {
-            //         'Content-Type': 'application/json'
-            //     }
-            // });
         }
  
         async function saveAvailability() {
@@ -634,34 +558,6 @@
             }
         });
 
-        document.getElementById("pdfUpload").addEventListener("change", async function(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const fileReader = new FileReader();
-
-            fileReader.onload = async function() {
-                const typedArray = new Uint8Array(this.result);
-
-                const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
-                let fullText = "";
-
-                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                    const page = await pdf.getPage(pageNum);
-                    const textContent = await page.getTextContent();
-                    const text = textContent.items.map(item => item.str).join(" ");
-                    fullText += text + "\n";
-                }
-
-                // Output raw text (optional for debugging)
-                document.getElementById("schedule").innerText = fullText;
-
-                // Now call your extract function
-                extractSchedule(fullText);
-            };
-
-            fileReader.readAsArrayBuffer(file);
-        });
 
         document.addEventListener("mousedown", () => isMouseDown = true);
         document.addEventListener("mouseup", () => isMouseDown = false);
