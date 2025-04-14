@@ -395,7 +395,8 @@
                 document.querySelector(".button-container").classList.remove("hidden");
                 generateScheduleGrid(eventData);
             } else if (method === "EAF") {
-                document.getElementById("eafModal").style.display = "flex";
+                // Redirect to another page
+                window.location.href = "methods.html";
             }
         }
 
